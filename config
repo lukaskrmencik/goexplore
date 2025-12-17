@@ -1,0 +1,72 @@
+server {
+    listen 80;
+    listen [::]:80;
+
+    server_name goexplore.lukaskrmencik.cz;
+    
+
+    # ----------------------
+    # PHP API on /api/php/ (Laravel)
+    # ----------------------
+    location ^~ /api/php/ {
+        root /var/www/goexplore/backend-php/public;
+        index index.php;
+
+        add_header X-Debug-Block "Laravel";
+
+        # Přepiš /api/php/... na /... pro Laravel
+        rewrite ^/api/php(/.*)$ $1 break;
+
+        try_files $uri /index.php?$query_string;
+
+        location ~ \.php$ {
+            include snippets/fastcgi-php.conf;
+            fastcgi_pass unix:/run/php/php8.4-fpm.sock;
+            fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        }
+    }
+
+    # ----------------------
+    # Python API on /api/python/
+    # ----------------------
+    location ^~ /api/python/ {
+        proxy_pass http://127.0.0.1:8000/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # ----------------------
+    # Adminer on /adminer
+    # ----------------------
+    location ^~ /adminer {
+        alias /var/www/goexplore/tools/adminer.php;
+
+        include snippets/fastcgi-php.conf;
+        fastcgi_param SCRIPT_FILENAME /var/www/goexplore/tools/adminer.php;
+        fastcgi_pass unix:/run/php/php8.4-fpm.sock;
+    }
+
+    # ----------------------
+    # Statické React soubory
+    # ----------------------
+    location /static/ {
+        root /var/www/goexplore/frontend/build;
+    }
+
+    # ----------------------
+    # React frontend fallback
+    # ----------------------
+    location / {
+        root /var/www/goexplore/frontend;
+        index index.html index.htm;
+        try_files $uri /index.html;
+    }
+
+    # ----------------------
+    # Logs
+    # ----------------------
+    access_log /var/log/nginx/goexplore.access.log;
+    error_log /var/log/nginx/goexplore.error.log;
+}

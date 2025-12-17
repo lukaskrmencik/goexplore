@@ -1,0 +1,11 @@
+{
+	"folders": [
+		{
+			"path": "../../../backend-php"
+		},
+		{
+			"path": "../.."
+		}
+	],
+	"settings": {}
+}

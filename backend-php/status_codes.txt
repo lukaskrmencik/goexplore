@@ -1,0 +1,37 @@
+✅ Success (2xx)
+
+200 OK – Standardní úspěch, vracíš data, typicky pro GET nebo PUT.
+
+201 Created – Resource byl vytvořen, typicky po POST (např. registrace uživatele).
+
+202 Accepted – Požadavek přijat, ale ještě se zpracovává, třeba async job.
+
+204 No Content – Úspěch, ale nevrací se žádná data, typicky DELETE nebo PUT bez body.
+
+206 Partial Content – Používá se při částečném vrácení dat, třeba při paginaci nebo range requestu.
+
+❌ Client Errors (4xx)
+
+400 Bad Request – Špatně poslaný požadavek, chybí parametry nebo je špatný formát.
+
+401 Unauthorized – Uživatel není přihlášen nebo má neplatný token.
+
+403 Forbidden – Uživatel je přihlášen, ale nemá právo na resource.
+
+404 Not Found – Resource neexistuje, např. uživatel, trasa nebo post.
+
+405 Method Not Allowed – HTTP metoda není povolená pro daný endpoint, např. GET na endpoint určený pro POST.
+
+422 Unprocessable Entity – Validace selhala, např. Laravel ValidationException.
+
+💀 Server Errors (5xx)
+
+500 Internal Server Error – Neočekávaná chyba na serveru, například výjimka.
+
+501 Not Implemented – Endpoint není implementovaný, většinou dev, ne produkce.
+
+502 Bad Gateway – Chyba mezi servery nebo proxy.
+
+503 Service Unavailable – Server je dočasně nedostupný, např. kvůli maintenance.
+
+504 Gateway Timeout – Server nedostal odpověď od jiného serveru nebo databáze.
