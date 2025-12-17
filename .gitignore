@@ -1,0 +1,6 @@
+backend-py/venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
