@@ -48,7 +48,7 @@ class RouteUserController extends Controller
 
         //response
         return response()->success([
-            'route' => $token,
+            'token' => $token,
         ], 201);
     }
 

@@ -324,6 +324,9 @@ class RouteController extends Controller
         //add waypoints to array
         $routeArray['waypoints'] = $route->waypoints;
 
+        //add users to array
+        $routeArray['users'] = $route->users;
+
         //response
         return response()->success([
             'route' => $routeArray,

@@ -1,86 +1,82 @@
 import type { LineString, Point } from "geojson";
+import type { RouteUser } from "./users";
+
+export type RouteMode = 'simple' | 'manual';
 
 export interface Route {
-	id: number;
-	users_id: number;
-	name: string;
-	mode: string;
-	
-	start_date?: string; 
-	end_date?: string;
+  id: number;
+  users_id: number;
+  name: string;
+  mode: RouteMode;
+  
+  start_date?: string; 
+  end_date?: string;
 
-	buffer_size?: number;
-	max_route_length_day?: number;
-	poi_per_day?: number;
+  buffer_size?: number;
+  max_route_length_day?: number;
+  poi_per_day?: number;
 
-	start?: Point;
-	end?: Point;
-	axis?: LineString;
-	complete_route?: LineString;
+  start?: Point;
+  end?: Point;
+  axis?: LineString;
+  complete_route?: LineString;
 
-	camps: RouteCamp[];
-	poi: RoutePoiWrapper[];
+  camps: RouteCamp[];
+  poi: RoutePoiWrapper[];
 
-	generalEquipment: RouteEquipment[]; 
-	myEquipment: RouteEquipment[];
-	waypoints: any[];
+  generalEquipment: RouteEquipment[]; 
+  myEquipment: RouteEquipment[];
+  waypoints: RouteWaypoint[];
+  users: RouteUser[];
 
-	created_at: string;
-	updated_at: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface RoutePoiWrapper {
-	type: string
-	cluster?: RouteCluster
-	poi_data: RoutePoi[]
-	order: number
+  type: string
+  cluster?: RouteCluster
+  poi_data: RoutePoi[]
+  order: number
 }
 
 export interface RouteCluster {
-	id: number
-	name: string
-	location: Point
-	best_poi_id: number
+  id: number
+  name: string
+  location: Point
+  best_poi_id: number
 }
 
 export interface RoutePoi {
-	id: number
-	name: string
-	image_url?: string
-	location: Point
+  id: number
+  name: string
+  image_url?: string
+  location: Point
 }
 
 export interface RouteCamp {
-	id: number
-	name: string
-	image_url?: string
-	location: Point
-	order: number
+  id: number
+  name: string
+  image_url?: string
+  location: Point
+  order: number
 }
 
 export interface RouteEquipment {
-	id: number
-	name: string
-	img?: string
-	specifications: any
+  id: number
+  name: string
+  img?: string
+  specifications: any
 }
 
 export interface RouteWaypoint {
-	id: number
-	routes_id: number
-	coordinates: Point
-	order: number
-	created_at: string;
-	updated_at: string;
+  id: number
+  routes_id: number
+  coordinates: Point
+  order: number
+  created_at: string;
+  updated_at: string;
 }
-
-
-
-
-
-
-
-
 
 export interface RouteItem {
   id: number;

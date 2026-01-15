@@ -1,204 +1,115 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { createRoute, updateRoute, calculateRoute, getJobProgress } from "../services/routesApiService";
+import { useCreateRoute, STEPS } from "../features/createRoute/hooks/useCreateRoute";
+import RouteAxisEditor from "../features/editors/routeAxisEditor/RouteAxisEditor";
 
-interface Coordinates { coordinates: number[] }
-interface Axis { coordinates: number[][]; type: "LineString" }
-interface RouteData {
-  name: string;
-  start_date: string;
-  end_date: string;
-  start: Coordinates;
-  end: Coordinates;
-  max_route_length_day: number;
-  poi_per_day: number;
-  buffer_size: number;
-  axis: Axis;
-}
+const CreateRoutePage = () => {
+    const { 
+        route, 
+        currentStep, 
+        isLoading, 
+        initializeRoute, 
+        nextStep, 
+        prevStep,
+        setRoute 
+    } = useCreateRoute();
 
-const cities = [
-  { name: "Praha", coords: [14.4378, 50.0755] },
-  { name: "Brno", coords: [16.6068, 49.1951] },
-  { name: "Ostrava", coords: [18.2625, 49.8350] },
-  { name: "Plzeň", coords: [13.3776, 49.7475] },
-  { name: "Liberec", coords: [15.0562, 50.7671] },
-  { name: "Olomouc", coords: [17.2518, 49.5938] },
-  { name: "České Budějovice", coords: [14.4749, 48.9747] },
-];
-
-const CreateRoutePage: React.FC = () => {
-  const navigate = useNavigate();
-
-  const [routeData, setRouteData] = useState<RouteData>({
-    name: "",
-    start_date: "2026-08-08T08:30",
-    end_date: "2026-08-10T18:00",
-    start: { coordinates: cities[0].coords },
-    end: { coordinates: cities[1].coords },
-    max_route_length_day: 200,
-    poi_per_day: 5,
-    buffer_size: 10,
-    axis: { coordinates: [], type: "LineString" },
-  });
-
-  const [loading, setLoading] = useState(false);
-  const [progress, setProgress] = useState<number | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-  const handleChange = (field: keyof RouteData, value: any) => {
-    setRouteData(prev => ({ ...prev, [field]: value }));
-    if (errorMessage) setErrorMessage(null);
-  };
-
-  const handleCityChange = (field: "start" | "end", value: string) => {
-    const city = cities.find(c => c.name === value);
-    if (city) {
-      setRouteData(prev => ({ ...prev, [field]: { coordinates: city.coords } }));
-    }
-  };
-
-  const formatDateForBackend = (value: string) => {
-    const date = new Date(value);
-    return date.toISOString().split('.')[0] + 'Z';
-  };
-
-  const handleCreate = async () => {
-    if (!routeData.name.trim()) {
-      setErrorMessage("Musíte vyplnit název trasy!");
-      return;
+    if (isLoading) {
+        return (
+            <div className="flex h-screen items-center justify-center">
+                <span className="text-xl font-semibold">Načítám...</span>
+            </div>
+        );
     }
 
-    setLoading(true);
-    setErrorMessage(null);
-
-    try {
-      const route = await createRoute();
-
-      const generateAxis = (start: number[], end: number[]): number[][] => {
-        const points: number[][] = [];
-        for (let i = 0; i <= 8; i++) {
-          const lng = start[0] + (end[0] - start[0]) * (i / 8);
-          const lat = start[1] + (end[1] - start[1]) * (i / 8);
-          points.push([lng, lat]);
-        }
-        return points;
-      };
-
-      const payload = {
-        name: routeData.name,
-        start: { coordinates: routeData.start.coordinates },
-        end: { coordinates: routeData.end.coordinates },
-        start_date: formatDateForBackend(routeData.start_date),
-        end_date: formatDateForBackend(routeData.end_date),
-        max_route_length_day: routeData.max_route_length_day,
-        poi_per_day: routeData.poi_per_day,
-        buffer_size: routeData.buffer_size,
-        axis: {
-          coordinates: generateAxis(routeData.start.coordinates, routeData.end.coordinates),
-          type: "LineString",
-        }
-      };
-
-      console.log("Odesílám payload:", payload);
-
-      const response: any = await updateRoute(route.id, payload);
-
-      if (response && response.status !== "success") {
-        throw new Error(`Chyba backendu: ${response.message || "Neznámá chyba při ukládání trasy."}`);
-      }
-
-      const jobId = await calculateRoute(route.id);
-
-      const interval = setInterval(async () => {
-        const data = await getJobProgress(jobId);
-        setProgress(data.progress);
-        
-        if (data.status === "failed") {
-            clearInterval(interval);
-            setLoading(false);
-            setErrorMessage("Výpočet trasy selhal.");
-        }
-
-        if (data.status === "done") {
-          clearInterval(interval);
-          navigate(`/map-editor?id=${route.id}`);
-        }
-      }, 1000);
-
-    } catch (e: any) {
-      console.error(e);
-      setErrorMessage(e.message || "Došlo k neočekávané chybě.");
-      setLoading(false);
+    // Krok 0: Výběr módu
+    if (currentStep === STEPS.INIT) {
+        return (
+            <div className="flex min-h-screen flex-col items-center justify-center gap-8 bg-gray-50 p-4">
+                <h1 className="text-4xl font-bold text-gray-800">Plánovač Roadtripu</h1>
+                <div className="flex gap-6">
+                    <button 
+                        onClick={() => initializeRoute('simple')}
+                        className="rounded-xl bg-blue-600 px-8 py-6 text-xl font-bold text-white shadow-lg transition hover:bg-blue-700 hover:scale-105"
+                    >
+                        Jednoduchý mód
+                        <span className="mt-2 block text-sm font-normal opacity-80">Zadáš start a cíl, zbytek uděláme my.</span>
+                    </button>
+                    
+                    <button 
+                        onClick={() => initializeRoute('manual')} // Pozor: API očekává 'manual', ne 'custom'
+                        className="rounded-xl bg-emerald-600 px-8 py-6 text-xl font-bold text-white shadow-lg transition hover:bg-emerald-700 hover:scale-105"
+                    >
+                        Custom mód
+                        <span className="mt-2 block text-sm font-normal opacity-80">Naklikáš si celou trasu přesně v mapě.</span>
+                    </button>
+                </div>
+            </div>
+        );
     }
-  };
 
+    return (
+        <div className="flex min-h-screen flex-col bg-white">
+            {/* Hlavička */}
+            <header className="border-b bg-white p-4 shadow-sm">
+                <div className="container mx-auto flex items-center justify-between">
+                    <h2 className="text-xl font-bold text-gray-800">
+                        {route?.name || "Nová trasa"} 
+                        <span className="ml-2 rounded-full bg-gray-100 px-2 py-1 text-xs uppercase text-gray-500">
+                            {route?.mode === 'simple' ? 'Simple' : 'Custom'}
+                        </span>
+                    </h2>
+                    <div className="text-sm text-gray-500">
+                        Krok {currentStep} / {route?.mode === 'simple' ? 5 : 6}
+                    </div>
+                </div>
+            </header>
 
-  return (
-    <div className="p-6 max-w-2xl mx-auto">
-      <h2 className="text-2xl font-bold mb-4">Vytvořit trasu</h2>
+            {/* Hlavní obsah */}
+            <main className="container mx-auto flex-1 p-6">
+                
+                {/* 1. KROK: Editor Trasy (Mapa) */}
+                {currentStep === STEPS.LOCATION && route ? (
+                    <RouteAxisEditor 
+                        route={route} 
+                        onUpdate={setRoute} 
+                    />
+                ) : (
+                    /* Placeholder pro ostatní kroky (zatím) */
+                    <div className="rounded-2xl border-2 border-dashed border-gray-300 bg-gray-50 p-12 text-center">
+                        <h3 className="text-2xl font-bold text-gray-400">
+                            {currentStep === STEPS.DATE && "Zde bude Editor Data"}
+                            {currentStep === STEPS.USERS && "Zde bude Editor Uživatelů"}
+                            {currentStep === STEPS.EQUIPMENT && "Zde bude Editor Vybavení"}
+                            {currentStep === STEPS.CONFIG && "Zde bude Editor Konfigurace"}
+                            {currentStep === STEPS.FINISH && "Souhrn a Výpočet"}
+                        </h3>
+                    </div>
+                )}
 
-      {errorMessage && (
-        <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-          {errorMessage}
+            </main>
+
+            {/* Patička s navigací */}
+            <footer className="border-t bg-white p-4">
+                <div className="container mx-auto flex justify-between">
+                    <button 
+                        onClick={prevStep}
+                        // Zpět je zakázáno na prvním kroku editoru (LOCATION)
+                        disabled={currentStep === STEPS.LOCATION}
+                        className="rounded-lg border border-gray-300 px-6 py-2 font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                    >
+                        Zpět
+                    </button>
+                    
+                    {/* Tlačítko Pokračovat */}
+                    <button 
+                        onClick={nextStep}
+                        className="rounded-lg bg-blue-600 px-6 py-2 font-medium text-white hover:bg-blue-700"
+                    >
+                        {currentStep === STEPS.FINISH ? "Vypočítat trasu" : "Pokračovat"}
+                    </button>
+                </div>
+            </footer>
         </div>
-      )}
-
-      <div className="mb-3">
-        <label className="block mb-1 font-medium">Název trasy <span className="text-red-500">*</span></label>
-        <input 
-          className={`w-full border rounded px-2 py-1 ${!routeData.name && errorMessage ? "border-red-500" : ""}`} 
-          value={routeData.name} 
-          onChange={e => handleChange("name", e.target.value)} 
-          placeholder="Zadejte název..."
-        />
-      </div>
-
-      <div className="mb-3">
-        <label className="block mb-1 font-medium">Start město</label>
-        <select className="w-full border rounded px-2 py-1" value={cities.find(c => c.coords.toString() === routeData.start.coordinates.toString())?.name} onChange={e => handleCityChange("start", e.target.value)}>
-          {cities.map(city => <option key={city.name} value={city.name}>{city.name}</option>)}
-        </select>
-      </div>
-
-      <div className="mb-3">
-        <label className="block mb-1 font-medium">Konec město</label>
-        <select className="w-full border rounded px-2 py-1" value={cities.find(c => c.coords.toString() === routeData.end.coordinates.toString())?.name} onChange={e => handleCityChange("end", e.target.value)}>
-          {cities.map(city => <option key={city.name} value={city.name}>{city.name}</option>)}
-        </select>
-      </div>
-
-      <div className="mb-3">
-        <label className="block mb-1 font-medium">Start date</label>
-        <input type="datetime-local" className="w-full border rounded px-2 py-1" value={routeData.start_date} onChange={e => handleChange("start_date", e.target.value)} />
-      </div>
-
-      <div className="mb-3">
-        <label className="block mb-1 font-medium">End date</label>
-        <input type="datetime-local" className="w-full border rounded px-2 py-1" value={routeData.end_date} onChange={e => handleChange("end_date", e.target.value)} />
-      </div>
-
-      <div className="mb-3">
-        <label className="block mb-1 font-medium">Max route length per day</label>
-        <input type="number" className="w-full border rounded px-2 py-1" value={routeData.max_route_length_day} onChange={e => handleChange("max_route_length_day", Number(e.target.value))} />
-      </div>
-
-      <div className="mb-3">
-        <label className="block mb-1 font-medium">POI per day</label>
-        <input type="number" className="w-full border rounded px-2 py-1" value={routeData.poi_per_day} onChange={e => handleChange("poi_per_day", Number(e.target.value))} />
-      </div>
-
-      <div className="mb-3">
-        <label className="block mb-1 font-medium">Buffer size</label>
-        <input type="number" className="w-full border rounded px-2 py-1" value={routeData.buffer_size} onChange={e => handleChange("buffer_size", Number(e.target.value))} />
-      </div>
-
-      <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:opacity-50" onClick={handleCreate} disabled={loading}>
-        {loading ? "Pracuji..." : "Vytvořit a spočítat trasu"}
-      </button>
-
-      {progress !== null && <p className="mt-3 font-medium text-blue-600">Výpočet: {progress} %</p>}
-    </div>
-  );
+    );
 };
 
 export default CreateRoutePage;
