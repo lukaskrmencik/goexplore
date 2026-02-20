@@ -1,5 +1,5 @@
 import type { LineString, Point } from "geojson";
-import type { RouteUser } from "./users";
+import type { User, RouteUser } from "./users";
 
 export type RouteMode = 'simple' | 'manual';
 
@@ -8,8 +8,8 @@ export interface Route {
   users_id: number;
   name: string;
   mode: RouteMode;
-  
-  start_date?: string; 
+
+  start_date?: string;
   end_date?: string;
 
   buffer_size?: number;
@@ -24,8 +24,7 @@ export interface Route {
   camps: RouteCamp[];
   poi: RoutePoiWrapper[];
 
-  generalEquipment: RouteEquipment[]; 
-  myEquipment: RouteEquipment[];
+  equipment?: RouteEquipment[];
   waypoints: RouteWaypoint[];
   users: RouteUser[];
 
@@ -63,10 +62,27 @@ export interface RouteCamp {
 }
 
 export interface RouteEquipment {
-  id: number
-  name: string
-  img?: string
-  specifications: any
+  id: number; // Pivot ID
+  routes_id: number;
+  general_equipment_id?: number;
+  my_equipment_id?: number;
+
+  general_equipment?: any; // GeneralEquipment (Circular dep if imported?)
+  my_equipment?: any;      // MyEquipment
+
+  // Joins/Appends might provide these directly flattened or nested?
+  // Frontend code uses item.name directly, implying flattened or eager loaded with accessor?
+  // Actually, looking at RouteUsersEditor, it constructs objects. 
+  // Let's assume the backend 'Route' model 'equipment' relation returns the *Equipment* objects with pivot info, OR the RouteEquipment pivot objects with Equipment info.
+  // Controller 'addEquipment' returns RouteEquipment pivot.
+  // Frontend code in RouteEquipmentEditor expects: item.name, item.general_equipment_id, item.my_equipment_id. 
+  // This suggests the array contains objects that have both pivot data AND equipment data mixed, or it's the pivot object with 'general_equipment'/'my_equipment' relation loaded.
+  // Given "item.name", let's include loose typing for now to satisfy the build, or correct fields.
+  name?: string;
+  img?: string;
+  specifications?: any;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface RouteWaypoint {
@@ -84,6 +100,9 @@ export interface RouteItem {
   mode: string;
   start_date?: string;
   end_date?: string;
+  length_meters?: number;
+  users?: RouteUser[];
+  user?: User; // Owner for shared routes
   [key: string]: any;
 }
 

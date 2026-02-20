@@ -1,16 +1,27 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
-import MapEditorPage from "../pages/MapEditorPage";
+import MapViewerPage from "../pages/MapViewerPage";
 import CreateRoutePage from "../pages/CreateRoutePage";
+import HomePage from "../pages/HomePage";
+import EquipmentPage from "../pages/EquipmentPage";
+import UserAccountPage from "../pages/UserAccountPage";
+
+import { MainLayout } from "../components/layout/MainLayout";
 
 const AppRouter: React.FC = () => {
   return (
     <Router>
-      <Routes>
-        <Route path="/routes/new" element={<CreateRoutePage />} />
-        <Route path="/map-editor" element={<MapEditorPage />} />
-      </Routes>
+      <MainLayout>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/equipment" element={<EquipmentPage />} />
+          <Route path="/account" element={<UserAccountPage />} />
+          <Route path="/routes/new" element={<CreateRoutePage />} />
+          <Route path="/routes/:routeId/:step" element={<CreateRoutePage />} />
+          <Route path="/map-viewer" element={<MapViewerPage />} />
+        </Routes>
+      </MainLayout>
     </Router>
   );
 };

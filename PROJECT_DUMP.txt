@@ -1,0 +1,414 @@
+
+================================================================================
+PROJECT DUMP - PODKLADY PRO TECHNICKOU DOKUMENTACI
+Generováno pro: Maturitní práce
+Datum: 2. února 2026
+================================================================================
+
+Tento soubor obsahuje klíčové části kódu a popisy funkcionality vybraných souborů.
+Poznámka: Některé importy a balast byly odstraněny pro větší přehlednost.
+
+--------------------------------------------------------------------------------
+1. DATABÁZE: Schéma tabulky TRASY (Routes)
+Soubor: backend-php/database/migrations/2025_10_27_101000_create_routes_table.php
+Popis: Migrace definující hlavní tabulku 'routes'. Ukládá základní údaje o trase (název, mód), časové údaje (start/konec), a geometrická data (start, cíl, osa trasy, vypočítaná trasa) s využitím PostGIS typů (magellanPoint, magellanLineString).
+--------------------------------------------------------------------------------
+public function up(): void
+{
+    Schema::create('routes', function (Blueprint $table) {
+        $table->id();
+        $table->bigInteger('users_id'); // Vlastník trasy
+        $table->string('name');
+        $table->foreign('users_id')->references('id')->on('users');
+        $table->enum('mode', ["simple","manual"]); // Mód plánování
+        
+        // Geometrická data (PostGIS)
+        $table->magellanPoint('start', 4326)->nullable();
+        $table->magellanPoint('end', 4326)->nullable();
+        
+        $table->timestamp('start_date')->nullable();
+        $table->timestamp('end_date')->nullable();
+        
+        // Osa trasy (náčrt) a kompletní vypočítaná trasa
+        $table->magellanLineString('axis', 4326)->nullable();
+        $table->magellanLineString('complete_route', 4326)->nullable();
+        
+        // Konfigurační parametry pro výpočet
+        $table->integer('buffer_size')->nullable(); // Šířka pásu pro hledání
+        $table->integer('max_route_length_day')->nullable(); // Max km/den
+        $table->integer('poi_per_day')->nullable(); // Cílový počet POI
+        
+        $table->timestamps();
+    });
+}
+
+--------------------------------------------------------------------------------
+2. DATABÁZE: Vazební tabulka TRASA <-> BODY ZÁJMU (Routes_POI)
+Soubor: backend-php/database/migrations/2025_10_27_105000_create_routes_poi_table.php
+Popis: Pivot tabulka propojující trasy s body zájmu (POI). Uchovává pořadí bodu na trase a vazbu na cluster (shluk), pokud byl bod vybrán v rámci shluku.
+Poznámka: Samotná tabulka 'poi' se nachází ve schématu 'poi_schema' (pravděpodobně importována z externí SQL/OSM databáze).
+--------------------------------------------------------------------------------
+public function up(): void
+{
+    Schema::create('routes_poi', function (Blueprint $table) {
+        $table->id();
+        $table->bigInteger('poi_id');
+        $table->foreign('poi_id')->references('id')->on('poi_schema.poi'); // Odkaz do externího schématu
+        $table->bigInteger('routes_id');
+        $table->foreign('routes_id')->references('id')->on('routes');
+        
+        $table->bigInteger('routes_clusters_id')->nullable(); // Vazba na cluster
+        $table->foreign('routes_clusters_id')->references('id')->on('routes_clusters');
+        
+        $table->integer('order'); // Pořadí bodu na trase
+        $table->timestamps();
+    });
+}
+
+--------------------------------------------------------------------------------
+3. DATABÁZE: Vazební tabulka TRASA <-> KEMPY (Routes_Camps)
+Soubor: backend-php/database/migrations/2025_10_27_104000_create_routes_camps_table.php
+Popis: Pivot tabulka propojující trasy s kempy. Uchovává pořadí kempu na trase.
+Poznámka: I zde je tabulka 'camps' v odděleném schématu 'camps_schema'.
+--------------------------------------------------------------------------------
+public function up(): void
+{
+    Schema::create('routes_camps', function (Blueprint $table) {
+        $table->id();
+        $table->bigInteger('camps_id');
+        $table->foreign('camps_id')->references('id')->on('camps_schema.camps');
+        $table->bigInteger('routes_id');
+        $table->foreign('routes_id')->references('id')->on('routes');
+        
+        $table->integer('order'); // Pořadí kempu (noclehu)
+        $table->timestamps();
+    });
+}
+
+--------------------------------------------------------------------------------
+4. MODEL: Route (Eloquent ORM)
+Soubor: backend-php/app/Models/Route/Route.php
+Popis: Eloquent model reprezentující trasu. Definuje vztahy (relace) na uživatele, kempy, body zájmu a vybavení. Zajišťuje přetypování geometrických sloupců (Point, LineString) pomocí knihovny Clickbar\Magellan.
+--------------------------------------------------------------------------------
+class Route extends Model
+{
+    protected $fillable = [
+        'users_id', 'mode', 'name', 'start', 'end', 'start_date', 'end_date',
+        'axis', 'complete_route', 'buffer_size', 'max_route_length_day', 'poi_per_day'
+    ];
+
+    // Automatické přetypování geometrických dat na objekty Point/LineString
+    protected $casts = [
+        'start' => Point::class,
+        'end' => Point::class,
+        'axis' => LineString::class,
+        'complete_route' => LineString::class,
+    ];
+
+    // Relace na kempy (N:M přes routes_camps)
+    public function camps()
+    {
+        return $this->belongsToMany(Camp::class, 'routes_camps', 'routes_id', 'camps_id')
+            ->withPivot('order')
+            ->orderBy('pivot_order')
+            ->withTimestamps();
+    }
+
+    // Relace na body zájmu (N:M přes routes_poi)
+    public function poi()
+    {
+        return $this->belongsToMany(Poi::class, 'routes_poi', 'routes_id', 'poi_id')
+            ->withPivot(['order', 'routes_clusters_id'])
+            ->orderBy('pivot_order')
+            ->withTimestamps();
+    }
+    
+    // ... další relace (users, waypoints, equipment) ...
+}
+
+--------------------------------------------------------------------------------
+5. CONTROLLER: RouteController (Vytvoření a Výpočet)
+Soubor: backend-php/app/Http/Controllers/Route/RouteController.php
+Popis: Řídí logiku API pro trasy. Metoda 'createRoute' zakládá novou trasu. Metoda 'updateRoute' (kráceno) ukládá parametry z wizardu. Metoda 'calculateRoute' spouští asynchronní job (CalculateRouteJob) pro výpočet trasy, odpovědí je Job ID.
+--------------------------------------------------------------------------------
+class RouteController extends Controller
+{
+    // Vytvoření nové prázdné trasy
+    public function createRoute(Request $request)
+    {
+        $userId = Auth::id();
+        // ... validace unikátnosti názvu ...
+
+        $route = Route::create([
+            'users_id' => Auth::id(),
+            'name' => $name,
+            "mode" => $request->mode,
+            'buffer_size' => env('DEFAULT_BUFFER_SIZE'),
+        ]);
+
+        return response()->success(['route' => $route], 201);
+    }
+
+    // Spuštění výpočtu trasy
+    public function calculateRoute(Request $request, $id, CalculateRouteService $calculateRouteService){
+        $route = Route::findOrFail($id);
+        $this->authorize('update', $route);
+
+        $jobId = Str::uuid()->toString();
+        JobHelper::setJobRouteId($jobId, $route->id);
+
+        // Dispatch asynchronního jobu, který provede volání Python API
+        CalculateRouteJob::dispatch($id, $jobId, $calculateRouteService);
+
+        return response()->success(['job_id' => $jobId], 201);
+    }
+    
+    // Polling stavu výpočtu
+    public function calculateRouteJobProgress(Request $request, $jobId){
+        // ... získání stavu jobu z helperu/Redis ...
+        $jobProgress = JobHelper::getJobProgress($jobId);
+        return response()->success($jobProgress, 201);
+    }
+}
+
+--------------------------------------------------------------------------------
+6. JOB: CalculateRouteJob (Volání Python API)
+Soubor: backend-php/app/Jobs/CalculateRouteJob.php
+Popis: (Nahrazuje CalculateRouteService v kontextu dotazu). Tento Job běží na pozadí (Laravel Queue). Připraví data, vypočítá buffer zóny kolem osy trasy, vybere kempy v okolí a následně VOLÁ PYTHON API (/select-camps a /select-poi) pro optimalizaci.
+--------------------------------------------------------------------------------
+class CalculateRouteJob implements ShouldQueue
+{
+    public function handle(): void
+    {
+        // 1. Příprava dat (buffer zóna kolem osy trasy)
+        $route = Route::findOrFail($this->routeId);
+        $routeBufferSize = $route->buffer_size * 1000; // km to meters
+        
+        // PostGIS funkce pro vytvoření bufferu kolem osy
+        $bufferedLine = ST::buffer(ST::transform($route->axis, env("UTM_ZONE")), $routeBufferSize, ...);
+
+        // 2. Předvýběr kempů v bufferu z databáze
+        $camps = Camp::query()->where(ST::within(ST::transform('geom', env("UTM_ZONE")), $bufferedLine))->get();
+
+        // 3. VOLÁNÍ PYTHON API - Výběr kempů
+        $response = Http::post(env("PYTHON_API_URL").'/select-camps', [
+            "camps" => $camps, "days" => $this->calculateRouteService->calculateDays($route), ...
+        ]);
+        $calculateCampsApiResult = $response->json();
+
+        // ... zpracování segmentů mezi kempy ...
+
+        // 4. VOLÁNÍ PYTHON API - Výběr POI (trasování)
+        // Volání endpointu /select-poi, který používá OR-Tools
+        $response = Http::post(env("PYTHON_API_URL").'/select-poi', [
+            "segments_poi" => $segmentsPoi,
+            "or_tools_config" => ...,
+            ...
+        ]);
+        $calculatePoiApiResult = $response->json();
+
+        // 5. Uložení výsledků do DB (vazby na kempy a POI, uložení finální geometrie trasy)
+        // ... attachování kempů a POI k modelu Route ...
+        $route->complete_route = $routeLineString;
+        $route->save();
+    }
+}
+
+--------------------------------------------------------------------------------
+7. ALGORITMUS: OR-Tools Solver (Python)
+Soubor: backend-py/app/services/poi_selection/or_tools_solver.py
+Popis: Wrapuje Google OR-Tools pro řešení problému TSP/VRP (Travelling Salesman Problem / Vehicle Routing Problem). Hledá optimální cestu mezi body, aby maximalizoval skóre navštívených POI, dodržel limit vzdálenosti a zajistil rovnoměrné rozložení bodů.
+--------------------------------------------------------------------------------
+def or_tools_choose_pois(or_data):
+    # Inicializace OR-Tools managera a modelu
+    or_manager = pywrapcp.RoutingIndexManager(len(or_data.points), 1, [or_data.start_index], [or_data.end_index])
+    or_routing = pywrapcp.RoutingModel(or_manager)
+
+    # Přidání disjunkcí (možnost vynechat bod za penále)
+    # Čím vyšší skóre bodu, tím vyšší penále za jeho vynechání -> solver se ho snaží navštívit.
+    for node_index in range(num_points):
+        # ... calculation of penalty based on score ...
+        or_routing.AddDisjunction([or_index], int(score_penalty))
+
+    # Callback pro vzdálenost (Custom logika pro rovnoměrné rozložení - "Balanced Cost")
+    # Pokud je vzdálenost mezi body větší než threshold (ideal_segment_length), aplikuje se kvadratické penále.
+    def balanced_cost_callback(from_index, to_index):
+        dist = or_data.distance_callback(...)
+        if dist > balanced_threshold:
+            excess = dist - balanced_threshold
+            penalty = ((excess * excess) / 1000) * or_data.balanced_penalty_strength
+            return int(dist + penalty)
+        return int(dist)
+
+    or_routing.SetArcCostEvaluatorOfAllVehicles(or_routing.RegisterTransitCallback(balanced_cost_callback))
+
+    # Omezení maximální vzdálenosti (Distance Dimension)
+    or_routing.AddDimension(distance_callback_index, 0, sys.maxsize, True, "Distance")
+    distance_dimension.SetCumulVarSoftUpperBound(routing_end, max_distance_meters, distance_penalty)
+
+    # Omezení počtu POI (musí trefit přesně target_pois_count)
+    or_routing.AddDimension(poi_callback_index, 0, num_points, True, "POIs")
+    poi_dimension.CumulVar(routing_end).SetValue(int(or_data.target_pois_count))
+
+    # Řešení pomocí GUIDED_LOCAL_SEARCH metaheuristiky
+    or_solution_params.local_search_metaheuristic = routing_enums_pb2.LocalSearchMetaheuristic.GUIDED_LOCAL_SEARCH
+    or_solution = or_routing.SolveWithParameters(or_solution_params)
+
+    # ... extrakce a návrat výsledků ...
+    return results
+
+--------------------------------------------------------------------------------
+8. ALGORITMUS: Výběr Kempů (Python)
+Soubor: backend-py/app/services/camps_selection/choose_camps.py
+Popis: Logika výběru nejlepších kempů pro nocování. Rozdělí kandidátní kempy do skupin podle toho, ke kterému "ideálnímu bodu noclehu" (vypočítanému z délky trasy) mají nejblíže. V každé skupině vybere nejlepší kemp na základě skórování (vybavení, recenze, vzdálenost od ideálu).
+--------------------------------------------------------------------------------
+def choose_camps(ideal_camps, camps, config_scores, days, DEFAULT_CAMP_SEASON):
+    # Rozdělení kempů do skupin podle nejbližšího ideálního bodu
+    camp_groups = camp_groups_by_ideal_camp(camps, ideal_camps, days, DEFAULT_CAMP_SEASON)
+
+    # Skórování a výběr nejlepšího kempu v každé skupině
+    best_camps = []
+    for camp_group in camp_groups:
+        camp_scores = []
+        for camp in camp_group["camps"]:
+            # Normalizace hodnot a výpočet skóre
+            score = calc_camp_score(camp, config_scores, ...)
+            camp_scores.append({"camp": camp, "score": score})
+        
+        # Výběr kempu s max skóre
+        best_camp = max(camp_scores, key=lambda x: x["score"])
+        best_camps.append(best_camp)
+
+    return best_camps
+
+def calc_camp_score(camp, config, ...):
+    # Vážený součet parametrů (obrázek, web, recenze, vzdálenost)
+    # Používá Bayesiánský průměr pro hodnocení recenzí (zohledňuje počet recenzí)
+    score = (weight_review * normalized_review) + (weight_dist * normalized_inv_distance) + ...
+    return score
+
+--------------------------------------------------------------------------------
+9. ALGORITMUS: Výběr Nejlepších POI + Clustering (Python)
+Soubor: backend-py/app/services/poi_selection/choose_best_pois.py
+Popis: Předpřipravuje POI pro solver. Provádí DBSCAN clustering (shlukování blízkých POI do jednoho bodu, aby se zjednodušil graf pro solver). Počítá skóre shluků a připravuje matici vzdáleností.
+--------------------------------------------------------------------------------
+async def choose_best_pois(...):
+    # 1. Filtrace top POI podle skóre
+    top_poi_scores = cut_and_sort_poi_list(poi_scores, ...)
+
+    # 2. Clustering pomocí DBSCAN (shlukování blízkých bodů)
+    # Pokud je v shluku více bodů, vytvoří se 'cluster' bod s bonusovým skóre
+    final_pois = calc_poi_clustering(top_poi_scores, ...)
+
+    # 3. Příprava dat pro OR-Tools (včetně matice vzdáleností z OSRM)
+    or_data = ORToolsData(final_pois, ..., OSRM_SERVER_URL, ...)
+
+    # 4. Spuštění solveru v threadpoolu (aby neblokoval API)
+    or_solution = await run_in_threadpool(run_or_tools)
+    return or_solution
+
+def calc_poi_clustering(...):
+    # Konverze souřadnic na radiány pro Haversine metriku
+    db = DBSCAN(eps=eps_rad, ...).fit(pois_rad)
+    # ... logiky vytváření cluster objektů a výpočtu jejich skóre ...
+    return poi_clustering
+
+--------------------------------------------------------------------------------
+10. DATOVÉ MODELY - Python
+Soubor: backend-py/app/models/general_models.py
+Popis: Pydantic modely definující strukturu dat vyměňovaných mezi PHP a Pythonem. Zajišťuje typovou kontrolu a validaci JSON payloadu.
+--------------------------------------------------------------------------------
+class Geom(BaseModel):
+    type: str # Např. "Point"
+    coordinates: List[float] # [lon, lat]
+
+class Axis(BaseModel):
+    type: str 
+    coordinates: List[List[float]] # Pole souřadnic linie
+
+class Day(BaseModel):
+    startDatetime: datetime
+    endDatetime: datetime
+    dayLength: float
+    timePercentOfFull: float # Procentuální část dne využitelná pro cestu
+
+--------------------------------------------------------------------------------
+11. UI KOMPONENTA: Map Viewer
+Soubor: frontend/src/features/leafletMap/components/LeafletMap.tsx
+Popis: Wrapper nad knihovnou React-Leaflet. Inicializuje mapu s konfigurací (střed, zoom) a vykresluje podkladovou vrstvu (TileLayer) z definovaného zdroje (např. Mapy.cz nebo OSM). Přijímá children, což umožňuje vkládat do mapy markery a trasy dynamicky.
+--------------------------------------------------------------------------------
+const LeafletMap: React.FC<LeafletMapProps> = ( {children} ) => {
+    return (
+        <MapContainer 
+            center={MAP_CONFIG.defaultCenter}
+            zoom={MAP_CONFIG.defaultZoom}
+            className="w-full h-screen" 
+        >
+            <TileLayer
+                attribution={MAP_CONFIG.attribution}
+                url={MAP_CONFIG.tileUrl}
+            />
+            {children} {/* Zde se renderují markery, polygony, atd. */}
+        </MapContainer>
+    )
+}
+
+--------------------------------------------------------------------------------
+12. HOOK: useCreateRoute (Logika Wizardu)
+Soubor: frontend/src/features/createRoute/hooks/useCreateRoute.ts
+Popis: Vlastní React Hook zapouzdřující logiku celého procesu vytváření trasy. Spravuje stav (načtená trasa, loading, errory), navigaci mezi kroky wizardu (nextStep, prevStep) a spouštění výpočtu trasy včetně pollingu (dotazování se na stav) jobu.
+--------------------------------------------------------------------------------
+export const useCreateRoute = () => {
+    const [route, setRoute] = useState<Route | null>(null);
+    const [calculationStatus, setCalculationStatus] = useState("");
+
+    // Inicializace nové trasy
+    const initializeRoute = async (mode: RouteMode, name: string) => {
+        const newRoute = await createRoute(mode, name);
+        setRoute(newRoute);
+        navigate(...);
+    };
+
+    // Spuštění výpočtu a polling
+    const startCalculation = async () => {
+        const jobId = await calculateRoute(route.id);
+        pollCalculation(jobId);
+    };
+
+    const pollCalculation = async (jobId: string) => {
+        const interval = setInterval(async () => {
+            const progressData = await getCalculationProgress(jobId);
+            if (progressData.state === 'completed') {
+                clearInterval(interval);
+                setIsCalculating(false);
+                navigate(`/map-editor?id=${route.id}`); // Přesměrování na editor mapy
+            }
+            // ... handling errors ...
+        }, 2000); // Dotaz každé 2 sekundy
+    };
+
+    return { route, nextStep, prevStep, startCalculation, calculationProgress, ... };
+};
+
+--------------------------------------------------------------------------------
+13. SLUŽBA: API Client (Komunikace s Backendem)
+Soubor: frontend/src/services/routesApiService.ts
+Popis: Modul obsahující funkce pro volání backend API endpointů. Používá nakonfigurovanou instanci Axiosu. Abstrakce nad HTTP voláními pro zbytek aplikace.
+--------------------------------------------------------------------------------
+// Vytvoření trasy
+export const createRoute = async (mode: RouteMode, name?: string): Promise<Route> => {
+  const response = await apiClient.post<ApiResponse<{ route: Route }>>("/routes", payload);
+  return response.data.data.route;
+};
+
+// Start výpočtu (vrací Job ID)
+export const calculateRoute = async (routeId: number): Promise<string> => {
+  const response = await apiClient.post<ApiResponse<{ job_id: string }>>(`/routes/${routeId}/calculate`);
+  return response.data.data.job_id;
+};
+
+// Získání stavu výpočtu
+export const getCalculationProgress = async (jobId: string): Promise<any> => {
+  const response = await apiClient.get<ApiResponse<any>>(`/routes/job/${jobId}/progress`);
+  return response.data.data;
+};

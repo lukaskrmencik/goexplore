@@ -1,24 +1,28 @@
 import apiClient from "./apiClient";
-import type { 
-  Route, 
-  RouteMode, 
+import type {
+  Route,
+  RouteMode,
   RouteWaypoint,
-  RoutesListResponse 
+  RoutesListResponse
 } from "../types/routes";
-import type { 
-  ApiResponse, 
-  PaginatedResponse 
+import type {
+  ApiResponse,
+  PaginatedResponse
 } from "../types/general";
-import type { 
-  GeneralEquipment, 
-  MyEquipment, 
-  EquipmentType 
+import type {
+  GeneralEquipment,
+  MyEquipment,
+  EquipmentType
 } from "../types/equipment";
 
 // Routes
 
 export const createRoute = async (mode: RouteMode, name?: string): Promise<Route> => {
-  const response = await apiClient.post<ApiResponse<{ route: Route }>>("/routes", { mode, name });
+  const payload = {
+    mode,
+    name: name && name.trim() !== "" ? name : undefined
+  };
+  const response = await apiClient.post<ApiResponse<{ route: Route }>>("/routes", payload);
   return response.data.data.route;
 };
 
@@ -32,12 +36,22 @@ export const updateRoute = async (routeId: number, data: Partial<any>): Promise<
   return response.data.data.route;
 };
 
-export const fetchUserRoutes = async (page = 1, search = ""): Promise<RoutesListResponse> => {
-    const response = await apiClient.post<ApiResponse<RoutesListResponse>>("/routes/list", {
-        page,
-        search
-    });
-    return response.data.data;
+export const fetchAllRoutes = async (page = 1, search = ""): Promise<RoutesListResponse> => {
+  const response = await apiClient.post<ApiResponse<RoutesListResponse>>("/routes/list", {
+    page,
+    per_page: 9, // Increased from default
+    search: search || undefined
+  });
+  return response.data.data;
+};
+
+export const fetchSharedRoutes = async (page = 1, search = ""): Promise<RoutesListResponse> => {
+  const response = await apiClient.post<ApiResponse<RoutesListResponse>>("/routes/shared", {
+    page,
+    per_page: 9, // Increased from default
+    search: search || undefined
+  });
+  return response.data.data;
 };
 
 // Calculation
@@ -72,25 +86,31 @@ export const deleteWaypoint = async (waypointId: number): Promise<void> => {
 // Users
 
 export const inviteUserToRoute = async (routeId: number): Promise<string> => {
-  const response = await apiClient.post<ApiResponse<{ route: string }>>(`/routes/${routeId}/users/invite`, {});
-  return response.data.data.route; 
+  const response = await apiClient.post<ApiResponse<{ token: string }>>(`/routes/${routeId}/users/invite`, {});
+  return response.data.data.token;
 };
 
 export const removeUserFromRoute = async (routeId: number, userId: number): Promise<void> => {
-    await apiClient.delete(`/routes/${routeId}/users`, {
-        data: { user_id: userId }
-    });
+  await apiClient.delete(`/routes/${routeId}/users`, {
+    data: { user_id: userId }
+  });
 };
 
 // Equipment
 
 export const fetchMyEquipmentList = async (search?: string, page = 1): Promise<PaginatedResponse<MyEquipment>> => {
-  const response = await apiClient.post<ApiResponse<PaginatedResponse<MyEquipment>>>("/my-equipment/list", { search, page });
+  const response = await apiClient.post<ApiResponse<PaginatedResponse<MyEquipment>>>("/my-equipment/list", {
+    search: search || undefined,
+    page
+  });
   return response.data.data;
 };
 
 export const fetchGeneralEquipmentList = async (search?: string, page = 1): Promise<PaginatedResponse<GeneralEquipment>> => {
-  const response = await apiClient.post<ApiResponse<PaginatedResponse<GeneralEquipment>>>("/general-equipment/list", { search, page });
+  const response = await apiClient.post<ApiResponse<PaginatedResponse<GeneralEquipment>>>("/general-equipment/list", {
+    search: search || undefined,
+    page
+  });
   return response.data.data;
 };
 
@@ -103,7 +123,7 @@ export const addEquipmentToRoute = async (routeId: number, type: EquipmentType, 
 
 export const removeEquipmentFromRoute = async (routeId: number, type: EquipmentType, equipmentId: number): Promise<void> => {
   await apiClient.delete(`/routes/${routeId}/equipment`, {
-    data: { 
+    data: {
       type,
       equipment_id: equipmentId
     }

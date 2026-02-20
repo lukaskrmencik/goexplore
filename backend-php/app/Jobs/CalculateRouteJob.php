@@ -133,12 +133,22 @@ class CalculateRouteJob implements ShouldQueue
                 "scores" => $campScores,
                 "DEFAULT_CAMP_SEASON" => $DEFAULT_CAMP_SEASON,
             ]);
+
             if ($response->successful()) {
                 $calculateCampsApiResult = $response->json();
             } else {
                 $status = $response->status();
-                $error = $response->json()['detail'] ?? 'Unknown error';
-                //return response()->error($error, $status);
+                $errorBody = $response->json();
+                $errorMessage = $errorBody['detail'] ?? json_encode($errorBody);
+
+                JobHelper::setJobProgress($this->jobId, null, "Error", $errorMessage);
+
+                Log::error("Python API /select-camps failed", [
+                    'status' => $status,
+                    'error' => $errorBody
+                ]);
+
+                return;
             }
 
             JobHelper::setJobProgress($this->jobId, 2, "running");
@@ -230,8 +240,12 @@ class CalculateRouteJob implements ShouldQueue
                 $calculatePoiApiResult = $response->json();
             } else {
                 $status = $response->status();
-                $error = $response->json();
-                //return response()->error($error, $status);
+                $errorBody = $response->json();
+                $errorMessage = $errorBody['detail'] ?? json_encode($errorBody);
+
+                JobHelper::setJobProgress($this->jobId, null, "Error", $errorMessage);
+
+                return;
             }
 
             JobHelper::setJobProgress($this->jobId, 98, "running");
@@ -305,7 +319,7 @@ class CalculateRouteJob implements ShouldQueue
 
         } catch (Throwable $e) {
 
-            JobHelper::setJobProgress($this->jobId, null, "Error");
+            JobHelper::setJobProgress($this->jobId, null, "Error", $e->getMessage());
 
             Log::error("Job {$this->jobId} failed: ".$e->getMessage(), [
                 'trace' => $e->getTraceAsString()

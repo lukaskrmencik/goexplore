@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Redis;
 
 class JobHelper
 {
-    public static function setJobProgress($jobId, $percent, $status)
+    public static function setJobProgress($jobId, $percent, $status, $error = null)
     {
         $expires = intval(env("REDIS_JOB_EXPIRES"));
 
@@ -16,6 +16,10 @@ class JobHelper
 
         if($status !== null){
             Redis::setex("job_status:{$jobId}", $expires, $status);
+        }
+
+        if($error !== null){
+            Redis::setex("job_error:{$jobId}", $expires, $error);
         }
     }
 
@@ -34,9 +38,13 @@ class JobHelper
     {
         $progress = intval(Redis::get("job_progress:{$jobId}") ?? 0);
         $status = Redis::get("job_status:{$jobId}") ?? "None";
+        
+        $error = Redis::get("job_error:{$jobId}");
+
         return [
             "progress" => $progress,
-            "status" => $status
+            "status" => $status,
+            "error" => $error
         ];
     }
 }

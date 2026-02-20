@@ -149,11 +149,14 @@ class RouteController extends Controller
         ]);
 
         //validation that the end_date is at least 3 hours after the start_date
-        $startDate = Carbon::parse($request['start_date']);
-        $endDate = Carbon::parse($request['end_date']);
 
-        if ($startDate->diffInHours($endDate) < 3) {
-            return response()->error("End_date must be at least 3 hours after the start_date.", 422);
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $startDate = Carbon::parse($request['start_date']);
+            $endDate = Carbon::parse($request['end_date']);
+
+            if ($startDate->diffInHours($endDate) < 3) {
+                return response()->error("End_date must be at least 3 hours after the start_date.", 422);
+            }
         }
 
         //Transform start point data to magellan (if privoded)
@@ -312,14 +315,22 @@ class RouteController extends Controller
         });
 
         //add general my to array
-        $routeArray['myEquipment'] = $route->myEquipment->map(function($myEquipment) {
+        $routeArray['myEquipment'] = $route->myEquipment->load('generalEquipment')->map(function($myEquipment) {
             return [
                 'id' => $myEquipment->id,
                 'name' => $myEquipment->name,
                 'img' => $myEquipment->img,
-                'specifications' => $myEquipment->specifications
+                'specifications' => $myEquipment->specifications,
+                'general_equipment' => $myEquipment->generalEquipment, // Include relationship
+                'general_equipment_id' => $myEquipment->general_equipment_id,
+                'users_id' => $myEquipment->users_id,
             ];
         });
+
+        //add equipment pivot to array
+        $routeArray['equipment'] = $route->equipment()
+            ->with(['generalEquipment', 'myEquipment.generalEquipment', 'myEquipment.user'])
+            ->get();
 
         //add waypoints to array
         $routeArray['waypoints'] = $route->waypoints;
@@ -346,7 +357,18 @@ class RouteController extends Controller
         $user = auth()->user();
 
         //building query with
-        $query = $user->routes()->select(['id', 'name', 'mode', 'start_date', 'end_date']);
+        $query = $user->routes()
+        ->with('users')
+        ->select([
+            'id', 
+            'name', 
+            'mode', 
+            'start_date', 
+            'end_date',
+            //route length in meters
+            DB::raw('ST_Length(complete_route::geography) as length_meters') 
+        ])
+        ->orderBy('created_at', 'desc');
 
         //search (if provided)
         if ($request->filled('search')) {
@@ -395,17 +417,42 @@ class RouteController extends Controller
         $user = auth()->user();
 
         //building query with
-        $query = $user->sharedRoutes()->select([
-            'routes.id', 'routes.name', 'routes.mode',"routes.users_id", 'routes.start_date', 'routes.end_date'
-        ]);
+        $query = $user->sharedRoutes()
+            ->with([
+                'user',
+                'users' 
+            ])
+            ->select([
+                'routes.id', 
+                'routes.name', 
+                'routes.mode', 
+                'routes.users_id', 
+                'routes.start_date', 
+                'routes.end_date',
+                DB::raw('ST_Length(routes.complete_route::geography) as length_meters')
+            ]);
 
         //search (if provided)
         if ($request->filled('search')) {
-            $query->where('name', 'ILIKE', "%{$request->input('search')}%");
+            $query->where('routes.name', 'ILIKE', "%{$request->input('search')}%");
         }
 
         //paginate
         $paginator = $query->paginate($request->input('per_page', 10));
+
+        //set visible fields
+        $paginator->getCollection()->each(function ($route) {
+            $route->setVisible([
+                'id', 
+                'name', 
+                'mode', 
+                'start_date', 
+                'end_date', 
+                'length_meters', 
+                'user', 
+                'users'
+            ]);
+        });
 
         //paginated response
         return response()->pagination($paginator);

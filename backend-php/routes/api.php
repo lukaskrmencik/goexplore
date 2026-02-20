@@ -44,6 +44,8 @@ Route::middleware('jwt')->group(function () {
         ->where('id', '[0-9]+');
     Route::delete('/my-equipment/{id}', [MyEquipmentController::class, 'deleteMyEquipment'])
     ->where('id', '[0-9]+');
+    Route::post('/my-equipment/{id}/image', [MyEquipmentController::class, 'uploadImage'])
+        ->where('id', '[0-9]+');
 
     //General equipment routes
     Route::get('/general-equipment/{id}', [GeneralEquipmentController::class, 'singleGeneralEquipment'])

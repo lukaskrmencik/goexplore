@@ -1,0 +1,183 @@
+
+# Uživatelská dokumentace - Podklady pro UI a User Flows
+
+Tento dokument obsahuje detailní popis uživatelského rozhraní a toků v aplikaci GoExplore, založený na analýze frontendového kódu.
+
+---
+
+## 1. NAVIGACE A ROZLOŽENÍ (Layout)
+
+Aplikace používá responzivní rozložení, které se liší pro desktop a mobilní zařízení.
+
+### Desktop (Počítač)
+- **Horní lišta (Sticky Header):**
+  - **Vlevo:** Logo "GoExplore" (zelený čtverec s nápisem GO) a název aplikace. Kliknutí vrací na domovskou stránku.
+  - **Uprostřed:** Hlavní navigační menu s textovými popisky a ikonami:
+    - **Moje cesty** (Ikona mapy)
+    - **Vybavení** (Ikona balíčku)
+    - **Nastavení** (Ikona posuvníků - *momentálně neaktivní*)
+    - **Účet** (Ikona uživatele)
+    - Aktivní položka je zvýrazněna tučně a zelenou barvou.
+  - **Vpravo:**
+    - Tlačítko **"Nová cesta"** (Zelené, výrazné, s ikonou plus).
+    - Avatar uživatele (kruhová profilová fotka nebo iniciály), který slouží jako odkaz na profil.
+
+### Mobilní zařízení
+- **Horní lišta (Fixed Header):**
+  - Obsahuje pouze vycentrované logo a název "GoExplore" na poloprůhledném pozadí.
+- **Spodní lišta (Bottom Bar):**
+  - Fixní panel u spodního okraje obrazovky.
+  - Obsahuje 5 ikon v mřížce:
+    1. **Moje cesty** (Ikona mapy)
+    2. **Vybavení** (Ikona balíčku)
+    3. **Nová cesta** (Velké plovoucí zelené tlačítko s "plus" uprostřed, které přesahuje lištu)
+    4. **Nastavení** (Ikona posuvníků - *šedé/neaktivní*)
+    5. **Účet** (Ikona uživatele)
+  - Položky mají pod ikonou malý popisek. Aktivní položka je zelená.
+
+---
+
+## 2. DOMOVSKÁ STRÁNKA (Dashboard)
+
+Po přihlášení se uživatel ocitne na obrazovce **"Moje cesty"**.
+
+- **Hlavička stránky:**
+  - Nadpis "Moje cesty".
+  - Přepínač (Záložky) mezi:
+    - **Moje cesty** (Zobrazuje počet vlastních tras).
+    - **Sdílené** (Zobrazuje počet tras sdílených ostatními).
+
+- **Seznam tras:**
+  - Trasy jsou zobrazeny jako mřížka karet (Grid).
+  - Pokud uživatel nemá žádné trasy (nebo na první stránce), první karta je vždy **"Naplánovat"** - velké tlačítko s přerušovaným zeleným okrajem pro rychlé vytvoření nové cesty.
+  - **Karta trasy obsahuje:**
+    - Název trasy.
+    - Informace o termínu (datum a počet dní).
+    - Avatary účastníků.
+    - Status trasy (např. "Rozpracováno").
+    - Akce: Po kliknutí se trasa otevře.
+
+- **Prázdný stav (Sdílené):**
+  - Pokud nejsou žádné sdílené trasy, zobrazí se ikona sdílení a text "Žádné sdílené cesty".
+
+---
+
+## 3. PRŮVODCE VYTVOŘENÍM TRASY (Wizard)
+
+Proces vytváření nové cesty je rozdělen do několika kroků. Uživatel prochází "Wizardem".
+
+### Krok 1: Inicializace (Kam to bude?)
+- **Dominantní nadpis:** "Kam to bude dnes?"
+- **Vstupní pole:**
+  - **"Název cesty"** (Placeholder: "např. Víkend na Šumavě"). Uživatel sem píše název své cesty.
+  - Pod polem je informace, že název lze později změnit.
+- **Výběr režimu (Dvě velké karty):**
+  1.  **Chytrý návrh (Doporučeno):**
+      - Ikona blesku.
+      - Popis: "Zadejte pouze start a cíl. Náš algoritmus najde nejzajímavější trasu."
+  2.  **Vlastní trasa (Pokročilé):**
+      - Ikona mapy.
+      - Popis: "Plná kontrola. Vyklikejte si každý bod cesty ručně na mapě."
+
+### Krok 2: Editor Trasy (Route Axis)
+Rozhraní se liší podle zvoleného režimu.
+- **Rozložení:** Na desktopu je vlevo postranní panel a vpravo mapa. Na mobilu je mapa přes celou obrazovku a panel je vysouvací odspodu ("Bottom Sheet").
+- **Mapa:** Umožňuje interakci (posun, zoom).
+- **V režimu "Chytrý návrh":**
+  - Panel obsahuje vyhledávací pole pro **Start** (Odkud?) a **Cíl** (Kam?).
+  - Mezi nimi lze přidávat **Zastávky** (Průjezdní body).
+- **V režimu "Vlastní trasa":**
+  - Panel zobrazuje počet bodů.
+  - Uživatel kliká do mapy a tím vytváří trasu (kreslí čáru).
+  - Tlačítko **"Dokončit"** potvrdí nakreslenou trasu.
+
+### Krok 3: Termín (Kdy vyrážíme?)
+- **Nadpis:** "Kdy vyrážíme?"
+- **Ovládání:**
+  - Dvě velká tlačítka vedle sebe (nebo pod sebou na mobilu): **Začátek** (Ikona slunce) a **Konec** (Ikona měsíce).
+  - Zobrazují vybrané datum a čas velkým písmem.
+  - Po kliknutí se otevře výběr data (kalendář) a času (seznam časů po 15 minutách).
+- **Vizualizace:** Pokud jsou oba termíny vybrány, zobrazí se mezi nimi "bublina" s vypočítanou dobou trvání (např. "2 dny").
+
+### Krok 4: Posádka (Kdo jede s námi?)
+- **Levá část (Invite Box):**
+  - Box pro sdílení odkazu. Zobrazuje unikátní URL trasy.
+  - Tlačítko pro zkopírování odkazu a tlačítko pro vygenerování nového odkazu.
+- **Pravá část (Seznam):**
+  - Seznam aktuálních účastníků ("Posádka").
+  - První je vždy vlastník (vy).
+  - U každého účastníka je avatar a jméno.
+  - Vlastník může ostatní účastníky z trasy odebrat (ikona koše).
+
+### Krok 5: Vybavení (Batoh a Sklad)
+- **Rozdělení obrazovky:**
+  - **Sklad (Katalog):** Seznam dostupného vybavení. Má vyhledávací pole a záložky ("Katalog" obecných věcí / "Moje vybavení").
+  - **Batoh (Vybrané):** Seznam věcí, které jsou přidány do aktuální trasy.
+- **Interakce:**
+  - Kliknutím na tlačítko (fajfka/plus) na kartě vybavení se věc přesune ze skladu do batohu a naopak.
+  - Uživatel si může vytvořit **vlastní vybavení** přes tlačítko "Vytvořit vlastní" (otevře modální okno s formulářem: Název, Typ, Váha, Obrázek).
+
+### Krok 6: Konfigurace (Pouze pro manuální/pokročilý režim)
+- **Nadpis:** "Konfigurace trasy".
+- **Ovládací prvky (Posuvníky):**
+  1.  **Okolí trasy (Buffer):** Nastavuje šířku koridoru kolem trasy (v km), kde se mají hledat zajímavá místa.
+  2.  **Denní limit:** Maximální délka trasy na jeden den (km).
+  3.  **Hustota zastávek:** Kolik aktivit/zastávek chce uživatel stihnout za den.
+
+### Krok 7: Shrnutí (Route Summary)
+- Tzv. "Předletová kontrola".
+- **Zobrazuje přehled:** Název, Termín, Posádku a zvolenou konfiguraci.
+- **Hlavní akce:** Velké tlačítko **"Vygenerovat itinerář"**.
+- Po kliknutí se zobrazí obrazovka s **načítáním** (Loader, progress bar a texty jako "Hledám nejlepší kempy...", "Počítám trasu...").
+- Po dokončení výpočtu se uživatel automaticky přesměruje na výsledek.
+
+---
+
+## 4. VÝSLEDEK (Map Editor / Itinerář)
+
+Toto je hlavní obrazovka, která se zobrazí po vygenerování iteráře.
+
+- **Zobrazení:** Mapa přes celou obrazovku.
+- **Obsah mapy:**
+  - **Vypočítaná trasa:** Barevná čára spojující body.
+  - **Body zájmu (POI):** Modré markery s ikonou hvězdy.
+  - **Kempy/Ubytování:** Zelené markery s ikonou kempu.
+  - **Zhluky (Clusters):** Pokud je bodů mnoho u se, zobrazí se kruh s číslem (počet bodů v oblasti).
+- **Interakce:**
+  - Po kliknutí na marker (POI nebo Kemp) se otevře "bublina" (Popup) s názvem místa.
+
+---
+
+## 5. SEZNAMY A PROFIL
+
+### Profil uživatele
+- Stránka zatím ve výstavbě (Placeholder).
+- Obsahuje nadpis "Můj Účet" a ikonu uživatele.
+
+### Správce vybavení (Globální)
+- Dostupný z hlavního menu ("Vybavení").
+- **Funkce:** Spravovat svou osobní sbírku vybavení nezávisle na konkrétní trase.
+- **Vzhled:**
+  - Vyhledávací pole.
+  - Tlačítko "Přidat nové".
+  - Mřížka karet s vlastním vybavením.
+  - U každé karty lze vybavení editovat nebo smazat.
+
+---
+
+## 6. RESPONSIVITA (Mobil vs. Desktop)
+
+Aplikace je plně přizpůsobena pro mobilní telefony ("Mobile First" design).
+
+**Hlavní rozdíly:**
+1.  **Navigace:**
+    - **Desktop:** Horní lišta.
+    - **Mobil:** Spodní lišta (snadno dosažitelná palcem).
+2.  **Panely v Editorech (Wizard):**
+    - **Desktop:** Rozložení vedle se (Split View) - Ovládací panel vlevo, Mapa/Obsah vpravo. Oba panely jsou viditelné najednou.
+    - **Mobil:** Vrstvené rozložení. Mapa nebo hlavní obsah je na pozadí. Ovládací panel je řešen jako **"Bottom Sheet"** (Vysouvací panel od spodního okraje), který lze sbalit (pro větší pohled na mapu) nebo vysunout (pro ovládání).
+3.  **Formuláře:**
+    - Na mobilu jsou vstupy větší (pro dotyk).
+    - Kalendář a výběr času se na mobilu otevírají jako celoobrazovkové nebo velké vysouvací panely, zatímco na desktopu jsou součástí postranního panelu.
+4.  **Skrývání prvků:**
+    - Některé popisky a doplňkové texty (např. vysvětlivky u sliderů v konfiguraci) jsou na mobilu skryty pro úsporu místa (`hidden md:block`).

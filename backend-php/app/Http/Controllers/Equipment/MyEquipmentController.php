@@ -47,12 +47,17 @@ class MyEquipmentController extends Controller
             return response()->error($validateSpecifications, 422);
         }
 
+        //inherit image from general equipment
+        $generalEquipment = GeneralEquipment::find($request->general_equipment_id);
+        $imagePath = $generalEquipment ? $generalEquipment->img : null;
+
         //create
         $myEquipment = MyEquipment::create([
             'users_id' => $userId,
             'name' => $request->name,
-            'specifications' => json_encode($request->specifications),
+            'specifications' => $request->specifications,
             'general_equipment_id' => $request->general_equipment_id,
+            'img' => $imagePath,
         ]);
 
         //response
@@ -89,7 +94,7 @@ class MyEquipmentController extends Controller
         $user = auth()->user();
 
         //make query
-        $query = $user->myEquipment();
+        $query = $user->myEquipment()->with('generalEquipment')->orderBy('created_at', 'desc');
 
         //search - if provided
         if ($request->filled('search')) {
@@ -153,6 +158,35 @@ class MyEquipmentController extends Controller
         ], 201);
     }
 
+    //upload image
+    public function uploadImage(Request $request, $id)
+    {
+        //find record
+        $myEquipment = MyEquipment::findOrFail($id);
+
+        //authorization
+        $this->authorize('update', $myEquipment);
+
+        //validate image
+        $request->validate([
+            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        ]);
+
+        if ($request->hasFile('image')) {
+            //store file
+            $path = $request->file('image')->store('equipment_images', 'public');
+
+            //update record
+            $myEquipment->img = $path;
+            $myEquipment->save();
+
+            //response
+            return response()->success(['path' => $path], 200);
+        }
+
+        return response()->success(['message' => 'No image uploaded'], 200);
+    }
+
     //delete my equipment
     public function deleteMyEquipment(Request $request, $id)
     {
@@ -161,6 +195,9 @@ class MyEquipmentController extends Controller
 
         //authorize
         $this->authorize('delete', $myEquipment);
+
+        //detach from routes
+        $myEquipment->routes()->detach();
 
         //delete
         $myEquipment->delete();

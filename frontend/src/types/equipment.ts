@@ -15,8 +15,9 @@ export interface MyEquipment {
   users_id: number;
   name: string;
   img: string | null;
-  specifications: string; 
+  specifications: Record<string, any>;
   general_equipment_id: number;
   created_at: string;
   updated_at: string;
+  general_equipment?: GeneralEquipment;
 }

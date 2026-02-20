@@ -1,0 +1,6 @@
+export const SIMPLE_MODE_CONFIG = {
+    BUFFER_SIZE_KM: 20,
+    MAX_ROUTE_LENGTH_DAY: 200,
+    POI_PER_DAY: 5,
+    BUFFER_RETRY_STAGES: [20, 30, 50]
+};
