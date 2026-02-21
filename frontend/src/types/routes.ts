@@ -103,6 +103,8 @@ export interface RouteItem {
   length_meters?: number;
   users?: RouteUser[];
   user?: User; // Owner for shared routes
+  created_at?: string;
+  updated_at?: string;
   [key: string]: any;
 }
 

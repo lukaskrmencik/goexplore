@@ -46,7 +46,7 @@ export const useEquipment = () => {
         loadEquipment();
     }, [loadEquipment]);
 
-    const handleEquipmentCreated = (newEquipment: MyEquipment) => {
+    const handleEquipmentCreated = () => {
         // If we are on page 1 and no search (or search matches), prepending is nice.
         // But the simplest is just to reload the current page.
         loadEquipment();

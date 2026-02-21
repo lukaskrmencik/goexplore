@@ -36,6 +36,10 @@ export const updateRoute = async (routeId: number, data: Partial<any>): Promise<
   return response.data.data.route;
 };
 
+export const deleteRoute = async (routeId: number): Promise<void> => {
+  await apiClient.delete(`/routes/${routeId}`);
+};
+
 export const fetchAllRoutes = async (page = 1, search = ""): Promise<RoutesListResponse> => {
   const response = await apiClient.post<ApiResponse<RoutesListResponse>>("/routes/list", {
     page,

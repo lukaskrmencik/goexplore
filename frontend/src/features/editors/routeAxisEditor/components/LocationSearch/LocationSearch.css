@@ -1,0 +1,174 @@
+.location-search-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.location-search-group {
+    position: relative;
+    width: 100%;
+}
+
+.location-search-label {
+    display: block;
+    margin-bottom: var(--radius-md);
+    font-size: var(--radius-xl);
+    font-weight: 700;
+    color: var(--color-neutral-500);
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+    transition: color var(--transition-fast);
+    margin-left: 0.25rem;
+}
+
+.location-search-group:focus-within .location-search-label {
+    color: var(--color-primary-600);
+}
+
+.location-search-input-container {
+    position: relative;
+}
+
+.location-search-input-compact {
+    width: 100%;
+    background-color: var(--color-neutral-50);
+    border: 1px solid var(--color-neutral-200);
+    color: var(--color-neutral-700);
+    font-size: 0.875rem;
+    border-radius: var(--radius-xl);
+    padding: var(--radius-lg) var(--radius-xl);
+    padding-right: 2rem;
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-fast);
+}
+
+.location-search-input-compact::placeholder {
+    color: var(--color-neutral-400);
+}
+
+.location-search-input-compact:focus {
+    background-color: var(--color-white);
+    border-color: var(--color-primary-500);
+    box-shadow: 0 0 0 1px var(--color-primary-500);
+    outline: 2px solid var(--color-transparent);
+    outline-offset: 2px;
+}
+
+.location-search-input-default {
+    width: 100%;
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--color-neutral-200);
+    background-color: rgba(248, 250, 252, 0.5);
+    padding: var(--radius-xl);
+    padding-right: 2.5rem;
+    box-shadow: var(--shadow-sm);
+    font-size: 0.875rem;
+    color: var(--color-neutral-900);
+    transition: all var(--transition-fast);
+}
+
+.location-search-input-default::placeholder {
+    color: var(--color-neutral-400);
+}
+
+.location-search-input-default:focus {
+    background-color: var(--color-white);
+    border-color: var(--color-primary-500);
+    outline: 2px solid var(--color-transparent);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 1px var(--color-primary-500);
+}
+
+.location-search-spinner-container {
+    position: absolute;
+    right: var(--radius-xl);
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.location-search-spinner-icon-compact {
+    height: var(--radius-2xl);
+    width: var(--radius-2xl);
+    animation: spin 1s linear infinite;
+    color: var(--color-primary-500);
+}
+
+.location-search-spinner-icon-default {
+    height: 1.25rem;
+    width: 1.25rem;
+    animation: spin 1s linear infinite;
+    color: var(--color-primary-500);
+}
+
+.location-search-search-icon {
+    position: absolute;
+    right: 0.625rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-neutral-400);
+    pointer-events: none;
+}
+
+.location-search-dropdown-list {
+    position: absolute;
+    z-index: 50;
+    margin-top: 0.25rem;
+    width: 100%;
+    overflow: auto;
+    border-radius: var(--radius-xl);
+    background-color: var(--color-white);
+    padding: 0.25rem;
+    box-shadow: var(--shadow-xl);
+    border: 1px solid var(--color-neutral-100);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+
+.location-search-dropdown-list-compact {
+    max-height: 12rem;
+}
+
+.location-search-dropdown-list-default {
+    max-height: 15rem;
+}
+
+.location-search-dropdown-item-compact {
+    cursor: pointer;
+    padding: var(--radius-lg) var(--radius-xl);
+    font-size: var(--radius-xl);
+    color: var(--color-neutral-700);
+    border-radius: var(--radius-lg);
+    transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.location-search-dropdown-item-compact:hover {
+    background-color: var(--color-primary-50);
+    color: var(--color-primary-800);
+}
+
+.location-search-dropdown-item-default {
+    cursor: pointer;
+    padding: 0.625rem var(--radius-xl);
+    font-size: 0.875rem;
+    color: var(--color-neutral-700);
+    border-radius: var(--radius-lg);
+    transition: background-color var(--transition-fast), color var(--transition-fast);
+    border-bottom: 1px solid var(--color-neutral-50);
+}
+
+.location-search-dropdown-item-default:last-child {
+    border-bottom-width: 0;
+}
+
+.location-search-dropdown-item-default:hover {
+    background-color: var(--color-primary-50);
+    color: var(--color-primary-800);
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}

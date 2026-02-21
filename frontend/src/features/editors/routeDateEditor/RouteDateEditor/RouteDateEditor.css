@@ -1,0 +1,761 @@
+
+.route-date-editor-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--color-white);
+    overflow: hidden;
+    position: relative;
+}
+
+@media (min-width: 768px) {
+    .route-date-editor-container {
+        flex-direction: row;
+    }
+}
+
+/* Left Panel */
+.route-date-editor-left-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: var(--radius-3xl);
+
+    z-index: 10;
+    overflow-y: auto;
+}
+
+.route-date-editor-content-wrapper {
+    max-width: 28rem;
+
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+
+}
+
+
+.route-date-editor-header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--radius-xl);
+
+    text-align: center;
+}
+
+@media (min-width: 768px) {
+    .route-date-editor-header {
+        text-align: left;
+    }
+}
+
+.route-date-editor-title {
+    font-size: 2.25rem;
+
+    line-height: 2.5rem;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    color: var(--color-neutral-900);
+
+    letter-spacing: -0.025em;
+
+    margin: 0;
+}
+
+@media (min-width: 768px) {
+    .route-date-editor-title {
+        font-size: 3rem;
+
+        line-height: 1;
+    }
+}
+
+.route-date-editor-subtitle {
+    font-size: 1.var(--radius-3xl);
+
+    line-height: 1.75rem;
+    color: var(--color-neutral-500);
+
+    font-weight: 500;
+    margin: 0;
+}
+
+/* Inputs Visualization */
+.route-date-editor-inputs-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--radius-2xl);
+
+}
+
+/* Date Buttons */
+.route-date-editor-button {
+    width: 100%;
+    text-align: left;
+    padding: 1.25rem;
+
+    border-radius: var(--radius-3xl);
+
+    border: 2px solid var(--color-transparent);
+    transition: all var(--transition-fast);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+
+    background-color: var(--color-transparent);
+    cursor: pointer;
+}
+
+/* Start Button Specifics */
+.route-date-editor-button-start-active {
+    background-color: var(--color-primary-50);
+
+    border-color: var(--color-primary-500);
+
+    box-shadow: 0 20px 25px -5px rgba(16, 185, 129, 0.1), 0 10px 10px -5px rgba(16, 185, 129, 0.04);
+    /* shadow-xl shadow-emerald-500/10 */
+}
+
+.route-date-editor-button-start-inactive {
+    background-color: var(--color-white);
+    border-color: var(--color-neutral-100);
+
+}
+
+.route-date-editor-button-start-inactive:hover {
+    border-color: var(--color-neutral-200);
+
+    background-color: var(--color-neutral-50);
+
+}
+
+.route-date-editor-icon-wrapper-start {
+    width: 3rem;
+
+    height: 3rem;
+
+    border-radius: var(--radius-full);
+
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.route-date-editor-icon-start-active {
+    background-color: var(--color-primary-200);
+
+    color: var(--color-primary-700);
+
+}
+
+.route-date-editor-icon-start-inactive {
+    background-color: var(--color-neutral-100);
+
+    color: var(--color-neutral-400);
+
+}
+
+.route-date-editor-label-start-active {
+    color: var(--color-primary-600);
+
+}
+
+.route-date-editor-label-start-inactive {
+    color: var(--color-neutral-400);
+
+}
+
+
+/* End Button Specifics */
+.route-date-editor-button-end-active {
+    background-color: var(--color-error-50);
+
+    border-color: var(--color-error-500);
+
+    box-shadow: 0 20px 25px -5px rgba(244, 63, 94, 0.1), 0 10px 10px -5px rgba(244, 63, 94, 0.04);
+    /* shadow-xl shadow-rose-500/10 */
+}
+
+.route-date-editor-button-end-inactive {
+    background-color: var(--color-white);
+    border-color: var(--color-neutral-100);
+
+}
+
+.route-date-editor-button-end-inactive:hover {
+    border-color: var(--color-neutral-200);
+
+    background-color: var(--color-neutral-50);
+
+}
+
+.route-date-editor-icon-wrapper-end {
+    width: 3rem;
+
+    height: 3rem;
+
+    border-radius: var(--radius-full);
+
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.route-date-editor-icon-end-active {
+    background-color: #fecdd3;
+
+    color: var(--color-error-700);
+
+}
+
+.route-date-editor-icon-end-inactive {
+    background-color: var(--color-neutral-100);
+
+    color: var(--color-neutral-400);
+
+}
+
+.route-date-editor-label-end-active {
+    color: var(--color-error-500);
+
+}
+
+.route-date-editor-label-end-inactive {
+    color: var(--color-neutral-400);
+
+}
+
+/* Common Button Elements */
+.route-date-editor-button-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    position: relative;
+    z-index: 10;
+}
+
+.route-date-editor-button-label {
+    font-size: var(--radius-xl);
+
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+
+}
+
+.route-date-editor-button-value {
+    font-size: var(--radius-3xl);
+
+    line-height: 2rem;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    color: var(--color-neutral-900);
+
+}
+
+.route-date-editor-button-placeholder {
+    font-size: var(--radius-3xl);
+
+    line-height: 2rem;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    color: var(--color-neutral-300);
+
+}
+
+
+/* Duration Pill */
+.route-date-editor-duration-wrapper {
+    display: flex;
+    justify-content: center;
+}
+
+.route-date-editor-duration-pill {
+    background-color: var(--color-neutral-100);
+
+    color: var(--color-neutral-600);
+
+    padding: var(--radius-md) var(--radius-2xl);
+    /* px-4 py-1.5 */
+    border-radius: var(--radius-full);
+
+    font-size: 0.875rem;
+
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: var(--radius-lg);
+
+}
+
+.route-date-editor-duration-icon {
+    /* lucide-react sets its own width/height but we can style color */
+    color: var(--color-warning-500);
+
+}
+
+/* Mobile Backdrop */
+.route-date-editor-backdrop {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: rgba(15, 23, 42, 0.6);
+
+    backdrop-filter: blur(4px);
+
+    z-index: 90;
+    transition: opacity var(--transition-normal);
+}
+
+@media (min-width: 768px) {
+    .route-date-editor-backdrop {
+        display: none;
+
+    }
+}
+
+.route-date-editor-backdrop-open {
+    opacity: 1;
+}
+
+.route-date-editor-backdrop-closed {
+    opacity: 0;
+    pointer-events: none;
+}
+
+
+/* Right Panel / Sidebar */
+.route-date-editor-right-panel {
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    height: 85dvh;
+    background-color: var(--color-white);
+    border-top: 1px solid var(--color-neutral-200);
+    /* border-t border-slate-200 */
+    border-radius: 32px 32px 0 0;
+    /* rounded-t-[32px] */
+    box-shadow: 0 -10px 40px -15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+@media (min-width: 768px) {
+    .route-date-editor-right-panel {
+        position: static;
+        height: auto;
+        width: 380px;
+        background-color: var(--color-neutral-50);
+
+        border-top: none;
+        border-left: 1px solid var(--color-neutral-200);
+        /* md:border-l border-slate-200 */
+        border-radius: 0;
+        box-shadow: none;
+        transform: translateY(0);
+    }
+}
+
+.route-date-editor-right-panel-closed {
+    transform: translateY(100%);
+}
+
+.route-date-editor-right-panel-open {
+    transform: translateY(0);
+}
+
+@media (min-width: 768px) {
+    .route-date-editor-right-panel-closed {
+        transform: translateY(0);
+    }
+}
+
+/* Mobile Handle */
+.route-date-editor-mobile-handle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: var(--radius-xl);
+
+    padding-bottom: 0.25rem;
+
+}
+
+@media (min-width: 768px) {
+    .route-date-editor-mobile-handle {
+        display: none;
+
+    }
+}
+
+.route-date-editor-mobile-handle-bar {
+    width: 3rem;
+
+    height: var(--radius-md);
+    /* h-1.5 */
+    background-color: var(--color-neutral-200);
+
+    border-radius: var(--radius-full);
+
+    margin-bottom: var(--radius-lg);
+
+}
+
+/* Section Common */
+.route-date-editor-section-header-title {
+    font-weight: 700;
+    color: var(--color-neutral-900);
+
+    display: flex;
+    align-items: center;
+    gap: var(--radius-lg);
+
+    font-size: 0.875rem;
+
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+
+    margin: 0;
+}
+
+.route-date-editor-section-header-icon {
+    color: var(--color-neutral-400);
+
+}
+
+/* 1. Date Picker Section */
+.route-date-editor-datepicker-section {
+    padding: var(--radius-xl);
+
+    border-bottom: 1px solid var(--color-neutral-100);
+    /* border-b border-slate-100 */
+    flex: none;
+}
+
+@media (min-width: 768px) {
+    .route-date-editor-datepicker-section {
+        padding: var(--radius-3xl);
+
+    }
+}
+
+.route-date-editor-datepicker-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--radius-2xl);
+
+}
+
+.route-date-editor-done-btn {
+    font-size: 0.875rem;
+
+    font-weight: 700;
+    color: var(--color-primary-600);
+
+    background-color: var(--color-primary-50);
+
+    padding: 0.25rem var(--radius-xl);
+    /* px-3 py-1 */
+    border-radius: var(--radius-full);
+
+    border: none;
+    cursor: pointer;
+}
+
+@media (min-width: 768px) {
+    .route-date-editor-done-btn {
+        display: none;
+
+    }
+}
+
+.route-date-editor-datepicker-container {
+    background-color: var(--color-white);
+    border-radius: var(--radius-3xl);
+
+    box-shadow: var(--shadow-sm);
+
+    border: 1px solid var(--color-neutral-100);
+
+    padding: var(--radius-lg);
+
+    display: flex;
+    justify-content: center;
+}
+
+/* 2. Custom Time Picker Section */
+.route-date-editor-timepicker-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    padding-bottom: var(--radius-3xl);
+
+    /* safe-area-bottom handled via padding usually, or a var */
+    padding-bottom: env(safe-area-inset-bottom, var(--radius-3xl));
+}
+
+.route-date-editor-timepicker-header {
+    padding: var(--radius-xl) var(--radius-2xl);
+    /* px-4 py-3 */
+    border-bottom: 1px solid var(--color-neutral-100);
+    /* border-b border-slate-100 */
+    background-color: rgba(248, 250, 252, 0.5);
+
+}
+
+@media (min-width: 768px) {
+    .route-date-editor-timepicker-header {
+        padding: var(--radius-2xl) var(--radius-3xl);
+        /* md:px-6 md:py-4 */
+    }
+}
+
+.route-date-editor-timepicker-grid-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--radius-xl);
+
+    padding-bottom: 8rem;
+
+}
+
+@media (min-width: 768px) {
+    .route-date-editor-timepicker-grid-container {
+        padding: var(--radius-2xl);
+
+        padding-bottom: 2rem;
+
+    }
+}
+
+.route-date-editor-timepicker-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+
+    gap: var(--radius-lg);
+
+}
+
+.route-date-editor-time-slot {
+    padding: var(--radius-lg);
+    /* px-2 py-2 */
+    border-radius: var(--radius-xl);
+
+    font-size: 0.875rem;
+
+    font-weight: 700;
+    transition: all var(--transition-fast);
+    border: none;
+    cursor: pointer;
+}
+
+.route-date-editor-time-slot-selected {
+    background-color: var(--color-primary-600);
+
+    color: var(--color-white);
+    box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.2), 0 4px 6px -4px rgba(16, 185, 129, 0.2);
+    /* shadow-lg shadow-emerald-500/20 */
+    transform: scale(1.05);
+
+    box-shadow: 0 0 0 2px var(--color-white), 0 0 0 4px var(--color-primary-500);
+    /* ring-2 ring-emerald-500 ring-offset-2 */
+}
+
+.route-date-editor-time-slot-current-hour {
+    background-color: var(--color-neutral-200);
+
+    color: var(--color-neutral-800);
+
+}
+
+.route-date-editor-time-slot-default {
+    background-color: var(--color-white);
+    border: 1px solid var(--color-neutral-100);
+
+    color: var(--color-neutral-500);
+
+}
+
+.route-date-editor-time-slot-default:hover {
+    border-color: var(--color-primary-300);
+
+    color: var(--color-primary-600);
+
+}
+
+/* =========================================
+   Sidebar Date Picker Styles (from previous)
+   ========================================= */
+.sidebar-datepicker {
+    font-family: 'Outfit', sans-serif !important;
+    border: none !important;
+    background-color: var(--color-transparent) !important;
+    display: flex !important;
+    width: 100% !important;
+}
+
+.datepicker-sidebar-wrapper .react-datepicker {
+    width: 100% !important;
+    display: block !important;
+}
+
+.react-datepicker__month-container {
+    width: 100% !important;
+    float: none !important;
+}
+
+/* Hide default helper header */
+.react-datepicker__header {
+    background-color: var(--color-white) !important;
+    border-bottom: none !important;
+    padding-top: 10px !important;
+}
+
+.react-datepicker__current-month {
+    font-family: inherit !important;
+    font-weight: 700 !important;
+    color: var(--color-neutral-900) !important;
+    font-size: var(--radius-2xl) !important;
+    margin-bottom: 12px !important;
+    text-transform: capitalize !important;
+}
+
+.react-datepicker__day-name {
+    color: var(--color-neutral-400) !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    font-size: var(--radius-xl) !important;
+    width: 2.5rem !important;
+    display: inline-block !important;
+    margin: 2px !important;
+}
+
+.react-datepicker__day {
+    font-weight: 600 !important;
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+    line-height: 2.5rem !important;
+    border-radius: 12px !important;
+    margin: 2px !important;
+    display: inline-block !important;
+}
+
+.react-datepicker__day:not(.react-datepicker__day--selected):not(.react-datepicker__day--keyboard-selected):hover {
+    background-color: var(--color-primary-50) !important;
+    color: var(--color-primary-600) !important;
+    border-radius: 12px !important;
+}
+
+.react-datepicker__day--selected,
+.react-datepicker__day--selected:hover {
+    background-color: var(--color-primary-600) !important;
+    color: var(--color-white) !important;
+}
+
+.react-datepicker__day--keyboard-selected {
+    background-color: var(--color-transparent) !important;
+    color: inherit !important;
+    border: 2px solid var(--color-primary-600) !important;
+}
+
+.react-datepicker__day--selected.react-datepicker__day--keyboard-selected {
+    background-color: var(--color-primary-600) !important;
+    color: var(--color-white) !important;
+    border: none !important;
+}
+
+.range-intermediate {
+    background-color: var(--color-primary-100) !important;
+    color: var(--color-primary-800) !important;
+    border-radius: 12px !important;
+    margin: 2px !important;
+    font-weight: 600 !important;
+}
+
+.range-start-marker,
+.range-end-marker {
+    background-color: var(--color-primary-600) !important;
+    color: var(--color-white) !important;
+    font-weight: 800 !important;
+    border-radius: 12px !important;
+    position: relative;
+    z-index: 10;
+}
+
+.react-datepicker__day--today {
+    font-weight: 800 !important;
+    color: var(--color-primary-600) !important;
+}
+
+.react-datepicker__day--today.react-datepicker__day--selected,
+.react-datepicker__day--today.range-start-marker,
+.react-datepicker__day--today.range-end-marker {
+    color: var(--color-white) !important;
+}
+
+.react-datepicker__day--today::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background-color: currentColor;
+}
+
+.react-datepicker__time-container {
+    border-left: 1px solid var(--color-neutral-100) !important;
+    width: 100px !important;
+}
+
+.react-datepicker__time-container .react-datepicker__time {
+    background: var(--color-white) !important;
+    border-radius: 0 24px 24px 0 !important;
+}
+
+.react-datepicker__time-container .react-datepicker__time .react-datepicker__time-box {
+    width: 100% !important;
+}
+
+.react-datepicker__time-container .react-datepicker__time .react-datepicker__time-box ul.react-datepicker__time-list li.react-datepicker__time-list-item {
+    height: 36px !important;
+    padding: 6px 0 !important;
+    font-weight: 600 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.react-datepicker__navigation {
+    top: 20px !important;
+}
+
+.react-datepicker__navigation--previous {
+    left: 20px !important;
+}
+
+.react-datepicker__navigation--next {
+    right: 20px !important;
+}

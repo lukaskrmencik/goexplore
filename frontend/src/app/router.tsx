@@ -1,13 +1,13 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
-import MapViewerPage from "../pages/MapViewerPage";
-import CreateRoutePage from "../pages/CreateRoutePage";
-import HomePage from "../pages/HomePage";
-import EquipmentPage from "../pages/EquipmentPage";
-import UserAccountPage from "../pages/UserAccountPage";
+import MapViewerPage from "../pages/MapViewerPage/MapViewerPage";
+import CreateRoutePage from "../pages/CreateRoutePage/CreateRoutePage";
+import HomePage from "../pages/HomePage/HomePage";
+import EquipmentPage from "../pages/EquipmentPage/EquipmentPage";
+import UserAccountPage from "../pages/UserAccountPage/UserAccountPage";
 
-import { MainLayout } from "../components/layout/MainLayout";
+import { MainLayout } from "../components/layout/MainLayout/MainLayout";
 
 const AppRouter: React.FC = () => {
   return (

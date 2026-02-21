@@ -1,0 +1,109 @@
+.pagination-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+}
+
+@media (min-width: 640px) {
+    .pagination-container {
+        gap: var(--radius-lg);
+    }
+}
+
+.pagination-numbers-container {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.pagination-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-xl);
+    transition: all var(--transition-fast);
+    border: none;
+    cursor: pointer;
+    background: var(--color-transparent);
+}
+
+.pagination-btn-arrow {
+    width: 2.5rem;
+    height: 2.5rem;
+    color: var(--color-neutral-400);
+}
+
+.pagination-btn-arrow:hover:not(:disabled) {
+    background-color: var(--color-neutral-100);
+    color: var(--color-neutral-900);
+}
+
+.pagination-btn-arrow:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.pagination-btn-number {
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+}
+
+.pagination-btn-number-active {
+    background-color: var(--color-primary-600);
+    color: var(--color-white);
+    box-shadow: 0 10px 15px -3px rgba(5, 150, 105, 0.2), 0 4px 6px -2px rgba(5, 150, 105, 0.1);
+}
+
+.pagination-btn-number-inactive {
+    color: var(--color-neutral-500);
+    background-color: var(--color-transparent);
+}
+
+.pagination-btn-number-inactive:hover {
+    background-color: var(--color-neutral-100);
+    color: var(--color-neutral-900);
+}
+
+.pagination-btn-edge {
+    width: 2rem;
+    height: 2rem;
+    font-size: var(--radius-xl);
+    font-weight: 700;
+    color: var(--color-neutral-500);
+    display: none;
+}
+
+@media (min-width: 640px) {
+    .pagination-btn-edge {
+        display: flex;
+        width: 2.5rem;
+        height: 2.5rem;
+        font-size: 0.875rem;
+    }
+}
+
+.pagination-btn-edge:hover {
+    background-color: var(--color-neutral-100);
+    color: var(--color-neutral-900);
+}
+
+.pagination-ellipsis {
+    width: 2rem;
+    height: 2rem;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-neutral-300);
+    font-size: var(--radius-xl);
+}
+
+@media (min-width: 640px) {
+    .pagination-ellipsis {
+        display: flex;
+        width: 2.5rem;
+        height: 2.5rem;
+    }
+}

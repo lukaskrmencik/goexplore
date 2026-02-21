@@ -1,0 +1,308 @@
+/* RouteUsersEditor.css */
+
+.route-users-editor-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--color-white);
+    overflow: hidden;
+    position: relative;
+}
+
+@media (min-width: 768px) {
+    .route-users-editor-container {
+        flex-direction: row;
+    }
+}
+
+/* Left Panel */
+.route-users-editor-left-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: var(--radius-3xl);
+
+    padding-top: 6rem;
+
+    padding-bottom: 8rem;
+
+    z-index: 10;
+    position: relative;
+    overflow: hidden;
+}
+
+/* safe-area-bottom can be added with padding-bottom env if needed */
+.route-users-editor-left-panel {
+    padding-bottom: max(8rem, env(safe-area-inset-bottom));
+}
+
+@media (min-width: 768px) {
+    .route-users-editor-left-panel {
+        justify-content: center;
+        padding-top: var(--radius-3xl);
+
+        padding-bottom: var(--radius-3xl);
+
+    }
+}
+
+.route-users-editor-content-wrapper {
+    max-width: 28rem;
+
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+
+}
+
+
+.route-users-editor-header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--radius-xl);
+
+    text-align: center;
+}
+
+@media (min-width: 768px) {
+    .route-users-editor-header {
+        text-align: left;
+    }
+}
+
+.route-users-editor-title {
+    font-size: 2.25rem;
+
+    line-height: 2.5rem;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    color: var(--color-neutral-900);
+
+    letter-spacing: -0.025em;
+
+    margin: 0;
+}
+
+@media (min-width: 768px) {
+    .route-users-editor-title {
+        font-size: 3rem;
+
+        line-height: 1;
+    }
+}
+
+.route-users-editor-subtitle {
+    font-size: 1.var(--radius-3xl);
+
+    line-height: 1.75rem;
+    color: var(--color-neutral-500);
+
+    font-weight: 500;
+    margin: 0;
+}
+
+/* Mobile Backdrop */
+.route-users-editor-backdrop {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.2);
+
+    backdrop-filter: blur(4px);
+
+    z-index: 30;
+    transition: opacity var(--transition-normal);
+    border: none;
+}
+
+@media (min-width: 768px) {
+    .route-users-editor-backdrop {
+        display: none;
+
+    }
+}
+
+/* Right Panel / Bottom Sheet */
+.route-users-editor-right-panel {
+    position: absolute;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 40;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--color-neutral-50);
+
+    border-top: 1px solid var(--color-neutral-200);
+    /* border-t border-slate-200 */
+    border-radius: 32px 32px 0 0;
+    /* rounded-t-[32px] */
+    box-shadow: 0 -10px 40px -15px rgba(0, 0, 0, 0.1);
+    transition: all 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+@media (min-width: 768px) {
+    .route-users-editor-right-panel {
+        position: static;
+        height: auto;
+        width: 420px;
+        background-color: var(--color-neutral-50);
+
+        border-top: none;
+        border-left: 1px solid var(--color-neutral-200);
+        /* md:border-l md:border-slate-200 */
+        border-radius: 0;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+
+        transform: translateY(0);
+    }
+}
+
+.route-users-editor-right-panel-closed {
+    height: 4rem;
+
+    transform: translateY(0);
+}
+
+.route-users-editor-right-panel-open {
+    height: 92%;
+    /* h-[92%] */
+    transform: translateY(0);
+}
+
+@media (min-width: 768px) {
+
+    .route-users-editor-right-panel-closed,
+    .route-users-editor-right-panel-open {
+        height: auto;
+    }
+}
+
+
+/* Drag Handle / Header */
+.route-users-editor-panel-header {
+    padding: var(--radius-2xl);
+
+    border-bottom: 1px solid var(--color-neutral-200);
+    /* border-b border-slate-200 */
+    background-color: rgba(255, 255, 255, 0.5);
+    /* bg-var(--color-white)/50 */
+    backdrop-filter: blur(24px);
+
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    border-radius: 32px 32px 0 0;
+    /* rounded-t-[32px] */
+    cursor: pointer;
+    height: 4rem;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+@media (min-width: 768px) {
+    .route-users-editor-panel-header {
+        padding: var(--radius-3xl);
+
+        border-radius: 0;
+
+        cursor: default;
+
+        height: auto;
+
+    }
+}
+
+.route-users-editor-mobile-handle-bar {
+    width: 3rem;
+
+    height: var(--radius-md);
+    /* h-1.5 */
+    background-color: var(--color-neutral-300);
+
+    border-radius: var(--radius-full);
+
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: var(--radius-lg);
+
+}
+
+@media (min-width: 768px) {
+    .route-users-editor-mobile-handle-bar {
+        display: none;
+
+    }
+}
+
+.route-users-editor-panel-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.route-users-editor-panel-title {
+    font-weight: 700;
+    color: var(--color-neutral-900);
+
+    display: flex;
+    align-items: center;
+    gap: var(--radius-lg);
+
+    font-size: 0.875rem;
+
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+
+    margin: 0;
+}
+
+.route-users-editor-panel-title-icon {
+    color: var(--color-neutral-400);
+
+}
+
+.route-users-editor-chevron {
+    color: var(--color-neutral-400);
+
+    transition: transform var(--transition-normal);
+}
+
+@media (min-width: 768px) {
+    .route-users-editor-chevron {
+        display: none;
+
+    }
+}
+
+.route-users-editor-chevron-open {
+    transform: rotate(180deg);
+}
+
+
+/* List Container */
+.route-users-editor-list-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--radius-3xl);
+
+    padding-bottom: 6rem;
+
+}
+
+@media (min-width: 768px) {
+    .route-users-editor-list-container {
+        padding-bottom: var(--radius-3xl);
+
+    }
+}

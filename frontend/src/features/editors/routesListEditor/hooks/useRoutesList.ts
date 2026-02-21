@@ -14,38 +14,38 @@ export const useRoutesList = (page = 1) => {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
+    const loadData = async () => {
+        setIsLoading(true);
+        try {
+            // Paralelní načtení s paginací
+            const [ownedRes, sharedRes] = await Promise.all([
+                fetchAllRoutes(page),
+                fetchSharedRoutes(page)
+            ]);
+
+            setOwnedRoutes(ownedRes.items);
+            setOwnedPagination({
+                page: ownedRes.page,
+                total_pages: ownedRes.total_pages,
+                total_items: ownedRes.total_items
+            });
+
+            setSharedRoutes(sharedRes.items);
+            setSharedPagination({
+                page: sharedRes.page,
+                total_pages: sharedRes.total_pages,
+                total_items: sharedRes.total_items
+            });
+
+        } catch (err) {
+            console.error(err);
+            setError(getErrorMessage(err, "Nepodařilo se načíst seznam tras."));
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     useEffect(() => {
-        const loadData = async () => {
-            setIsLoading(true);
-            try {
-                // Paralelní načtení s paginací
-                const [ownedRes, sharedRes] = await Promise.all([
-                    fetchAllRoutes(page),
-                    fetchSharedRoutes(page)
-                ]);
-
-                setOwnedRoutes(ownedRes.items);
-                setOwnedPagination({
-                    page: ownedRes.page,
-                    total_pages: ownedRes.total_pages,
-                    total_items: ownedRes.total_items
-                });
-
-                setSharedRoutes(sharedRes.items);
-                setSharedPagination({
-                    page: sharedRes.page,
-                    total_pages: sharedRes.total_pages,
-                    total_items: sharedRes.total_items
-                });
-
-            } catch (err) {
-                console.error(err);
-                setError(getErrorMessage(err, "Nepodařilo se načíst seznam tras."));
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
         loadData();
     }, [page]); // Re-run when page changes
 
@@ -62,6 +62,7 @@ export const useRoutesList = (page = 1) => {
         sharedPagination,
         isLoading,
         error,
-        openRoute
+        openRoute,
+        refetch: loadData
     };
 };

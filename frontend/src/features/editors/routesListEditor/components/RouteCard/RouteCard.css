@@ -1,0 +1,476 @@
+/* RouteCard.css */
+
+.route-card-container {
+    position: relative;
+    background-color: var(--color-white);
+    /* bg-var(--color-white) */
+    border-radius: var(--radius-2xl);
+
+    border: 1px solid var(--color-neutral-200);
+
+    box-shadow: var(--shadow-sm);
+
+    transition: all 0.3s;
+    /* transition-all duration-300 */
+    cursor: pointer;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.route-card-container:hover {
+    box-shadow: var(--shadow-md);
+
+    transform: translateY(-0.25rem);
+
+}
+
+.route-card-is-past {
+    opacity: 0.8;
+
+}
+
+.route-card-is-past:hover {
+    opacity: 1;
+
+}
+
+/* Image Placeholder */
+.route-card-image-placeholder {
+    height: 10rem;
+
+    background-color: var(--color-neutral-100);
+
+    position: relative;
+    overflow: hidden;
+    border-bottom: 1px solid var(--color-neutral-100);
+    /* border-b border-slate-100 */
+    flex-shrink: 0;
+}
+
+.route-card-image-pattern {
+    position: absolute;
+    inset: 0;
+    opacity: 0.1;
+    background-image: radial-gradient(var(--color-neutral-300) 1px, var(--color-transparent) 1px);
+    background-size: 10px 10px;
+}
+
+.route-card-image-icon-wrapper {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-neutral-300);
+
+}
+
+
+.route-card-shared-badge {
+    position: absolute;
+    top: var(--radius-xl);
+
+    right: var(--radius-xl);
+
+    display: flex;
+    align-items: center;
+    gap: var(--radius-lg);
+
+    background-color: rgba(255, 255, 255, 0.9);
+    /* bg-var(--color-white)/90 */
+    backdrop-filter: blur(4px);
+
+    padding: 0.25rem var(--radius-lg);
+    /* px-2 py-1 */
+    border-radius: var(--radius-full);
+
+    box-shadow: var(--shadow-sm);
+
+    border: 1px solid var(--color-neutral-100);
+
+    z-index: 10;
+}
+
+.route-card-shared-name {
+    font-size: var(--radius-xl);
+
+    font-weight: 500;
+    color: var(--color-neutral-600);
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    max-width: 100px;
+}
+
+.route-card-status-badge {
+    position: absolute;
+    top: var(--radius-xl);
+
+    left: var(--radius-xl);
+
+    padding: 0.25rem 0.625rem;
+    /* px-2.5 py-1 */
+    border-radius: var(--radius-lg);
+
+    font-size: var(--radius-xl);
+
+    font-weight: 700;
+    box-shadow: var(--shadow-sm);
+
+    border: 1px solid;
+    display: flex;
+    align-items: center;
+    gap: var(--radius-md);
+    /* gap-1.5 */
+    z-index: 10;
+}
+
+.route-card-status-icon-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: .5;
+    }
+}
+
+/* Status variants */
+.route-card-status-active {
+    background-color: var(--color-primary-100);
+
+    color: var(--color-primary-700);
+
+    border-color: var(--color-primary-200);
+
+}
+
+.route-card-status-past {
+    background-color: var(--color-neutral-100);
+
+    color: var(--color-neutral-500);
+
+    border-color: var(--color-neutral-200);
+
+    filter: grayscale(100%);
+
+}
+
+.route-card-status-future {
+    background-color: #eff6ff;
+
+    color: #1d4ed8;
+
+    border-color: #dbeafe;
+
+}
+
+.route-card-status-draft {
+    background-color: var(--color-warning-100);
+
+    color: #b45309;
+
+    border-color: #fde68a;
+
+}
+
+.route-card-status-default {
+    background-color: var(--color-neutral-50);
+
+    color: var(--color-neutral-600);
+
+    border-color: var(--color-neutral-200);
+
+}
+
+
+.route-card-body {
+    padding: var(--radius-2xl);
+
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: var(--radius-lg);
+
+}
+
+.route-card-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--radius-lg);
+
+    margin-bottom: 0.25rem;
+
+}
+
+.route-card-title {
+    font-family: var(--font-heading);
+
+    font-weight: 700;
+    font-size: 1.var(--radius-3xl);
+
+    line-height: 1.25;
+
+    transition: color 0.15s;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.route-card-title-past {
+    color: var(--color-neutral-600);
+
+}
+
+.route-card-title-active {
+    color: var(--color-neutral-900);
+
+}
+
+.route-card-container:hover .route-card-title-active {
+    color: var(--color-primary-700);
+
+}
+
+/* Draft Content */
+.route-card-draft-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.route-card-draft-desc {
+    font-size: 0.875rem;
+
+    color: var(--color-neutral-500);
+
+    margin-bottom: var(--radius-3xl);
+
+    font-weight: 500;
+    margin-top: 0;
+}
+
+.route-card-draft-action-wrapper {
+    margin-top: auto;
+
+}
+
+.route-card-continue-btn {
+    width: 100%;
+
+    background-color: var(--color-primary-50);
+
+    border: 1px solid var(--color-primary-100);
+    /* border border-emerald-100 */
+    color: var(--color-primary-700);
+
+    font-weight: 700;
+    padding-top: var(--radius-lg);
+
+    padding-bottom: var(--radius-lg);
+    border-radius: var(--radius-xl);
+
+    font-size: 0.875rem;
+
+    box-shadow: var(--shadow-sm);
+
+    transition: background-color 0.15s;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--radius-lg);
+
+    cursor: pointer;
+}
+
+.route-card-continue-btn:hover {
+    background-color: var(--color-primary-100);
+
+}
+
+/* Footer (Normal Content) */
+.route-card-footer {
+    margin-top: auto;
+
+    padding-top: var(--radius-xl);
+
+    border-top: 1px solid var(--color-neutral-50);
+    /* border-t border-slate-50 */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.route-card-length-wrapper {
+    display: flex;
+    align-items: center;
+    gap: var(--radius-lg);
+
+    font-size: var(--radius-xl);
+
+    font-weight: 500;
+    color: var(--color-neutral-500);
+
+}
+
+.route-card-length-icon-wrapper {
+    padding: var(--radius-md);
+    /* p-1.5 */
+    border-radius: var(--radius-md);
+
+    background-color: var(--color-neutral-50);
+
+    color: var(--color-neutral-400);
+
+    transition: all 0.15s;
+}
+
+.route-card-container:hover .route-card-length-icon-wrapper {
+    background-color: var(--color-primary-50);
+
+    color: var(--color-primary-600);
+
+}
+
+.route-card-length-text {
+    color: var(--color-neutral-600);
+
+}
+
+.route-card-participants-wrapper {
+    display: flex;
+    align-items: center;
+    gap: var(--radius-lg);
+
+}
+
+.route-card-avatars-stack {
+    display: flex;
+    align-items: center;
+    margin-right: -var(--radius-lg);
+    /* -space-x-2 equivalent */
+    overflow: hidden;
+    padding-left: 0.25rem;
+
+}
+
+.route-card-avatars-stack>* {
+    margin-left: -var(--radius-lg);
+    /* negative margin applied to children */
+}
+
+.route-card-avatars-stack>*:first-child {
+    margin-left: 0;
+}
+
+.route-card-avatar {
+    box-shadow: 0 0 0 2px var(--color-white);
+    /* ring-2 ring-var(--color-white) */
+    width: 1.75rem;
+
+    height: 1.75rem;
+
+    font-size: 10px;
+    /* text-[10px] */
+}
+
+.route-card-avatar-overflow {
+    width: 1.75rem;
+
+    height: 1.75rem;
+
+    border-radius: var(--radius-full);
+
+    background-color: var(--color-neutral-100);
+
+    border: 2px solid var(--color-white);
+    /* border-2 border-var(--color-white) */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    /* text-[9px] */
+    font-weight: 700;
+    color: var(--color-neutral-500);
+
+    z-index: 10;
+}
+
+.route-card-share-icon {
+    color: var(--color-neutral-300);
+
+    margin-left: 0.25rem;
+
+}
+
+/* New Elements Styling */
+.route-card-draft-info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--radius-md);
+    margin-bottom: var(--radius-2xl);
+}
+
+.route-card-info-text,
+.route-card-mode-text {
+    font-size: 0.8125rem;
+    color: var(--color-neutral-500);
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.route-card-mode-text {
+    margin-left: auto;
+    /* Push it to the right before share icon if needed */
+}
+
+.route-card-delete-btn {
+    position: absolute;
+    top: var(--radius-xl);
+    right: var(--radius-xl);
+    background-color: var(--color-white);
+    color: var(--color-error-500);
+    border: 1px solid var(--color-neutral-200);
+    border-radius: var(--radius-full);
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s;
+    z-index: 20;
+    opacity: 0;
+    /* Hidden by default */
+}
+
+.route-card-container:hover .route-card-delete-btn {
+    opacity: 1;
+    /* Show on parent hover */
+}
+
+.route-card-delete-btn:hover {
+    background-color: var(--color-error-50);
+    color: var(--color-error-600);
+    border-color: var(--color-error-200);
+}
+
+/* Adjust shared badge position if it collides with deletebtn on shared cards, but deletebtn is only for owned routes! So no collision */

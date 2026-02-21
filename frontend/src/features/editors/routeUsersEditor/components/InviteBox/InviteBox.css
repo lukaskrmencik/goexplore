@@ -1,0 +1,298 @@
+/* InviteBox.css */
+.invite-box-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: var(--radius-3xl);
+
+}
+
+.invite-box-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--radius-lg);
+
+}
+
+.invite-box-input-wrapper {
+    position: relative;
+}
+
+.invite-box-link-icon-wrapper {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    padding-left: var(--radius-2xl);
+
+    display: flex;
+    align-items: center;
+    pointer-events: none;
+}
+
+.invite-box-link-icon {
+    color: var(--color-primary-500);
+
+}
+
+
+.invite-box-skeleton {
+    height: 58px;
+    /* h-[58px] */
+    width: 100%;
+    border-radius: var(--radius-2xl);
+
+    border: 2px solid var(--color-neutral-100);
+
+    background-color: var(--color-neutral-50);
+
+    animation: inviteBoxPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+
+    display: flex;
+    align-items: center;
+    padding-left: 3rem;
+
+    padding-right: var(--radius-2xl);
+
+}
+
+.invite-box-skeleton-bar {
+    height: var(--radius-2xl);
+
+    background-color: var(--color-neutral-200);
+
+    border-radius: 0.25rem;
+
+    width: 66.666667%;
+
+}
+
+@keyframes inviteBoxPulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: .5;
+    }
+}
+
+/* Actual Input */
+.invite-box-input {
+    display: block;
+    width: 100%;
+    border-radius: var(--radius-2xl);
+
+    border: 2px solid var(--color-primary-100);
+
+    background-color: var(--color-white);
+    /* bg-var(--color-white) */
+    padding-top: var(--radius-2xl);
+
+    padding-bottom: var(--radius-2xl);
+    padding-left: 3rem;
+
+    padding-right: 3.5rem;
+
+    color: var(--color-neutral-600);
+
+    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+    font-size: 0.875rem;
+
+    line-height: 1.25rem;
+    box-shadow: var(--shadow-sm);
+
+    cursor: text;
+}
+
+.invite-box-input::placeholder {
+    color: var(--color-neutral-400);
+
+}
+
+.invite-box-input:focus {
+    border-color: var(--color-primary-500);
+
+    outline: 2px solid var(--color-transparent);
+    /* focus:ring-4 focus:ring-emerald-500/10 */
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+}
+
+.invite-box-input::selection {
+    background-color: var(--color-primary-100);
+
+    color: var(--color-primary-900);
+
+}
+
+/* Copy Button */
+.invite-box-copy-wrapper {
+    position: absolute;
+    top: var(--radius-lg);
+
+    bottom: var(--radius-lg);
+    right: var(--radius-lg);
+
+    display: flex;
+}
+
+.invite-box-copy-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+
+    height: 2.5rem;
+
+    border-radius: var(--radius-xl);
+
+    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none;
+    cursor: pointer;
+}
+
+.invite-box-copy-btn-copied {
+    background-color: var(--color-primary-100);
+
+    color: var(--color-primary-700);
+
+}
+
+.invite-box-copy-btn-default {
+    background-color: var(--color-white);
+    /* bg-var(--color-white) */
+    color: var(--color-neutral-400);
+
+}
+
+.invite-box-copy-btn-default:hover {
+    background-color: var(--color-neutral-100);
+
+    color: var(--color-primary-600);
+
+}
+
+/* Share Actions */
+.invite-box-share-actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--radius-xl);
+
+}
+
+.invite-box-native-share-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--radius-lg);
+
+    border-radius: var(--radius-xl);
+
+    background-color: var(--color-primary-600);
+
+    padding-left: var(--radius-2xl);
+
+    padding-right: var(--radius-2xl);
+    padding-top: var(--radius-2xl);
+
+    padding-bottom: var(--radius-2xl);
+    font-size: var(--radius-2xl);
+
+    line-height: var(--radius-3xl);
+    font-weight: 700;
+
+    color: var(--color-white);
+    /* text-var(--color-white) */
+    box-shadow: 0 10px 15px -3px rgba(5, 150, 105, 0.2), 0 4px 6px -4px rgba(5, 150, 105, 0.2);
+    /* shadow-lg shadow-emerald-600/20 */
+    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none;
+    cursor: pointer;
+}
+
+.invite-box-native-share-btn:hover {
+    background-color: var(--color-primary-500);
+
+    transform: translateY(-var(--radius-sm));
+    /* hover:-translate-y-0.5 */
+}
+
+/* Secondary Options Grid */
+.invite-box-secondary-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: var(--radius-xl);
+
+}
+
+.invite-box-secondary-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--radius-lg);
+
+    border-radius: var(--radius-xl);
+
+    padding-left: var(--radius-2xl);
+
+    padding-right: var(--radius-2xl);
+    padding-top: var(--radius-xl);
+
+    padding-bottom: var(--radius-xl);
+    font-size: 0.875rem;
+
+    line-height: 1.25rem;
+    font-weight: 700;
+
+    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    text-decoration: none;
+}
+
+.invite-box-link-whatsapp {
+    background-color: rgba(37, 211, 102, 0.1);
+    /* bg-[#25D366]/10 */
+    color: #25D366;
+    /* text-[#25D366] */
+    border: 1px solid rgba(37, 211, 102, 0.2);
+    /* border border-[#25D366]/20 */
+}
+
+.invite-box-link-whatsapp:hover {
+    background-color: rgba(37, 211, 102, 0.2);
+    /* hover:bg-[#25D366]/20 */
+}
+
+.invite-box-link-email {
+    background-color: var(--color-neutral-50);
+
+    color: var(--color-neutral-700);
+
+    border: 1px solid var(--color-neutral-200);
+    /* border border-slate-200 */
+}
+
+.invite-box-link-email:hover {
+    background-color: var(--color-neutral-100);
+
+}
+
+/* Helper Text */
+.invite-box-helper-text {
+    text-align: center;
+
+    font-size: var(--radius-xl);
+
+    line-height: var(--radius-2xl);
+    font-weight: 500;
+
+    color: var(--color-neutral-400);
+
+    margin: 0;
+}

@@ -1,0 +1,108 @@
+.input-wrapper {
+    margin-top: var(--radius-md);
+    margin-bottom: var(--radius-md);
+    width: 100%;
+}
+
+.input-label {
+    display: block;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 700;
+    margin-bottom: var(--radius-md);
+}
+
+.input-label-error {
+    color: var(--color-error-600);
+}
+
+.input-label-standard {
+    color: var(--color-neutral-700);
+}
+
+.input-container {
+    position: relative;
+}
+
+.input-icon-left {
+    position: absolute;
+    left: var(--radius-2xl);
+    top: 0.875rem;
+}
+
+.input-icon-left-error {
+    color: #fb7185;
+}
+
+.input-icon-left-standard {
+    color: var(--color-neutral-400);
+}
+
+.input-field {
+    width: 100%;
+    padding-top: var(--radius-xl);
+    padding-bottom: var(--radius-xl);
+    background-color: var(--color-white);
+    border-width: 1px;
+    border-style: solid;
+    border-radius: var(--radius-xl);
+    outline: 2px solid var(--color-transparent);
+    outline-offset: 2px;
+    transition: all var(--transition-fast);
+    font-weight: 500;
+    box-shadow: var(--shadow-sm);
+    box-sizing: border-box;
+}
+
+.input-field-with-icon {
+    padding-left: 2.75rem;
+}
+
+.input-field-without-icon {
+    padding-left: var(--radius-2xl);
+}
+
+.input-field-error {
+    padding-right: 2.5rem;
+    border-color: #fda4af;
+    color: var(--color-error-600);
+}
+
+.input-field-error:focus {
+    border-color: var(--color-error-500);
+    box-shadow: 0 0 0 4px rgba(244, 63, 94, 0.1);
+}
+
+.input-field-standard {
+    padding-right: var(--radius-2xl);
+    border-color: var(--color-neutral-200);
+    color: var(--color-neutral-900);
+}
+
+.input-field-standard::placeholder {
+    color: var(--color-neutral-400);
+}
+
+.input-field-standard:focus {
+    border-color: var(--color-primary-500);
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+}
+
+.input-icon-right {
+    position: absolute;
+    right: var(--radius-2xl);
+    top: 0.875rem;
+    color: var(--color-error-500);
+}
+
+.input-error-message {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: var(--color-error-600);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-top: var(--radius-md);
+    margin-bottom: 0;
+}

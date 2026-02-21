@@ -1,0 +1,21 @@
+/* UserAccountPage.css */
+
+.user-account-page-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--radius-3xl);
+
+}
+
+.user-account-page-title {
+    font-size: 1.875rem;
+
+    line-height: 2.25rem;
+    font-family: inherit;
+
+    font-weight: 700;
+
+    color: var(--color-neutral-900);
+
+    margin: 0;
+}
