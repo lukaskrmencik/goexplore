@@ -41,7 +41,12 @@ export const useRouteUsers = (route: Route, onUpdateRoute: (route: Route) => voi
         setError(null);
         try {
             const token = await inviteUserToRoute(route.id);
-            const url = `${window.location.origin}/join/${token}`;
+
+            const baseUrl =
+                import.meta.env.VITE_INVITE_BASE_URL?.trim() ||
+                (typeof window !== "undefined" ? window.location.origin : "");
+
+            const url = `${baseUrl}/join/${token}`;
             setInviteLink(url);
         } catch (err) {
             console.error(err);
@@ -52,8 +57,6 @@ export const useRouteUsers = (route: Route, onUpdateRoute: (route: Route) => voi
     };
 
     const removeUser = async (userId: number) => {
-        if (!confirm("Opravdu chcete tohoto uživatele odebrat?")) return;
-
         setIsRemovingId(userId);
         setError(null);
         try {

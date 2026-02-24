@@ -2,14 +2,32 @@ import { useState, useEffect } from "react";
 import { useRoutesList } from ".././hooks/useRoutesList";
 import { deleteRoute } from "../../../../services/routesApiService";
 import RouteCard from ".././components/RouteCard/RouteCard";
-import { Plus, LayoutGrid, Share2 } from "lucide-react"; // Icons for tabs
-import { useNavigate } from "react-router-dom";
+import { Plus, LayoutGrid, Share2, Search } from "lucide-react"; // Icons for tabs
+import { useNavigate, useSearchParams } from "react-router-dom";
+import ConfirmDialog from "../../../../components/ui/ConfirmDialog/ConfirmDialog";
+import { Input } from "../../../../components/ui/Input/Input";
 import Pagination from "../../../../components/ui/Pagination/Pagination";
 import { usePagination } from "../../../../hooks/usePagination";
 import "./RoutesListEditor.css";
 
 const RoutesListEditor = () => {
     const pagination = usePagination();
+    const [searchInput, setSearchInput] = useState("");
+    const [debouncedSearch, setDebouncedSearch] = useState("");
+
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedSearch(searchInput);
+            if (searchInput !== debouncedSearch) {
+                pagination.setPage(1);
+            }
+        }, 500);
+
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [searchInput]);
+
     const {
         ownedRoutes,
         sharedRoutes,
@@ -19,10 +37,23 @@ const RoutesListEditor = () => {
         error,
         openRoute,
         refetch
-    } = useRoutesList(pagination.page);
+    } = useRoutesList(pagination.page, debouncedSearch);
 
     const navigate = useNavigate();
-    const [activeTab, setActiveTab] = useState<'owned' | 'shared'>('owned');
+    const [searchParams, setSearchParams] = useSearchParams();
+    const activeTab = (searchParams.get("tab") as 'owned' | 'shared') || 'owned';
+
+    const setActiveTab = (tab: 'owned' | 'shared') => {
+        setSearchParams((prev) => {
+            const newParams = new URLSearchParams(prev);
+            newParams.set("tab", tab);
+            newParams.delete("page");
+            return newParams;
+        });
+    };
+    const [routeToDelete, setRouteToDelete] = useState<number | null>(null);
+    const [routeToUnjoin, setRouteToUnjoin] = useState<number | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const handleCreateNew = () => {
         navigate("/routes/new");
@@ -31,20 +62,62 @@ const RoutesListEditor = () => {
     const routesToDisplay = activeTab === 'owned' ? ownedRoutes : sharedRoutes;
     const activePagination = activeTab === 'owned' ? ownedPagination : sharedPagination;
 
-    const handleRouteDelete = async (id: number) => {
-        if (window.confirm("Opravdu chcete smazat tuto cestu? Tato akce je nevratná.")) {
-            try {
-                // Bylo by dobré mít isLoading state i pro mazání, ale pro jednoduchost:
-                await deleteRoute(id);
-                // Obnovení seznamu
-                if (refetch) {
-                    refetch();
-                }
-            } catch (err) {
-                console.error("Nepodařilo se smazat cestu", err);
-                // Ideálně zobrazit chybu uživateli
-                alert("Nepodařilo se smazat cestu. Zkuste to prosím znovu.");
+    const handleRouteDelete = (id: number) => {
+        setRouteToDelete(id);
+    };
+
+    const handleRouteUnjoin = (id: number) => {
+        setRouteToUnjoin(id);
+    };
+
+    const confirmDelete = async () => {
+        if (routeToDelete === null) return;
+        setIsDeleting(true);
+        try {
+            await deleteRoute(routeToDelete);
+            if (refetch) {
+                refetch();
             }
+        } catch (err) {
+            console.error("Nepodařilo se smazat cestu", err);
+            alert("Nepodařilo se smazat cestu. Zkuste to prosím znovu.");
+        } finally {
+            setIsDeleting(false);
+            setRouteToDelete(null);
+        }
+    };
+
+    const confirmUnjoin = async () => {
+        if (routeToUnjoin === null) return;
+        setIsDeleting(true); // Reusing isDeleting for loading state
+        try {
+            const token = localStorage.getItem("token");
+            if (!token) throw new Error("Not authenticated");
+
+            // Native JWT decode to avoid missing npm dependencies
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function (c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+
+            const decoded = JSON.parse(jsonPayload);
+            const currentUserId = decoded.sub;
+
+            // Import path needs to be resolved since deleteRoute comes from routesApiService. 
+            // The file currently only imports deleteRoute, so we will use an inline dynamic import or we should add removeUserFromRoute to the main imports
+            const { removeUserFromRoute } = await import("../../../../services/routesApiService");
+            await removeUserFromRoute(routeToUnjoin, currentUserId);
+
+            if (refetch) {
+                refetch();
+            }
+        } catch (err) {
+            console.error("Nepodařilo se odpojit od cesty", err);
+            alert("Nepodařilo se odpojit z cesty. Zkuste to prosím znovu.");
+        } finally {
+            setIsDeleting(false);
+            setRouteToUnjoin(null);
         }
     };
 
@@ -58,7 +131,19 @@ const RoutesListEditor = () => {
 
             {/* Page Header & Filters */}
             <div className="routes-list-editor-header-wrapper">
-                <h1 className="routes-list-editor-title">Moje cesty</h1>
+                <h1 className="routes-list-editor-title">
+                    {activeTab === 'shared' ? 'Sdílené cesty' : 'Moje cesty'}
+                </h1>
+
+                {/* Search Bar */}
+                <div className="routes-list-editor-search-wrapper">
+                    <Input
+                        icon={Search}
+                        placeholder={activeTab === 'shared' ? "Hledat ve sdílených cestách..." : "Hledat v mých cestách..."}
+                        value={searchInput}
+                        onChange={(e) => setSearchInput(e.target.value)}
+                    />
+                </div>
 
                 {/* Tabs / Switcher */}
                 <div className="routes-list-editor-tabs-container">
@@ -69,7 +154,7 @@ const RoutesListEditor = () => {
                         <LayoutGrid size={16} />
                         Moje cesty
                         <span className={`routes-list-editor-tab-badge ${activeTab === 'owned' ? 'routes-list-editor-tab-badge-owned-active' : 'routes-list-editor-tab-badge-inactive'}`}>
-                            {ownedRoutes.length}
+                            {ownedRoutes.length ? ownedRoutes.length : ownedPagination.total_items}
                         </span>
                     </button>
 
@@ -80,7 +165,7 @@ const RoutesListEditor = () => {
                         <Share2 size={16} />
                         Sdílené
                         <span className={`routes-list-editor-tab-badge ${activeTab === 'shared' ? 'routes-list-editor-tab-badge-shared-active' : 'routes-list-editor-tab-badge-inactive'}`}>
-                            {sharedRoutes.length}
+                            {sharedRoutes.length ? sharedRoutes.length : sharedPagination.total_items}
                         </span>
                     </button>
                 </div>
@@ -124,6 +209,7 @@ const RoutesListEditor = () => {
                                     route={route}
                                     onOpen={openRoute}
                                     onDelete={activeTab === 'owned' ? handleRouteDelete : undefined}
+                                    onUnjoin={activeTab === 'shared' ? handleRouteUnjoin : undefined}
                                     isShared={activeTab === 'shared'}
                                 />
                             ))
@@ -159,6 +245,30 @@ const RoutesListEditor = () => {
                     )}
                 </div>
             )}
+
+            <ConfirmDialog
+                isOpen={routeToDelete !== null}
+                title="Smazat cestu"
+                description="Opravdu chcete smazat tuto cestu? Tato akce je nevratná."
+                confirmLabel="Smazat"
+                cancelLabel="Zrušit"
+                onConfirm={confirmDelete}
+                onCancel={() => setRouteToDelete(null)}
+                isDestructive={true}
+                isLoading={isDeleting}
+            />
+
+            <ConfirmDialog
+                isOpen={routeToUnjoin !== null}
+                title="Odpojit se od trasy"
+                description="Opravdu se chcete odpojit od této sdílené trasy? Ztratíte k ní přístup."
+                confirmLabel="Odpojit"
+                cancelLabel="Zrušit"
+                onConfirm={confirmUnjoin}
+                onCancel={() => setRouteToUnjoin(null)}
+                isDestructive={true}
+                isLoading={isDeleting}
+            />
         </div>
     );
 };

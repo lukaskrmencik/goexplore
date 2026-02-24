@@ -9,6 +9,8 @@ interface InviteBoxProps {
     onGenerate: () => void;
 }
 
+const INVITE_EXPIRATION_HOURS = Number(import.meta.env.VITE_INVITE_EXPIRATION_HOURS) || 48;
+
 const InviteBox: React.FC<InviteBoxProps> = ({ link, isGenerating }) => {
     const [copied, setCopied] = useState(false);
     const [canShare, setCanShare] = useState(false);
@@ -17,12 +19,46 @@ const InviteBox: React.FC<InviteBoxProps> = ({ link, isGenerating }) => {
         setCanShare(!!navigator.share);
     }, []);
 
-    const handleCopy = () => {
-        if (link) {
-            navigator.clipboard.writeText(link);
-            setCopied(true);
-            setTimeout(() => setCopied(false), 2000);
+    const copyToClipboard = async (text: string): Promise<boolean> => {
+        // Modern Clipboard API (requires secure context + permissions in some browsers)
+        try {
+            if (navigator.clipboard?.writeText) {
+                await navigator.clipboard.writeText(text);
+                return true;
+            }
+        } catch {
+            // fall through to legacy method
         }
+
+        // Legacy fallback (works in more restricted contexts)
+        try {
+            const textarea = document.createElement("textarea");
+            textarea.value = text;
+            textarea.setAttribute("readonly", "true");
+            textarea.style.position = "fixed";
+            textarea.style.top = "0";
+            textarea.style.left = "0";
+            textarea.style.opacity = "0";
+            document.body.appendChild(textarea);
+            textarea.focus();
+            textarea.select();
+            const ok = document.execCommand("copy");
+            document.body.removeChild(textarea);
+            return ok;
+        } catch {
+            return false;
+        }
+    };
+
+    const handleCopy = async () => {
+        if (!link) return;
+        const ok = await copyToClipboard(link);
+        if (!ok) {
+            console.error("Copy to clipboard failed");
+            return;
+        }
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
     };
 
     const handleNativeShare = async () => {
@@ -132,7 +168,7 @@ const InviteBox: React.FC<InviteBoxProps> = ({ link, isGenerating }) => {
             )}
 
             <p className="invite-box-helper-text">
-                Odkaz je platný 48 hodin
+                Odkaz je platný {INVITE_EXPIRATION_HOURS} hodin
             </p>
         </div>
     );

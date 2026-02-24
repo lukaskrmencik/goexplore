@@ -1,26 +1,23 @@
 
 import type { RouteUser } from "../../../../../types/users";
-import { User, Shield, Trash2, Crown } from "lucide-react";
+import { Trash2, Crown } from "lucide-react";
+import UserAvatar from "../../../../../components/ui/UserAvatar/UserAvatar";
 import "./UserList.css";
 
 interface UserListProps {
     users: RouteUser[];
     currentUserId: number; // Abychom neodebrali sami sebe
+    ownerId: number;       // Abychom poznali organizátora
     onRemove: (id: number) => void;
     isRemovingId: number | null;
 }
 
-const UserList: React.FC<UserListProps> = ({ users, currentUserId, onRemove, isRemovingId }) => {
-
-    // Helper pro iniciály, pokud není fotka
-    const getInitials = (name: string) => {
-        return name.slice(0, 2).toUpperCase();
-    };
-
+const UserList: React.FC<UserListProps> = ({ users, currentUserId, ownerId, onRemove, isRemovingId }) => {
     return (
         <div className="user-list-container">
             {users.map((user) => {
                 const isMe = user.id === currentUserId;
+                const isOwner = user.id === ownerId;
 
                 return (
                     <div
@@ -29,14 +26,14 @@ const UserList: React.FC<UserListProps> = ({ users, currentUserId, onRemove, isR
                     >
                         <div className="user-list-info-container">
                             {/* Avatar */}
-                            <div className={`user-list-avatar ${isMe ? 'user-list-avatar-me' : 'user-list-avatar-other'}`}>
-                                {user.profile_picture ? (
-                                    <img src={user.profile_picture} alt={user.name} className="user-list-avatar-image" />
-                                ) : (
-                                    <span>{getInitials(user.name)}</span>
-                                )}
+                            <div className="user-list-avatar">
+                                <UserAvatar
+                                    name={user.name}
+                                    profilePicture={user.profile_picture}
+                                    size="lg"
+                                />
 
-                                {isMe && (
+                                {isOwner && (
                                     <div className="user-list-crown-badge">
                                         <Crown size={10} fill="currentColor" />
                                     </div>
@@ -47,17 +44,15 @@ const UserList: React.FC<UserListProps> = ({ users, currentUserId, onRemove, isR
                             <div>
                                 <p className={isMe ? 'user-list-name-me' : 'user-list-name-other'}>
                                     {user.name}
-                                    {isMe && <span className="user-list-me-badge">Já</span>}
                                 </p>
                                 <p className="user-list-role">
-                                    {isMe ? <Shield size={12} className="user-list-role-icon-me" /> : <User size={12} />}
-                                    {isMe ? "Organizátor trasy" : "Člen posádky"}
+                                    {isOwner ? "Organizátor trasy" : "Člen posádky"}
                                 </p>
                             </div>
                         </div>
 
-                        {/* Actions */}
-                        {!isMe && (
+                        {/* Actions (Only the owner logic or "not me" logic needs handling, keep "not me" for remove for now) */}
+                        {!isMe && !isOwner && (
                             <button
                                 onClick={() => onRemove(user.id)}
                                 disabled={isRemovingId === user.id}

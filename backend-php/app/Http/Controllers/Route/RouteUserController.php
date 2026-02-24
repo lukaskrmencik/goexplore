@@ -88,10 +88,15 @@ class RouteUserController extends Controller
             return response()->error("error expired", 401);
         }
 
-        //save user to db and invalidate token
-        $routeUser->users_id = auth()->id();
-        $routeUser->invite_token = null;
-        $routeUser->save();
+        //save user to db but keep the invite token reusable
+        //create a new membership record for this user and route
+        $membership = new RouteUser([
+            'routes_id'    => $routeUser->routes_id,
+            'users_id'     => $userId,
+            'invite_token' => null,
+            'expires_at'   => $routeUser->expires_at,
+        ]);
+        $membership->save();
 
         //response
         return response()->success([
@@ -140,5 +145,55 @@ class RouteUserController extends Controller
 
         //response
         return response()->success([], 201);
+    }
+
+    //get details about the invite token
+    public function getInviteDetails(Request $request, $token)
+    {
+        //auth user
+        $userId = auth()->id();
+
+        //find record with token
+        $routeUser = RouteUser::with(['route', 'route.user'])
+            ->where('invite_token', $token)
+            ->first();
+
+        //token not found or used
+        if (!$routeUser) {
+            return response()->error('Tato pozvánka je neplatná nebo již byla použita.', 404);
+        }
+
+        //set current date
+        $now = Carbon::now();
+
+        //check if token expired
+        if ($routeUser->expires_at->lt($now)) {
+            return response()->error('Tato pozvánka již vypršela.', 410);
+        }
+
+        $inviterName = $routeUser->route && $routeUser->route->user ? $routeUser->route->user->name : 'Neznámý uživatel';
+        $routeName = $routeUser->route && $routeUser->route->name ? $routeUser->route->name : 'Nepojmenovaná trasa';
+        $routeId = $routeUser->routes_id;
+
+        // Check ownership
+        $isOwner = $routeUser->route && ($routeUser->route->users_id === $userId);
+
+        // Check if already a member
+        $isMember = false;
+        if (!$isOwner) {
+            $memberExists = RouteUser::where('users_id', $userId)
+                ->where('routes_id', $routeId)
+                ->exists();
+            $isMember = $memberExists;
+        }
+
+        //response
+        return response()->success([
+            'inviter_name' => $inviterName,
+            'route_name' => $routeName,
+            'route_id' => $routeId,
+            'is_owner' => $isOwner,
+            'is_member' => $isMember
+        ], 200);
     }
 }

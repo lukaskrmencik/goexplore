@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useRouteUsers } from ".././hooks/useRouteUsers";
 import InviteBox from ".././components/InviteBox/InviteBox";
 import Toast from "../../../../components/ui/Toast/Toast";
+import ConfirmDialog from "../../../../components/ui/ConfirmDialog/ConfirmDialog";
 import UserList from ".././components/UserList/UserList";
 import type { RouteEditorProps } from "../../../../types/editor";
 import { Users, ChevronUp } from "lucide-react";
@@ -22,6 +23,7 @@ const RouteUsersEditor: React.FC<RouteEditorProps> = ({ route, onUpdate }) => {
 
     const [currentUser, setCurrentUser] = useState<UserType | null>(null);
     const [isCrewOpen, setIsCrewOpen] = useState(false);
+    const [userToRemove, setUserToRemove] = useState<number | null>(null);
 
     useEffect(() => {
         const loadUser = async () => {
@@ -35,13 +37,13 @@ const RouteUsersEditor: React.FC<RouteEditorProps> = ({ route, onUpdate }) => {
         loadUser();
     }, []);
 
-    // Owner (Current User) Object
-    const ownerUser = currentUser ? {
-        ...currentUser,
+    // Owner Object (fetched from route.user)
+    const ownerUser = route.user ? {
+        ...route.user,
         role: "owner",
         pivot: {
             routes_id: route.id,
-            users_id: currentUser.id,
+            users_id: route.user.id,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
         }
@@ -62,10 +64,10 @@ const RouteUsersEditor: React.FC<RouteEditorProps> = ({ route, onUpdate }) => {
                     {/* Header */}
                     <div className="route-users-editor-header">
                         <h2 className="route-users-editor-title">
-                            Kdo jede s námi?
+                            Sdílení trasy
                         </h2>
                         <p className="route-users-editor-subtitle">
-                            Přidej kamarády a naplánujte to společně.
+                            Sdílejte trasu se svými přáteli a plánujte společně.
                         </p>
                     </div>
 
@@ -102,7 +104,7 @@ const RouteUsersEditor: React.FC<RouteEditorProps> = ({ route, onUpdate }) => {
                     <div className="route-users-editor-panel-title-row">
                         <h3 className="route-users-editor-panel-title">
                             <Users size={16} className="route-users-editor-panel-title-icon" />
-                            Posádka ({allUsers.length})
+                            Lidé ({allUsers.length})
                         </h3>
 
                         {/* Chevron indicator for mobile state */}
@@ -116,14 +118,32 @@ const RouteUsersEditor: React.FC<RouteEditorProps> = ({ route, onUpdate }) => {
                 <div className="route-users-editor-list-container">
                     <UserList
                         users={allUsers}
-                        currentUserId={ownerUser?.id || 0}
-                        onRemove={removeUser}
+                        currentUserId={currentUser?.id || 0}
+                        ownerId={route.user?.id || 0}
+                        onRemove={(id) => setUserToRemove(id)}
                         isRemovingId={isRemovingId}
                     />
                 </div>
             </div>
 
             {error && <Toast message={error} onClose={clearError} />}
+
+            <ConfirmDialog
+                isOpen={userToRemove !== null}
+                title="Odebrat uživatele"
+                description="Opravdu chcete tohoto uživatele odebrat z trasy?"
+                confirmLabel="Odebrat"
+                cancelLabel="Zrušit"
+                onConfirm={async () => {
+                    if (userToRemove !== null) {
+                        await removeUser(userToRemove);
+                        setUserToRemove(null);
+                    }
+                }}
+                onCancel={() => setUserToRemove(null)}
+                isDestructive={true}
+                isLoading={isRemovingId !== null}
+            />
         </div>
     );
 };

@@ -54,46 +54,9 @@
 .user-list-avatar {
     position: relative;
     display: flex;
-    height: 3rem;
-
-    width: 3rem;
-
     align-items: center;
     justify-content: center;
-    border-radius: var(--radius-xl);
-
-    font-size: 1.var(--radius-3xl);
-
-    line-height: 1.75rem;
-    font-weight: 700;
-
-    box-shadow: var(--shadow-sm);
-
-}
-
-.user-list-avatar-me {
-    background-color: var(--color-primary-100);
-
-    color: var(--color-primary-700);
-
-}
-
-.user-list-avatar-other {
-    background-color: #e0e7ff;
-
-    color: #4f46e5;
-
-}
-
-.user-list-avatar-image {
-    height: 100%;
-
-    width: 100%;
-
-    object-fit: cover;
-
-    border-radius: var(--radius-xl);
-
+    flex-shrink: 0;
 }
 
 /* Crown Icon */
@@ -161,25 +124,17 @@
 
     color: var(--color-neutral-400);
 
-    display: flex;
-    align-items: center;
-    gap: var(--radius-md);
-    /* gap-1.5 */
+    display: block;
     margin-top: var(--radius-sm);
     /* mt-0.5 */
     margin-bottom: 0;
 }
 
-.user-list-role-icon-me {
-    color: var(--color-primary-500);
-
-}
-
 /* Remove Button */
 .user-list-remove-btn {
-    opacity: 0;
+    opacity: 1;
 
-    transition: opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: background-color 0.15s cubic-bezier(0.4, 0, 0.2, 1), color 0.15s cubic-bezier(0.4, 0, 0.2, 1);
     padding: var(--radius-lg);
 
     border-radius: var(--radius-xl);
@@ -189,11 +144,6 @@
     background-color: var(--color-transparent);
     border: none;
     cursor: pointer;
-}
-
-.user-list-item:hover .user-list-remove-btn {
-    opacity: 1;
-
 }
 
 .user-list-remove-btn:hover:not(:disabled) {

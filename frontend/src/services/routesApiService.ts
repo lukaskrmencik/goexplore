@@ -40,10 +40,12 @@ export const deleteRoute = async (routeId: number): Promise<void> => {
   await apiClient.delete(`/routes/${routeId}`);
 };
 
+const ROUTES_PER_PAGE = Number(import.meta.env.VITE_ROUTES_PER_PAGE) || 11;
+
 export const fetchAllRoutes = async (page = 1, search = ""): Promise<RoutesListResponse> => {
   const response = await apiClient.post<ApiResponse<RoutesListResponse>>("/routes/list", {
     page,
-    per_page: 9, // Increased from default
+    per_page: ROUTES_PER_PAGE,
     search: search || undefined
   });
   return response.data.data;
@@ -52,7 +54,7 @@ export const fetchAllRoutes = async (page = 1, search = ""): Promise<RoutesListR
 export const fetchSharedRoutes = async (page = 1, search = ""): Promise<RoutesListResponse> => {
   const response = await apiClient.post<ApiResponse<RoutesListResponse>>("/routes/shared", {
     page,
-    per_page: 9, // Increased from default
+    per_page: ROUTES_PER_PAGE,
     search: search || undefined
   });
   return response.data.data;
@@ -100,6 +102,16 @@ export const removeUserFromRoute = async (routeId: number, userId: number): Prom
   });
 };
 
+export const fetchInviteDetails = async (token: string): Promise<{ inviter_name: string, route_name: string, route_id: number, is_owner: boolean, is_member: boolean }> => {
+  const response = await apiClient.get<ApiResponse<{ inviter_name: string, route_name: string, route_id: number, is_owner: boolean, is_member: boolean }>>(`/routes/users/invite/${token}`);
+  return response.data?.data || { inviter_name: 'Neznámý', route_name: 'Neznámá trasa', route_id: 0, is_owner: false, is_member: false };
+};
+
+export const acceptInviteToRoute = async (token: string): Promise<number> => {
+  const response = await apiClient.post<ApiResponse<{ route_id: number }>>(`/routes/users/accept-invite`, { token });
+  return response.data?.data?.route_id || 0;
+};
+
 // Equipment
 
 export const fetchMyEquipmentList = async (search?: string, page = 1): Promise<PaginatedResponse<MyEquipment>> => {
@@ -132,4 +144,12 @@ export const removeEquipmentFromRoute = async (routeId: number, type: EquipmentT
       equipment_id: equipmentId
     }
   });
+};
+
+export const fetchAvailableRouteEquipment = async (routeId: number, page: number = 1, search: string = ""): Promise<{ data: MyEquipment[], meta: any }> => {
+  const response = await apiClient.post(`/routes/${routeId}/equipment/available-my`, {
+    search: search || undefined,
+    page
+  });
+  return { data: response.data.data.items, meta: response.data.data };
 };
