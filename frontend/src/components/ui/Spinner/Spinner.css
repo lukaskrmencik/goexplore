@@ -1,0 +1,32 @@
+.spinner {
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spinner-spin 1s linear infinite;
+    flex-shrink: 0;
+}
+
+.spinner-sm {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+.spinner-md {
+    width: var(--radius-2xl);
+    height: var(--radius-2xl);
+}
+
+.spinner-lg {
+    width: 3rem;
+    height: 3rem;
+    border-width: 3px;
+}
+
+@keyframes spinner-spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
