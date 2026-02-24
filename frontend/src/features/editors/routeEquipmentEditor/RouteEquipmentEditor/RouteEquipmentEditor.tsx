@@ -1,12 +1,15 @@
 import React, { useMemo } from 'react';
-import { Search, Package, User, Plus, Backpack } from "lucide-react";
+import { Search, Package, User, Plus } from "lucide-react";
 import type { RouteEditorProps } from "../../../../types/editor";
 import { useRouteEquipment } from ".././hooks/useRouteEquipment";
 import EquipmentCard from ".././components/EquipmentCard/EquipmentCard";
 import CreateEquipmentModal from "../../equipmentEditor/CreateEquipmentModal/CreateEquipmentModal";
 import ConfirmDialog from "../../../../components/ui/ConfirmDialog/ConfirmDialog";
 import Toast from "../../../../components/ui/Toast/Toast";
+import Pagination from "../../../../components/ui/Pagination/Pagination";
 import { ChevronUp, X } from "lucide-react";
+import { fetchMyUser } from "../../../../services/usersApiService";
+import type { User as UserType } from "../../../../types/users";
 import "./RouteEquipmentEditor.css";
 
 const RouteEquipmentEditor: React.FC<RouteEditorProps> = ({ route, onUpdate }) => {
@@ -18,6 +21,9 @@ const RouteEquipmentEditor: React.FC<RouteEditorProps> = ({ route, onUpdate }) =
         setSearch,
         activeTab,
         setActiveTab,
+        currentPage,
+        setCurrentPage,
+        totalPages,
         handleToggleItem,
         handleEquipmentCreated,
         handleDeleteMyEquipment,
@@ -29,6 +35,19 @@ const RouteEquipmentEditor: React.FC<RouteEditorProps> = ({ route, onUpdate }) =
     const [isModalOpen, setIsModalOpen] = React.useState(false);
     const [editingEquipment, setEditingEquipment] = React.useState<any | null>(null);
     const [deletingId, setDeletingId] = React.useState<number | null>(null);
+    const [currentUser, setCurrentUser] = React.useState<UserType | null>(null);
+
+    React.useEffect(() => {
+        const loadUser = async () => {
+            try {
+                const user = await fetchMyUser();
+                setCurrentUser(user);
+            } catch (err) {
+                console.error("Failed to load current user", err);
+            }
+        };
+        loadUser();
+    }, []);
 
     // Mobile Bottom Sheet State
     const [isBackpackOpen, setIsBackpackOpen] = React.useState(false);
@@ -93,12 +112,9 @@ const RouteEquipmentEditor: React.FC<RouteEditorProps> = ({ route, onUpdate }) =
                     onClick={() => setIsBackpackOpen(!isBackpackOpen)}
                 >
                     <div className="route-equipment-editor-backpack-header-content">
-                        <div className="route-equipment-editor-backpack-icon-wrapper">
-                            <Backpack size={24} />
-                        </div>
                         <div>
                             <h2 className="route-equipment-editor-backpack-title">
-                                Batoh
+                                Vybrané vybavení
                                 <ChevronUp size={20} className={`route-equipment-editor-chevron ${isBackpackOpen ? 'route-equipment-editor-chevron-open' : ''}`} />
                             </h2>
                             <p className="route-equipment-editor-backpack-subtitle">
@@ -123,8 +139,7 @@ const RouteEquipmentEditor: React.FC<RouteEditorProps> = ({ route, onUpdate }) =
                 <div className="route-equipment-editor-backpack-list">
                     {routeEquipment.length === 0 ? (
                         <div className="route-equipment-editor-backpack-empty">
-                            <Backpack size={48} strokeWidth={1.5} className="route-equipment-editor-backpack-empty-icon" />
-                            <p>Tvůj batoh je zatím prázdný.</p>
+                            <p className="route-equipment-editor-backpack-empty-text">Zatím nemáte vybrané vybavení.</p>
                             <button
                                 onClick={() => setIsBackpackOpen(false)}
                                 className="route-equipment-editor-backpack-add-btn"
@@ -173,6 +188,7 @@ const RouteEquipmentEditor: React.FC<RouteEditorProps> = ({ route, onUpdate }) =
                                     isProcessing={processingId === (isMy ? item.my_equipment_id : item.general_equipment_id)}
                                     onToggle={(t, id, _) => handleToggleItem(t, id, true)}
                                     variant="compact"
+                                    currentUser={currentUser}
                                 />
                             );
                         })
@@ -187,7 +203,7 @@ const RouteEquipmentEditor: React.FC<RouteEditorProps> = ({ route, onUpdate }) =
                 {/* Header & Search */}
                 <div className="route-equipment-editor-warehouse-header">
                     <div className="route-equipment-editor-warehouse-title-row">
-                        <h2 className="route-equipment-editor-warehouse-title">Vyber vybavení</h2>
+                        <h2 className="route-equipment-editor-warehouse-title">Výběr vybavení</h2>
                     </div>
 
                     <div className="route-equipment-editor-search-row">
@@ -239,20 +255,17 @@ const RouteEquipmentEditor: React.FC<RouteEditorProps> = ({ route, onUpdate }) =
                         </div>
                     ) : (
                         <div className="route-equipment-editor-grid">
-                            {/* Create Button (Only for My Equipment) */}
+                            {/* Create Card (Only for My Equipment) - same style as "Naplánovat" on Moje cesty */}
                             {activeTab === 'my' && (
-                                <button
+                                <div
                                     onClick={handleCreateNew}
-                                    className="route-equipment-editor-create-btn"
+                                    className="route-equipment-editor-create-card"
                                 >
-                                    <div className="route-equipment-editor-create-btn-icon-wrapper">
-                                        <Plus size={20} className="route-equipment-editor-create-btn-icon" />
+                                    <div className="route-equipment-editor-create-card-icon-wrapper">
+                                        <Plus size={32} />
                                     </div>
-                                    <div className="route-equipment-editor-create-btn-text-container">
-                                        <span className="route-equipment-editor-create-btn-title">Vytvořit vlastní</span>
-                                        <span className="route-equipment-editor-create-btn-subtitle">Přidat nové vybavení</span>
-                                    </div>
-                                </button>
+                                    <span className="route-equipment-editor-create-card-text">Vytvořit vybavení</span>
+                                </div>
                             )}
 
                             {activeTab === 'general' ? (
@@ -265,6 +278,7 @@ const RouteEquipmentEditor: React.FC<RouteEditorProps> = ({ route, onUpdate }) =
                                         isProcessing={processingId === item.id}
                                         onToggle={handleToggleItem}
                                         variant="standard"
+                                        currentUser={currentUser}
                                     />
                                 ))
                             ) : (
@@ -279,6 +293,7 @@ const RouteEquipmentEditor: React.FC<RouteEditorProps> = ({ route, onUpdate }) =
                                         onDelete={(id) => setDeletingId(id)}
                                         onEdit={() => handleEditMyEquipment(item)}
                                         variant="standard"
+                                        currentUser={currentUser}
                                     />
                                 ))
                             )}
@@ -296,6 +311,17 @@ const RouteEquipmentEditor: React.FC<RouteEditorProps> = ({ route, onUpdate }) =
                                     <p>Zatím nemáš žádné vlastní vybavení.</p>
                                 </div>
                             )}
+                        </div>
+                    )}
+
+                    {/* Pagination - same as Moje cesty */}
+                    {!isLoading && totalPages > 1 && (
+                        <div className="route-equipment-editor-pagination-wrapper">
+                            <Pagination
+                                currentPage={currentPage}
+                                totalPages={totalPages}
+                                onPageChange={setCurrentPage}
+                            />
                         </div>
                     )}
                 </div>

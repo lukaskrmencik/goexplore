@@ -45,56 +45,19 @@
     }
 }
 
-.route-summary-spinner-container {
-    position: relative;
-    width: 8rem;
-    height: 8rem;
+.route-summary-spinner-wrap {
     margin-bottom: 2rem;
-}
-
-.route-summary-spinner-track {
-    position: absolute;
-    inset: 0;
-    border-width: 4px;
-    border-style: solid;
-    border-color: var(--color-neutral-100);
-    border-radius: var(--radius-full);
-}
-
-.route-summary-spinner-ring {
-    position: absolute;
-    inset: 0;
-    border-width: 4px;
-    border-style: solid;
-    border-color: var(--color-primary-500);
-    border-radius: var(--radius-full);
-    border-top-color: var(--color-transparent);
-    animation: spin 1s linear infinite;
-}
-
-.route-summary-spinner-icon {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     color: var(--color-primary-600);
 }
 
-.route-summary-icon-pulse {
-    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-@keyframes pulse {
-
-    0%,
-    100% {
-        opacity: 1;
-    }
-
-    50% {
-        opacity: 0.5;
-    }
+/* Override Spinner size: higher specificity so we beat .spinner-lg */
+.route-summary-spinner-wrap .route-summary-spinner {
+    display: block;
+    width: 6rem;
+    height: 6rem;
+    min-width: 6rem;
+    min-height: 6rem;
+    border-width: 4px;
 }
 
 .route-summary-title {
@@ -102,7 +65,7 @@
     font-family: var(--font-heading);
     font-weight: 700;
     color: var(--color-neutral-900);
-    margin-bottom: var(--radius-xl);
+    margin-bottom: 20px;
     margin-top: 0;
 }
 

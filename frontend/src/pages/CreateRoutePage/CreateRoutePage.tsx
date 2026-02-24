@@ -1,9 +1,11 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useCreateRoute } from "../../features/createRoute/hooks/useCreateRoute";
 import { getErrorMessage } from "../../utils/apiError";
 import { WizardStep } from "../../types/wizard";
-import type { RouteAxisEditorHandle, RouteDateEditorHandle, RouteConfigurationEditorHandle } from "../../types/editor";
-import { ChevronRight, ChevronLeft, Save } from "lucide-react";
+import type { RouteAxisEditorHandle, RouteDateEditorHandle, RouteConfigurationEditorHandle, EditorPoint } from "../../types/editor";
+import { ChevronRight, ChevronLeft, Save, Trash2, Play } from "lucide-react";
+import { computeEstimatedLength } from "../../utils/routeLengthEstimator";
+import { geojsonPointToLatLng } from "../../utils/geo";
 
 import RouteAxisEditor from "../../features/editors/routeAxisEditor/RouteAxisEditor/RouteAxisEditor";
 import RouteDateEditor from "../../features/editors/routeDateEditor/RouteDateEditor/RouteDateEditor";
@@ -29,6 +31,7 @@ const CreateRoutePage = () => {
         initializeRoute,
         nextStep,
         prevStep,
+        goToStep,
         setRoute,
         startCalculation,
         isCalculating,
@@ -42,6 +45,30 @@ const CreateRoutePage = () => {
 
     const [localError, setLocalError] = useState<string | null>(null);
     const [isSaving, setIsSaving] = useState(false);
+    const [estimatedRoadKm, setEstimatedRoadKm] = useState(0);
+
+    // Recalculate estimatedRoadKm from saved route data on page load/reload
+    useEffect(() => {
+        if (!route || estimatedRoadKm > 0) return;
+        const points: EditorPoint[] = [];
+        if (route.start) {
+            const [lat, lng] = geojsonPointToLatLng(route.start) as [number, number];
+            points.push({ id: 'start', lat, lng, type: 'start', name: 'Start', order: 0 });
+        }
+        if (route.waypoints?.length) {
+            [...route.waypoints].sort((a, b) => a.order - b.order).forEach(wp => {
+                const [lat, lng] = geojsonPointToLatLng(wp.coordinates) as [number, number];
+                points.push({ id: `wp-${wp.id}`, lat, lng, type: 'waypoint', name: '', order: wp.order });
+            });
+        }
+        if (route.end) {
+            const [lat, lng] = geojsonPointToLatLng(route.end) as [number, number];
+            points.push({ id: 'end', lat, lng, type: 'end', name: 'End', order: 9999 });
+        }
+        if (points.length >= 2) {
+            setEstimatedRoadKm(computeEstimatedLength(points).roadKm);
+        }
+    }, [route]);
 
     // Don't show hook error in Toast on FINISH step (handled by RouteSummary)
     const displayError = localError || (currentStep !== WizardStep.FINISH ? hookError : null);
@@ -59,6 +86,35 @@ const CreateRoutePage = () => {
         setLocalError(null);
         initializeRoute(mode, name);
     };
+
+    /** Try to save the current editor silently (ignore errors). Returns true if save succeeded. */
+    const trySilentSave = async (): Promise<boolean> => {
+        try {
+            if (currentStep === WizardStep.LOCATION && axisEditorRef.current) {
+                await axisEditorRef.current.save();
+            } else if (currentStep === WizardStep.DATE && dateEditorRef.current) {
+                await dateEditorRef.current.save();
+            } else if (currentStep === WizardStep.CONFIG && configEditorRef.current) {
+                await configEditorRef.current.save();
+            }
+            return true;
+        } catch {
+            // Silently ignore save errors
+            return false;
+        }
+    };
+
+    const handleStepperClick = async (stepId: number) => {
+        // Only allow clicking on steps before current (green ones)
+        if (currentStep <= stepId) return;
+
+        // Try to save current work silently (don't block navigation on failure)
+        await trySilentSave();
+
+        // Navigate to the clicked step
+        goToStep(stepId);
+    };
+
 
     const handleNext = async () => {
         setLocalError(null);
@@ -82,6 +138,31 @@ const CreateRoutePage = () => {
         }
     };
 
+    /** Last step: Vybavení (simple) or Nastavení (manual). Click "Generovat" → save, start calculation, go to loading page (FINISH). */
+    const isLastStep =
+        route?.mode === "simple" && currentStep === WizardStep.EQUIPMENT ||
+        route?.mode === "manual" && currentStep === WizardStep.CONFIG;
+
+    const handleGenerate = async () => {
+        setLocalError(null);
+        setIsSaving(true);
+        try {
+            if (currentStep === WizardStep.EQUIPMENT) {
+                // nothing to save for equipment step
+            } else if (currentStep === WizardStep.CONFIG && configEditorRef.current) {
+                await configEditorRef.current.save();
+            }
+
+            await startCalculation();
+            await nextStep();
+        } catch (err: any) {
+            console.error(err);
+            setLocalError(getErrorMessage(err, "Nepodařilo se spustit výpočet."));
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
     if (isLoading && !route) {
         return (
             <div className="create-route-loading">
@@ -99,25 +180,23 @@ const CreateRoutePage = () => {
         );
     }
 
-    // MAIN LAYOUT - NO WINDOW SCROLL POLICY
-    // We calculate height to fit viewport minus Header(64px/56px) minus BottomNav(Mobile)
-    // MAIN LAYOUT
-    // MAIN LAYOUT - NO WINDOW SCROLL POLICY (STRICT REWRITE)
-    // Adjusted for MainLayout: Header (h-14/56px), BottomNav (h-60px)
+    const isFirstStep = currentStep === WizardStep.LOCATION;
+
     return (
-        // ROOT: Fixed between Header and BottomNav on mobile
-        // DESKTOP: Fixed height calc(100vh - 64px) to account for MainLayout pt-16
         <div className="create-route-container">
 
             {/* 1. HEADER (Fixed Top of Container) */}
             <div className="create-route-header">
                 <div className="create-route-header-inner">
-                    <WizardStepper currentStep={currentStep} mode={route?.mode} />
+                    <WizardStepper
+                        currentStep={currentStep}
+                        mode={route?.mode}
+                        onStepClick={handleStepperClick}
+                    />
                 </div>
             </div>
 
             {/* 2. MAIN CONTENT (Flex-1, contains Map/Sheet) */}
-            {/* Relative so absolute children position against it. No overflow-hidden here to allow sheet to slide? No, sheet is internal. */}
             <div className="create-route-main">
                 <div className="create-route-main-content">
                     {currentStep === WizardStep.LOCATION && route && (
@@ -125,6 +204,11 @@ const CreateRoutePage = () => {
                             ref={axisEditorRef}
                             route={route}
                             onUpdate={setRoute}
+                            onChange={() => {
+                                if (axisEditorRef.current?.getEstimatedRoadKm) {
+                                    setEstimatedRoadKm(axisEditorRef.current.getEstimatedRoadKm());
+                                }
+                            }}
                         />
                     )}
 
@@ -134,6 +218,7 @@ const CreateRoutePage = () => {
                                 ref={dateEditorRef}
                                 route={route}
                                 onUpdate={setRoute}
+                                estimatedRoadKm={estimatedRoadKm}
                             />
                         </div>
                     )}
@@ -167,7 +252,6 @@ const CreateRoutePage = () => {
                                 isCalculating={isCalculating}
                                 calculationProgress={calculationProgress}
                                 calculationStatus={calculationStatus}
-                                onCalculate={startCalculation}
                                 error={hookError}
                                 onRetry={startCalculation}
                                 onBack={prevStep}
@@ -180,27 +264,26 @@ const CreateRoutePage = () => {
             {/* 3. FOOTER (Fixed Bottom, Highest Z-Index) */}
             {currentStep !== WizardStep.FINISH && (
                 <div className="create-route-footer">
-                    {/* Inner container with pointer-events-auto for buttons */}
                     <div className="create-route-footer-inner">
                         <Button
-                            variant="ghost"
+                            variant={isFirstStep ? "destructive" : "ghost"}
                             onClick={prevStep}
-                            icon={ChevronLeft}
+                            icon={isFirstStep ? Trash2 : ChevronLeft}
                             size="md"
-                            className="create-route-btn-back"
+                            className={isFirstStep ? "create-route-btn-delete" : "create-route-btn-back"}
                         >
-                            Zpět
+                            {isFirstStep ? "Smazat" : "Zpět"}
                         </Button>
 
                         <Button
-                            onClick={handleNext}
+                            onClick={isLastStep ? handleGenerate : handleNext}
                             disabled={isSaving}
                             variant="primary"
-                            rightIcon={isSaving ? undefined : (currentStep === WizardStep.CONFIG ? Save : ChevronRight)}
+                            rightIcon={isSaving ? undefined : (isLastStep ? Play : currentStep === WizardStep.CONFIG ? Save : ChevronRight)}
                             size="md"
                             className="create-route-btn-next"
                         >
-                            {isSaving ? "Ukládám..." : (currentStep === WizardStep.CONFIG ? "Dokončit" : "Pokračovat")}
+                            {isSaving ? "Ukládám..." : isLastStep ? "Generovat" : (currentStep === WizardStep.CONFIG ? "Dokončit" : "Pokračovat")}
                         </Button>
                     </div>
                 </div>

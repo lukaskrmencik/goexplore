@@ -270,9 +270,10 @@
     opacity: 0.6;
 }
 
-.route-equipment-editor-backpack-empty-icon {
-    margin-bottom: var(--radius-2xl);
-
+.route-equipment-editor-backpack-empty-text {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--color-neutral-500);
 }
 
 .route-equipment-editor-backpack-add-btn {
@@ -552,6 +553,13 @@
     }
 }
 
+.route-equipment-editor-pagination-wrapper {
+    display: flex;
+    justify-content: center;
+    padding-top: var(--radius-2xl);
+    border-top: 1px solid var(--color-neutral-100);
+}
+
 .route-equipment-editor-loading {
     display: flex;
     flex-direction: column;
@@ -607,139 +615,63 @@
     }
 }
 
-/* Create Button (Warehouse) */
-.route-equipment-editor-create-btn {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    padding: var(--radius-2xl);
-
-    gap: var(--radius-xl);
-
-    border: 2px dashed var(--color-neutral-300);
-    /* border-2 border-dashed border-slate-300 */
+/* Create Card (Warehouse) - same look as "Naplánovat" on Moje cesty */
+.route-equipment-editor-create-card {
+    height: 100%;
+    min-height: 14rem;
     border-radius: var(--radius-2xl);
-
-    color: var(--color-neutral-400);
-
-    background-color: rgba(255, 255, 255, 0.5);
-    /* bg-var(--color-white)/50 */
-    width: 100%;
-    height: auto;
-    min-height: 0;
-    transition: all 0.15s;
+    border: 1px solid var(--color-neutral-200);
+    background-color: var(--color-white);
+    box-shadow: var(--shadow-sm);
+    transition: all 0.3s;
     cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--radius-xl);
 }
 
-@media (min-width: 768px) {
-    .route-equipment-editor-create-btn {
-        flex-direction: column;
-
-        padding: var(--radius-3xl);
-
-        height: 100%;
-
-        min-height: 200px;
-        /* md:min-h-[200px] */
+@media (max-width: 767px) {
+    .route-equipment-editor-create-card {
+        min-height: 7rem;
     }
 }
 
-.route-equipment-editor-create-btn:hover {
-    border-color: var(--color-primary-500);
-
-    background-color: rgba(236, 253, 245, 0.5);
-
-    color: var(--color-primary-600);
-
+.route-equipment-editor-create-card:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--color-primary-300);
+    transform: translateY(-0.25rem);
 }
 
-.route-equipment-editor-create-btn-icon-wrapper {
-    height: 2.5rem;
-
-    width: 2.5rem;
-
-    background-color: var(--color-white);
-    /* bg-var(--color-white) */
-    border-radius: var(--radius-xl);
-
+.route-equipment-editor-create-card-icon-wrapper {
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: var(--radius-full);
+    background-color: var(--color-primary-50);
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: var(--shadow-sm);
-
-    transition: transform 0.3s;
+    color: var(--color-primary-600);
+    transition: transform 0.3s, background-color 0.3s;
 }
 
-.route-equipment-editor-create-btn:hover .route-equipment-editor-create-btn-icon-wrapper {
+.route-equipment-editor-create-card:hover .route-equipment-editor-create-card-icon-wrapper {
     transform: scale(1.1);
-
+    background-color: var(--color-primary-100);
+    color: var(--color-primary-700);
 }
 
-@media (min-width: 768px) {
-    .route-equipment-editor-create-btn-icon-wrapper {
-        height: 3rem;
-
-        width: 3rem;
-
-    }
-}
-
-.route-equipment-editor-create-btn-icon {
-    width: 1.25rem;
-    height: 1.25rem;
-}
-
-@media (min-width: 768px) {
-    .route-equipment-editor-create-btn-icon {
-        width: var(--radius-3xl);
-
-        height: var(--radius-3xl);
-
-    }
-}
-
-.route-equipment-editor-create-btn-text-container {
-    text-align: left;
-}
-
-@media (min-width: 768px) {
-    .route-equipment-editor-create-btn-text-container {
-        text-align: center;
-
-    }
-}
-
-.route-equipment-editor-create-btn-title {
+.route-equipment-editor-create-card-text {
     font-family: var(--font-heading);
     font-weight: 700;
-    font-size: 0.875rem;
-
-    display: block;
-    color: var(--color-neutral-900);
-
+    color: var(--color-neutral-700);
+    font-size: 1.125rem;
     transition: color 0.15s;
 }
 
-.route-equipment-editor-create-btn:hover .route-equipment-editor-create-btn-title {
+.route-equipment-editor-create-card:hover .route-equipment-editor-create-card-text {
     color: var(--color-primary-700);
-
-}
-
-.route-equipment-editor-create-btn-subtitle {
-    display: none;
-
-    font-size: var(--radius-xl);
-
-    font-weight: 500;
-    opacity: 0.7;
-}
-
-@media (min-width: 768px) {
-    .route-equipment-editor-create-btn-subtitle {
-        display: block;
-
-    }
 }
 
 /* Empty States */

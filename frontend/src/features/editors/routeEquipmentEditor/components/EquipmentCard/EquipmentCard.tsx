@@ -1,6 +1,7 @@
 import React from 'react';
-import { Plus, Check, Loader2, Trash2, Package, Pencil } from 'lucide-react';
+import { Plus, Loader2, Trash2, Package, Pencil } from 'lucide-react';
 import type { GeneralEquipment, MyEquipment, EquipmentType } from '../../../../../types/equipment';
+import UserAvatar from '../../../../../components/ui/UserAvatar/UserAvatar';
 import "./EquipmentCard.css";
 
 interface EquipmentCardProps {
@@ -12,6 +13,7 @@ interface EquipmentCardProps {
     onDelete?: (id: number) => void;
     onEdit?: () => void;
     variant?: 'standard' | 'compact';
+    currentUser?: { id: number; name: string; profile_picture?: string | null } | null; // Pass entire user object
 }
 
 const EquipmentCard: React.FC<EquipmentCardProps> = ({
@@ -22,7 +24,8 @@ const EquipmentCard: React.FC<EquipmentCardProps> = ({
     onToggle,
     onDelete,
     onEdit,
-    variant = 'standard'
+    variant = 'standard',
+    currentUser
 }) => {
 
     // Helper to get initials
@@ -58,7 +61,7 @@ const EquipmentCard: React.FC<EquipmentCardProps> = ({
     }
     const specsList = Object.entries(specs).slice(0, 4); // Show max 4 specs
 
-    // --- COMPACT VARIANT (Horizontal - for Backpack) ---
+    // --- COMPACT VARIANT (Horizontal - for Vybrané vybavení) ---
     if (variant === 'compact') {
         return (
             <div className={`eq-card-compact ${isAdded ? 'eq-card-compact-added' : 'eq-card-compact-default'}`}>
@@ -71,12 +74,12 @@ const EquipmentCard: React.FC<EquipmentCardProps> = ({
                     )}
                 </div>
 
-                {/* Content */}
+                {/* Content - two rows: title, then badges + specs */}
                 <div className="eq-card-compact-content">
-                    <div className="eq-card-compact-title-row">
-                        <h4 className="eq-card-compact-title">
-                            {item.name}
-                        </h4>
+                    <h4 className="eq-card-compact-title">
+                        {item.name}
+                    </h4>
+                    <div className="eq-card-compact-meta-row">
                         {typeName && typeName !== item.name && (
                             <span className="eq-card-compact-type-badge">
                                 {typeName}
@@ -84,12 +87,32 @@ const EquipmentCard: React.FC<EquipmentCardProps> = ({
                         )}
                         {type === 'my' && (
                             <span className="eq-card-compact-my-badge">
-                                My
+                                {'users_id' in item && currentUser && item.users_id === currentUser.id ? (
+                                    <>
+                                        <UserAvatar
+                                            name={currentUser.name}
+                                            profilePicture={currentUser.profile_picture}
+                                            size="sm"
+                                            className="eq-card-compact-avatar"
+                                        />
+                                        <span>Moje</span>
+                                    </>
+                                ) : 'user' in item && item.user ? (
+                                    <>
+                                        <UserAvatar
+                                            name={item.user.name}
+                                            profilePicture={item.user.profile_picture}
+                                            size="sm"
+                                            className="eq-card-compact-avatar"
+                                        />
+                                        <span>{item.user.name}</span>
+                                    </>
+                                ) : (
+                                    <span>Sdílené</span>
+                                )}
                             </span>
                         )}
                     </div>
-
-                    {/* Specs Inline */}
                     {specsList.length > 0 ? (
                         <div className="eq-card-compact-specs-list">
                             {specsList.map(([key, value]) => (
@@ -109,7 +132,7 @@ const EquipmentCard: React.FC<EquipmentCardProps> = ({
                     onClick={() => onToggle(type, item.id, isAdded)}
                     disabled={isProcessing}
                     className={`eq-card-compact-action-btn ${isAdded ? 'eq-card-compact-action-remove' : 'eq-card-compact-action-add'}`}
-                    title={isAdded ? "Odebrat z batohu" : "Přidat do batohu"}
+                    title={isAdded ? "Odebrat z vybraného" : "Přidat"}
                 >
                     {isProcessing ? (
                         <Loader2 size={18} className="animate-spin" />
@@ -126,18 +149,9 @@ const EquipmentCard: React.FC<EquipmentCardProps> = ({
     // --- STANDARD VARIANT (Vertical - for Warehouse/Catalog) ---
     return (
         <div className={`eq-card-standard ${isAdded ? 'eq-card-standard-added' : 'eq-card-standard-default'}`}>
-            {/* Global Green Tint Overlay */}
+            {/* Subtle tint when added (no big checkmark) */}
             {isAdded && (
                 <div className="eq-card-overlay" />
-            )}
-
-            {/* Centered Checkmark (Desktop only) */}
-            {isAdded && (
-                <div className="eq-card-check-overlay">
-                    <div className="eq-card-check-icon-wrapper">
-                        <Check size={32} strokeWidth={4} />
-                    </div>
-                </div>
             )}
 
             {/* Image Section */}
@@ -158,14 +172,34 @@ const EquipmentCard: React.FC<EquipmentCardProps> = ({
                 <div className="eq-card-badges">
                     {type === 'my' && (
                         <span className="eq-card-badge-my">
-                            Vlastní
+                            {'users_id' in item && currentUser && item.users_id === currentUser.id ? (
+                                <>
+                                    <UserAvatar
+                                        name={currentUser.name}
+                                        profilePicture={currentUser.profile_picture}
+                                        className="eq-card-badge-avatar"
+                                    />
+                                    <span>Moje</span>
+                                </>
+                            ) : 'user' in item && item.user ? (
+                                <>
+                                    <UserAvatar
+                                        name={item.user.name}
+                                        profilePicture={item.user.profile_picture}
+                                        className="eq-card-badge-avatar"
+                                    />
+                                    <span>{item.user.name}</span>
+                                </>
+                            ) : (
+                                <span>Sdílené</span>
+                            )}
                         </span>
                     )}
                 </div>
 
-                {/* Actions Overlay (Edit/Delete) */}
+                {/* Actions Overlay (Edit/Delete) Only show if it belongs to current user directly */}
                 <div className="eq-card-actions-overlay">
-                    {type === 'my' && (
+                    {type === 'my' && ('users_id' in item && currentUser && item.users_id === currentUser.id) && (
                         <>
                             {onEdit && (
                                 <button

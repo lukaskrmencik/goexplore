@@ -146,10 +146,11 @@ export const removeEquipmentFromRoute = async (routeId: number, type: EquipmentT
   });
 };
 
-export const fetchAvailableRouteEquipment = async (routeId: number, page: number = 1, search: string = ""): Promise<{ data: MyEquipment[], meta: any }> => {
+export const fetchAvailableRouteEquipment = async (routeId: number, page: number = 1, search: string = "", perPage: number = 12): Promise<{ data: MyEquipment[], meta: any }> => {
   const response = await apiClient.post(`/routes/${routeId}/equipment/available-my`, {
     search: search || undefined,
-    page
+    page,
+    per_page: perPage
   });
   return { data: response.data.data.items, meta: response.data.data };
 };

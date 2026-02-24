@@ -4,6 +4,8 @@ import { useEquipment } from '.././hooks/useEquipment';
 import EquipmentManagerCard from '.././components/EquipmentManagerCard/EquipmentManagerCard';
 import CreateEquipmentModal from '.././CreateEquipmentModal/CreateEquipmentModal';
 import ConfirmDialog from '../../../../components/ui/ConfirmDialog/ConfirmDialog';
+import { Input } from '../../../../components/ui/Input/Input';
+import Pagination from '../../../../components/ui/Pagination/Pagination';
 import Toast from '../../../../components/ui/Toast/Toast';
 import './EquipmentEditor.css';
 
@@ -44,42 +46,23 @@ const EquipmentEditor: React.FC = () => {
         }
     };
 
-    // Helper to generate pagination numbers
-    const getPageNumbers = () => {
-        const pages = [];
-        let start = Math.max(1, page - 2);
-        let end = Math.min(totalPages, page + 2);
-
-        // Adjust to always show 5 pages if possible
-        if (end - start < 4) {
-            if (start === 1) {
-                end = Math.min(totalPages, start + 4);
-            } else if (end === totalPages) {
-                start = Math.max(1, end - 4);
-            }
-        }
-
-        for (let i = start; i <= end; i++) {
-            pages.push(i);
-        }
-        return pages;
-    };
 
     return (
         <div className="equipment-editor-container">
-            {/* Toolbar */}
-            <div className="equipment-editor-toolbar">
-                <div className="equipment-editor-toolbar-flex">
-                    <div className="equipment-editor-search-wrapper">
-                        <Search className="equipment-editor-search-icon" size={18} />
-                        <input
-                            type="text"
-                            placeholder="Hledat podle názvu..."
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            className="equipment-editor-search-input"
-                        />
-                    </div>
+            {/* Page Header & Filters */}
+            <div className="equipment-editor-header-wrapper">
+                <h1 className="equipment-editor-title">Moje vybavení</h1>
+
+                <div className="equipment-editor-search-wrapper">
+                    <Input
+                        icon={Search}
+                        placeholder="Hledat vybavení..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                    />
+                </div>
+
+                <div className="equipment-editor-actions-container">
                     <button
                         onClick={handleCreateNew}
                         className="equipment-editor-create-btn"
@@ -90,72 +73,59 @@ const EquipmentEditor: React.FC = () => {
                 </div>
             </div>
 
-            {/* List Content */}
-            <div className="equipment-editor-list-content">
-                {isLoading ? (
-                    <div className="equipment-editor-loading">
-                        <Package size={48} className="equipment-editor-loading-icon" />
-                        <span className="equipment-editor-loading-text">Načítám vybavení...</span>
-                    </div>
-                ) : (
-                    <>
-                        {equipmentList.length === 0 ? (
-                            <div className="equipment-editor-empty">
-                                <Package size={64} strokeWidth={1} className="equipment-editor-empty-icon" />
-                                <h3 className="equipment-editor-empty-title">Nic tu není</h3>
-                                <p className="equipment-editor-empty-desc">
-                                    {search ? "Nenalezli jsme žádné vybavení odpovídající tvému hledání." : "Zatím nemáš vytvořené žádné vlastní vybavení. Klikni na tlačítko výše a přidej si první kousek!"}
-                                </p>
-                            </div>
-                        ) : (
-                            <div className="equipment-editor-grid">
-                                {equipmentList.map(item => (
-                                    <EquipmentManagerCard
-                                        key={item.id}
-                                        item={item}
-                                        isProcessing={processingId === item.id}
-                                        onEdit={() => handleEdit(item)}
-                                        onDelete={() => setDeletingId(item.id)}
-                                    />
-                                ))}
-                            </div>
-                        )}
-
-                        {/* Pagination */}
-                        {totalPages > 1 && equipmentList.length > 0 && (
-                            <div className="equipment-editor-pagination">
-                                <button
-                                    onClick={() => setPage(p => Math.max(1, p - 1))}
-                                    disabled={page === 1}
-                                    className="equipment-editor-page-btn"
-                                >
-                                    Předchozí
-                                </button>
-
-                                <div className="equipment-editor-page-numbers">
-                                    {getPageNumbers().map(num => (
-                                        <button
-                                            key={num}
-                                            onClick={() => setPage(num)}
-                                            className={`equipment-editor-num-btn ${page === num ? 'equipment-editor-num-btn-active' : 'equipment-editor-num-btn-inactive'}`}
-                                        >
-                                            {num}
-                                        </button>
-                                    ))}
+            {/* Content Area */}
+            {isLoading ? (
+                <div className="equipment-editor-loading">
+                    <Package size={48} className="equipment-editor-loading-icon" />
+                    <span className="equipment-editor-loading-text">Načítám vybavení...</span>
+                </div>
+            ) : (
+                <div className="equipment-editor-content-wrapper">
+                    <div className="equipment-editor-grid">
+                        {/* Create Card — always first, on page 1 */}
+                        {page === 1 && (
+                            <div
+                                onClick={handleCreateNew}
+                                className="equipment-editor-create-card"
+                            >
+                                <div className="equipment-editor-create-icon-wrapper">
+                                    <Plus size={32} />
                                 </div>
-
-                                <button
-                                    onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                                    disabled={page === totalPages}
-                                    className="equipment-editor-page-btn"
-                                >
-                                    Další
-                                </button>
+                                <span className="equipment-editor-create-text">Přidat vybavení</span>
                             </div>
                         )}
-                    </>
-                )}
-            </div>
+
+                        {equipmentList.map(item => (
+                            <EquipmentManagerCard
+                                key={item.id}
+                                item={item}
+                                isProcessing={processingId === item.id}
+                                onEdit={() => handleEdit(item)}
+                                onDelete={() => setDeletingId(item.id)}
+                            />
+                        ))}
+
+                        {/* Search empty hint — only when filtering returns nothing */}
+                        {search && equipmentList.length === 0 && (
+                            <div className="equipment-editor-search-empty">
+                                <Package size={40} strokeWidth={1} className="equipment-editor-empty-icon" />
+                                <p className="equipment-editor-empty-desc">Nenalezli jsme žádné vybavení odpovídající tvému hledání.</p>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Pagination Controls */}
+                    {(totalPages > 1 && equipmentList.length > 0) && (
+                        <div className="equipment-editor-pagination-wrapper">
+                            <Pagination
+                                currentPage={page}
+                                totalPages={totalPages}
+                                onPageChange={setPage}
+                            />
+                        </div>
+                    )}
+                </div>
+            )}
 
             {/* Warning/Info Toast Placeholder */}
             {error && <Toast message={error} onClose={clearError} />}

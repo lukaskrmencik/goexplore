@@ -7,6 +7,7 @@ import UserList from ".././components/UserList/UserList";
 import type { RouteEditorProps } from "../../../../types/editor";
 import { Users, ChevronUp } from "lucide-react";
 import { fetchMyUser } from "../../../../services/usersApiService";
+import { fetchGetRoute } from "../../../../services/routesApiService";
 import type { User as UserType } from "../../../../types/users";
 import "./RouteUsersEditor.css";
 
@@ -36,6 +37,12 @@ const RouteUsersEditor: React.FC<RouteEditorProps> = ({ route, onUpdate }) => {
         };
         loadUser();
     }, []);
+
+    // Refetch full route when entering this step so users + owner are always shown (avoids empty list when navigating from another step)
+    useEffect(() => {
+        if (!route?.id) return;
+        fetchGetRoute(route.id).then(onUpdate).catch((err) => console.error("Failed to load route users", err));
+    }, [route?.id]);
 
     // Owner Object (fetched from route.user)
     const ownerUser = route.user ? {

@@ -2,44 +2,69 @@ import { useState, useEffect, useCallback } from "react";
 import type { Route } from "../../../../types/routes";
 import {
     fetchGeneralEquipment,
-    fetchMyEquipment,
     deleteMyEquipment
 } from "../../../../services/equipmentApiService";
 
 import {
     addEquipmentToRoute,
     removeEquipmentFromRoute,
-    fetchGetRoute
+    fetchGetRoute,
+    fetchAvailableRouteEquipment
 } from "../../../../services/routesApiService";
 import type { GeneralEquipment, MyEquipment, EquipmentType } from "../../../../types/equipment";
+
+const PER_PAGE = 12;
 
 export const useRouteEquipment = (route: Route, onUpdate: (route: Route) => void) => {
     // Data States
     const [generalList, setGeneralList] = useState<GeneralEquipment[]>([]);
     const [myList, setMyList] = useState<MyEquipment[]>([]);
+    const [generalMeta, setGeneralMeta] = useState<{ page: number; total_pages: number; total_items: number }>({ page: 1, total_pages: 1, total_items: 0 });
+    const [myMeta, setMyMeta] = useState<{ page: number; total_pages: number; total_items: number }>({ page: 1, total_pages: 1, total_items: 0 });
 
     // UI States
     const [isLoading, setIsLoading] = useState(false);
     const [search, setSearch] = useState("");
-    const [activeTab, setActiveTab] = useState<EquipmentType>('my'); // Default to 'my' equipment
+    const [generalPage, setGeneralPage] = useState(1);
+    const [myPage, setMyPage] = useState(1);
+    const [activeTab, setActiveTab] = useState<EquipmentType>('my');
     const [processingId, setProcessingId] = useState<number | null>(null);
     const [error, setError] = useState<string | null>(null);
 
-    // Initial Load & Search
+    // Load current tab's list with pagination
     const loadLists = useCallback(async (silent = false) => {
         if (!silent) setIsLoading(true);
         try {
             const [genRes, myRes] = await Promise.all([
-                fetchGeneralEquipment(1, search),
-                fetchMyEquipment(1, search)
+                fetchGeneralEquipment(generalPage, search, PER_PAGE),
+                fetchAvailableRouteEquipment(route.id, myPage, search, PER_PAGE)
             ]);
             setGeneralList(genRes.data || []);
             setMyList(myRes.data || []);
+            if (genRes.meta) {
+                setGeneralMeta({
+                    page: genRes.meta.page ?? 1,
+                    total_pages: genRes.meta.total_pages ?? 1,
+                    total_items: genRes.meta.total_items ?? 0
+                });
+            }
+            if (myRes.meta) {
+                setMyMeta({
+                    page: myRes.meta.page ?? 1,
+                    total_pages: myRes.meta.total_pages ?? 1,
+                    total_items: myRes.meta.total_items ?? 0
+                });
+            }
         } catch (err) {
             console.error(err);
         } finally {
             if (!silent) setIsLoading(false);
         }
+    }, [search, route.id, generalPage, myPage]);
+
+    useEffect(() => {
+        setGeneralPage(1);
+        setMyPage(1);
     }, [search]);
 
     useEffect(() => {
@@ -121,6 +146,10 @@ export const useRouteEquipment = (route: Route, onUpdate: (route: Route) => void
     }
 
 
+    const currentPage = activeTab === 'general' ? generalPage : myPage;
+    const setCurrentPage = activeTab === 'general' ? setGeneralPage : setMyPage;
+    const totalPages = activeTab === 'general' ? generalMeta.total_pages : myMeta.total_pages;
+
     return {
         generalList,
         myList,
@@ -129,6 +158,15 @@ export const useRouteEquipment = (route: Route, onUpdate: (route: Route) => void
         setSearch,
         activeTab,
         setActiveTab,
+        generalPage,
+        myPage,
+        setGeneralPage,
+        setMyPage,
+        currentPage,
+        setCurrentPage,
+        totalPages,
+        generalMeta,
+        myMeta,
         handleToggleItem,
         handleEquipmentCreated,
         handleDeleteMyEquipment,

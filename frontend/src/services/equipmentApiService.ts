@@ -3,10 +3,12 @@ import type { GeneralEquipment, MyEquipment } from "../types/equipment";
 
 export const fetchGeneralEquipment = async (
     page: number = 1,
-    search: string = ""
+    search: string = "",
+    perPage: number = 12
 ): Promise<{ data: GeneralEquipment[], meta: any }> => {
     const response = await apiClient.post('/general-equipment/list', {
         page,
+        per_page: perPage,
         search: search || undefined
     });
     return { data: response.data.data.items, meta: response.data.data };

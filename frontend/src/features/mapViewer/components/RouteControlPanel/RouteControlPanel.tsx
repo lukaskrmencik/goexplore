@@ -32,6 +32,16 @@ const RouteControlPanel: React.FC<RouteControlPanelProps> = ({
     const [isEditingName, setIsEditingName] = useState(false);
     const [tempName, setTempName] = useState(route.name);
     const inputRef = React.useRef<HTMLInputElement>(null);
+    const [isClosing, setIsClosing] = useState(false);
+
+    const handleCloseSheet = () => {
+        if (isClosing) return;
+        setIsClosing(true);
+        setTimeout(() => {
+            setIsMobileOpen(false);
+            setIsClosing(false);
+        }, 250);
+    };
 
     React.useEffect(() => {
         if (isEditingName && inputRef.current) {
@@ -39,6 +49,11 @@ const RouteControlPanel: React.FC<RouteControlPanelProps> = ({
             inputRef.current.select();
         }
     }, [isEditingName]);
+
+    /* Keep tempName in sync with route when not editing (e.g. after polling), so we don't overwrite while user types */
+    React.useEffect(() => {
+        if (!isEditingName) setTempName(route.name);
+    }, [route.name, route.id, isEditingName]);
 
     const handleSaveName = async () => {
         if (!tempName.trim()) {
@@ -50,7 +65,8 @@ const RouteControlPanel: React.FC<RouteControlPanelProps> = ({
         if (tempName !== route.name) {
             try {
                 const updated = await updateRoute(route.id, { name: tempName });
-                onRouteUpdate(updated);
+                /* Merge only name — preserves camps/pois/complete_route that the name-update endpoint doesn't return */
+                onRouteUpdate({ ...route, name: updated.name });
             } catch (error: any) {
                 console.error("Failed to update name", error);
                 setTempName(route.name);
@@ -95,7 +111,8 @@ const RouteControlPanel: React.FC<RouteControlPanelProps> = ({
         </button>
     );
 
-    const RegenerateButton = () => (
+    /* Inline so the button is never unmounted between re-renders — preserves CSS transition for smooth fill */
+    const regenButtonJsx = (
         <button
             onClick={onRegenerate}
             disabled={isRegenerating}
@@ -104,13 +121,11 @@ const RouteControlPanel: React.FC<RouteControlPanelProps> = ({
             {/* Base Background */}
             <div className={`route-control-panel-regen-bg ${isRegenerating ? 'route-control-panel-regen-bg-running' : isDirty ? 'route-control-panel-regen-bg-dirty' : 'route-control-panel-regen-bg-clean'}`} />
 
-            {/* Progress Bar Layer (ScaleX) */}
-            {isRegenerating && (
-                <div
-                    className="route-control-panel-regen-progress"
-                    style={{ transform: `scaleX(${regenProgress / 100})` }}
-                />
-            )}
+            {/* Progress Bar Layer (ScaleX) — always rendered so transition is continuous */}
+            <div
+                className="route-control-panel-regen-progress"
+                style={{ transform: `scaleX(${isRegenerating ? regenProgress / 100 : 0})`, opacity: isRegenerating ? 1 : 0 }}
+            />
 
             {/* Content Layer */}
             <div className={`route-control-panel-regen-content ${isRegenerating && regenProgress < 50 ? 'route-control-panel-regen-text-dark' : 'route-control-panel-regen-text-light'}`}>
@@ -123,7 +138,8 @@ const RouteControlPanel: React.FC<RouteControlPanelProps> = ({
         </button>
     );
 
-    const RouteNameEditor = () => (
+    /* Inline name editor JSX so the input is not inside a component recreated each render (avoids cursor jump on parent re-render/polling) */
+    const nameEditorJsx = (
         <div className="route-control-panel-name-editor">
             {isEditingName ? (
                 <input
@@ -158,7 +174,7 @@ const RouteControlPanel: React.FC<RouteControlPanelProps> = ({
             <div className="route-control-panel-desktop-wrapper">
                 {/* Main Card */}
                 <div className="route-control-panel-main-card">
-                    <RouteNameEditor />
+                    {nameEditorJsx}
                     <ToolButton icon={<Map size={20} strokeWidth={1.5} />} label="Trasa a body" onClick={() => onOpenEditor('axis')} />
                     <ToolButton icon={<Calendar size={20} strokeWidth={1.5} />} label="Termín" onClick={() => onOpenEditor('date')} />
                     <ToolButton icon={<Users size={20} strokeWidth={1.5} />} label="Posádka" onClick={() => onOpenEditor('users')} />
@@ -168,7 +184,7 @@ const RouteControlPanel: React.FC<RouteControlPanelProps> = ({
                 </div>
                 {/* Regenerate Button */}
                 <div className="route-control-panel-regen-wrapper">
-                    <RegenerateButton />
+                    {regenButtonJsx}
                 </div>
             </div>
 
@@ -185,28 +201,28 @@ const RouteControlPanel: React.FC<RouteControlPanelProps> = ({
             </div>
 
             {/* 2. Bottom Sheet Overlay */}
-            {isMobileOpen && (
-                <div className="route-control-panel-mobile-sheet-wrapper">
+            {(isMobileOpen || isClosing) && (
+                <div className={`route-control-panel-mobile-sheet-wrapper ${isClosing ? 'route-control-panel-mobile-sheet-closing' : ''}`}>
                     {/* Backdrop */}
                     <div
                         className="route-control-panel-mobile-backdrop"
-                        onClick={() => setIsMobileOpen(false)}
+                        onClick={handleCloseSheet}
                     />
 
                     {/* Sheet Content */}
-                    <div className="route-control-panel-mobile-sheet-content">
+                    <div className={`route-control-panel-mobile-sheet-content ${isClosing ? 'route-control-panel-mobile-sheet-closing' : ''}`}>
 
                         {/* Minimalist Header */}
                         <div className="route-control-panel-mobile-close-wrapper">
                             <button
-                                onClick={() => setIsMobileOpen(false)}
+                                onClick={handleCloseSheet}
                                 className="route-control-panel-mobile-close-btn"
                             >
                                 <X size={26} />
                             </button>
                         </div>
 
-                        <RouteNameEditor />
+                        {nameEditorJsx}
 
                         <div className="route-control-panel-mobile-grid">
                             <ToolButton icon={<Map size={20} />} label="Trasa" onClick={() => { onOpenEditor('axis'); setIsMobileOpen(false); }} />
@@ -218,7 +234,7 @@ const RouteControlPanel: React.FC<RouteControlPanelProps> = ({
                         <ToolButton icon={<Settings size={20} />} label="Nastavení trasy" onClick={() => { onOpenEditor('config'); setIsMobileOpen(false); }} />
 
                         <div className="route-control-panel-mobile-regen-wrapper">
-                            <RegenerateButton />
+                            {regenButtonJsx}
                         </div>
                     </div>
                 </div>

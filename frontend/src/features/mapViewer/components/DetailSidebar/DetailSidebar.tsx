@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { X, Clock, Star, Globe, Calendar, CreditCard, Tent, Info, ExternalLink, ChevronDown, ChevronUp, Ticket, Hourglass } from 'lucide-react';
+import { X, Star, Globe, Info, ExternalLink, ChevronDown, ChevronUp } from 'lucide-react';
 import { fetchPoiDetail } from '../../../../services/poiApiService';
 import { fetchCampDetail } from '../../../../services/campsApiService';
 import "./DetailSidebar.css";
@@ -129,7 +129,7 @@ const DetailSidebar: React.FC<DetailSidebarProps> = ({ type, id, onClose }) => {
 
                                     {data.review_count > 0 && (
                                         <div className="detail-sidebar-review-badge">
-                                            <Star size={14} className="text-amber-500 fill-amber-500" />
+                                            <Star size={14} style={{ color: 'var(--color-warning-500)', fill: 'var(--color-warning-500)' }} />
                                             <span className="detail-sidebar-review-score">{data.review}</span>
                                             <span className="detail-sidebar-review-count">({data.review_count})</span>
                                         </div>
@@ -170,7 +170,7 @@ const DetailSidebar: React.FC<DetailSidebarProps> = ({ type, id, onClose }) => {
                                         rel="noopener noreferrer"
                                         className="detail-sidebar-action-btn detail-sidebar-action-price"
                                     >
-                                        <CreditCard size={16} /> Ceník
+                                        Ceník
                                     </a>
                                 )}
                             </div>
@@ -182,9 +182,6 @@ const DetailSidebar: React.FC<DetailSidebarProps> = ({ type, id, onClose }) => {
                                         <div className="detail-sidebar-info-card">
                                             {(data.price || data.discounted_price) && (
                                                 <div className="detail-sidebar-info-row">
-                                                    <div className="detail-sidebar-info-icon">
-                                                        <Ticket size={18} />
-                                                    </div>
                                                     <div className="detail-sidebar-info-text-col">
                                                         {data.price && (
                                                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -204,9 +201,6 @@ const DetailSidebar: React.FC<DetailSidebarProps> = ({ type, id, onClose }) => {
 
                                             {data.time_required && (
                                                 <div className={`detail-sidebar-info-row ${data.price || data.discounted_price ? 'detail-sidebar-info-row-bordered' : ''}`}>
-                                                    <div className="detail-sidebar-info-icon">
-                                                        <Hourglass size={18} />
-                                                    </div>
                                                     <div className="detail-sidebar-info-text-row">
                                                         <span className="detail-sidebar-info-label">Časová náročnost</span>
                                                         <span className="detail-sidebar-info-value">{data.time_required} hod.</span>
@@ -219,7 +213,7 @@ const DetailSidebar: React.FC<DetailSidebarProps> = ({ type, id, onClose }) => {
                                     {data.opening_hours && data.opening_hours.length > 0 && (
                                         <div>
                                             <h4 className="detail-sidebar-section-title">
-                                                <Clock size={18} className="detail-sidebar-section-title-icon" /> Otevírací doba
+                                                Otevírací doba
                                             </h4>
                                             <div className="detail-sidebar-info-card">
                                                 {data.opening_hours.map((oh: any, idx: number) => (
@@ -238,9 +232,6 @@ const DetailSidebar: React.FC<DetailSidebarProps> = ({ type, id, onClose }) => {
                                         <div className="detail-sidebar-info-card">
                                             {data.operating_time_month_from && (
                                                 <div className="detail-sidebar-info-row">
-                                                    <div className="detail-sidebar-info-icon">
-                                                        <Calendar size={18} />
-                                                    </div>
                                                     <div className="detail-sidebar-info-text-row">
                                                         <span className="detail-sidebar-info-label">Sezóna</span>
                                                         <span className="detail-sidebar-info-value">
@@ -252,9 +243,6 @@ const DetailSidebar: React.FC<DetailSidebarProps> = ({ type, id, onClose }) => {
 
                                             {data.accept_cards !== undefined && (
                                                 <div className={`detail-sidebar-info-row ${data.operating_time_month_from ? 'detail-sidebar-info-row-bordered' : ''}`}>
-                                                    <div className="detail-sidebar-info-icon">
-                                                        <CreditCard size={18} />
-                                                    </div>
                                                     <div className="detail-sidebar-info-text-row">
                                                         <span className="detail-sidebar-info-label">Platba kartou</span>
                                                         <span className={data.accept_cards === "1" ? "detail-sidebar-info-value-emerald" : "detail-sidebar-info-value-slate"}>
@@ -269,7 +257,7 @@ const DetailSidebar: React.FC<DetailSidebarProps> = ({ type, id, onClose }) => {
                                     {data.accommodation_types && data.accommodation_types.length > 0 && (
                                         <div>
                                             <h4 className="detail-sidebar-section-title">
-                                                <Tent size={18} className="detail-sidebar-section-title-icon" /> Ubytování
+                                                Ubytování
                                             </h4>
                                             <div className="detail-sidebar-chips-row">
                                                 {data.accommodation_types.map((acc: any) => (
@@ -284,7 +272,7 @@ const DetailSidebar: React.FC<DetailSidebarProps> = ({ type, id, onClose }) => {
                                     {data.service && data.service.length > 0 && (
                                         <div>
                                             <h4 className="detail-sidebar-section-title">
-                                                <Info size={18} className="detail-sidebar-section-title-icon" /> Služby
+                                                Služby
                                             </h4>
                                             <ul className="detail-sidebar-services-list">
                                                 {data.service.map((svc: any) => (
