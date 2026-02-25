@@ -4,19 +4,19 @@ import type {
   RouteMode,
   RouteWaypoint,
   RoutesListResponse,
-  InviteDetails
+  InviteDetails,
+  CalculationProgressData
 } from "../types/routes";
 import type {
   ApiResponse,
-  PaginatedResponse
+  PaginatedResponse,
+  PaginationMeta
 } from "../types/general";
 import type {
   GeneralEquipment,
   MyEquipment,
   EquipmentType
 } from "../types/equipment";
-
-// Routes
 
 export const createRoute = async (mode: RouteMode, name?: string): Promise<Route> => {
   const payload = {
@@ -32,7 +32,7 @@ export const fetchGetRoute = async (routeId: number): Promise<Route> => {
   return response.data.data.route;
 };
 
-export const updateRoute = async (routeId: number, data: Partial<any>): Promise<Route> => {
+export const updateRoute = async (routeId: number, data: Record<string, unknown>): Promise<Route> => {
   const response = await apiClient.patch<ApiResponse<{ route: Route }>>(`/routes/${routeId}`, data);
   return response.data.data.route;
 };
@@ -61,19 +61,15 @@ export const fetchSharedRoutes = async (page = 1, search = ""): Promise<RoutesLi
   return response.data.data;
 };
 
-// Calculation
-
 export const calculateRoute = async (routeId: number): Promise<string> => {
   const response = await apiClient.post<ApiResponse<{ job_id: string }>>(`/routes/${routeId}/calculate`);
   return response.data.data.job_id;
 };
 
-export const getCalculationProgress = async (jobId: string): Promise<any> => {
-  const response = await apiClient.get<ApiResponse<any>>(`/routes/job/${jobId}/progress`);
+export const getCalculationProgress = async (jobId: string): Promise<CalculationProgressData> => {
+  const response = await apiClient.get<ApiResponse<CalculationProgressData>>(`/routes/job/${jobId}/progress`);
   return response.data.data;
 };
-
-// Waypoints
 
 export const createWaypoint = async (routeId: number, order: number, lat: number, lng: number): Promise<RouteWaypoint> => {
   const payload = {
@@ -89,8 +85,6 @@ export const createWaypoint = async (routeId: number, order: number, lat: number
 export const deleteWaypoint = async (waypointId: number): Promise<void> => {
   await apiClient.delete(`/routes/waypoints/${waypointId}`);
 };
-
-// Users
 
 export const inviteUserToRoute = async (routeId: number): Promise<string> => {
   const response = await apiClient.post<ApiResponse<{ token: string }>>(`/routes/${routeId}/users/invite`, {});
@@ -112,8 +106,6 @@ export const acceptInviteToRoute = async (token: string): Promise<number> => {
   const response = await apiClient.post<ApiResponse<{ route_id: number }>>(`/routes/users/accept-invite`, { token });
   return response.data?.data?.route_id || 0;
 };
-
-// Equipment
 
 export const fetchMyEquipmentList = async (search?: string, page = 1): Promise<PaginatedResponse<MyEquipment>> => {
   const response = await apiClient.post<ApiResponse<PaginatedResponse<MyEquipment>>>("/my-equipment/list", {
@@ -149,7 +141,7 @@ export const removeEquipmentFromRoute = async (routeId: number, type: EquipmentT
 
 const DEFAULT_EQUIPMENT_PER_PAGE = Number(import.meta.env.VITE_EQUIPMENT_PER_PAGE ?? "12");
 
-export const fetchAvailableRouteEquipment = async (routeId: number, page: number = 1, search: string = "", perPage: number = DEFAULT_EQUIPMENT_PER_PAGE): Promise<{ data: MyEquipment[], meta: any }> => {
+export const fetchAvailableRouteEquipment = async (routeId: number, page: number = 1, search: string = "", perPage: number = DEFAULT_EQUIPMENT_PER_PAGE): Promise<{ data: MyEquipment[], meta: PaginationMeta }> => {
   const response = await apiClient.post(`/routes/${routeId}/equipment/available-my`, {
     search: search || undefined,
     page,

@@ -17,3 +17,10 @@ export interface ApiErrorResponse {
     message?: string;
     errors?: Record<string, string[]>;
 }
+
+export interface PaginationMeta {
+    page: number;
+    per_page?: number;
+    total_pages: number;
+    total_items: number;
+}

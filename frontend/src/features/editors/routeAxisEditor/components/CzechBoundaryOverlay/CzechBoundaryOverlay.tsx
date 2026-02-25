@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { GeoJSON } from "react-leaflet";
-import type { FeatureCollection, Feature, Polygon } from "geojson";
+import type { FeatureCollection, Feature, Polygon, MultiPolygon } from "geojson";
 
 const CzechBoundaryOverlay: React.FC = () => {
     const [maskFeature, setMaskFeature] = useState<FeatureCollection | null>(null);
@@ -32,8 +32,8 @@ const CzechBoundaryOverlay: React.FC = () => {
                 if (czFeature.geometry.type === "Polygon") {
                     czRings = (czFeature.geometry as Polygon).coordinates as [number, number][][];
                 } else {
-                    czRings = (czFeature.geometry as any).coordinates.map(
-                        (poly: [number, number][][]) => poly[0]
+                    czRings = (czFeature.geometry as MultiPolygon).coordinates.map(
+                        (poly) => poly[0] as [number, number][]
                     );
                 }
 
@@ -51,7 +51,7 @@ const CzechBoundaryOverlay: React.FC = () => {
                     features: [invertedFeature],
                 });
             })
-            .catch(console.error);
+            .catch(() => {});
     }, []);
 
     return (

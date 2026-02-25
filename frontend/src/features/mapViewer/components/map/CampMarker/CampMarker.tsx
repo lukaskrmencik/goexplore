@@ -10,10 +10,9 @@ interface CampMarkerProps {
     onClick?: (id: number) => void;
 }
 
-// Custom ikona pro POI
 const campIcon = createCustomIcon(Tent, {
     color: "#ffffff",
-    bgColor: "#166534", // green-800 (Dark Forest Green)
+    bgColor: "#166534",
     size: 32,
     iconSize: 18
 });

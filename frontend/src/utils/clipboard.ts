@@ -5,7 +5,6 @@ export async function copyTextToClipboard(text: string): Promise<boolean> {
             return true;
         }
     } catch {
-        // fall through to legacy method
     }
 
     try {

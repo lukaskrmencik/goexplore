@@ -26,7 +26,6 @@ const CalculationOverlay: React.FC<CalculationOverlayProps> = ({
             <div className="calc-overlay-card">
 
                 {error ? (
-                    // Error State
                     <div className="calc-overlay-error-row">
                         <div className="calc-overlay-error-icon-box">
                             <AlertTriangle size={16} />
@@ -52,7 +51,6 @@ const CalculationOverlay: React.FC<CalculationOverlayProps> = ({
                         </div>
                     </div>
                 ) : (
-                    // Loading State
                     <div className="calc-overlay-loading-row">
                         <div className="calc-overlay-loading-spinner-box">
                             <div className="calc-overlay-loading-spinner-bg"></div>

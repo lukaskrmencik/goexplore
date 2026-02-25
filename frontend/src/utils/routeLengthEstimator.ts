@@ -1,12 +1,34 @@
 import type { EditorPoint } from "../types/editor";
-import type { RouteLengthConstraints, SeasonConstraints } from "../types/routes";
+import type { Route, RouteLengthConstraints, SeasonConstraints } from "../types/routes";
+import { geojsonPointToLatLng } from "./geo";
 
 export type { RouteLengthConstraints, SeasonConstraints };
 
-/**
- * Returns the great-circle distance (km) between two lat/lng points
- * using the Haversine formula.
- */
+export function computeRouteEstimatedKm(route: Route): number {
+    const points: EditorPoint[] = [];
+
+    if (route.start) {
+        const [lat, lng] = geojsonPointToLatLng(route.start) as [number, number];
+        points.push({ id: 'start', lat, lng, type: 'start', name: 'Start', order: 0 });
+    }
+
+    if (route.waypoints?.length) {
+        [...route.waypoints]
+            .sort((a, b) => a.order - b.order)
+            .forEach(wp => {
+                const [lat, lng] = geojsonPointToLatLng(wp.coordinates) as [number, number];
+                points.push({ id: `wp-${wp.id}`, lat, lng, type: 'waypoint', name: '', order: wp.order });
+            });
+    }
+
+    if (route.end) {
+        const [lat, lng] = geojsonPointToLatLng(route.end) as [number, number];
+        points.push({ id: 'end', lat, lng, type: 'end', name: 'End', order: 9999 });
+    }
+
+    return points.length >= 2 ? computeEstimatedLength(points).roadKm : 0;
+}
+
 function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
     const R = 6371;
     const toRad = (deg: number) => (deg * Math.PI) / 180;
@@ -20,10 +42,6 @@ function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number): nu
     return R * c;
 }
 
-/**
- * Computes the total straight-line (axis) length in km
- * by summing haversine distances between consecutive points.
- */
 export function calculateAxisLengthKm(points: EditorPoint[]): number {
     if (points.length < 2) return 0;
     let total = 0;
@@ -33,18 +51,11 @@ export function calculateAxisLengthKm(points: EditorPoint[]): number {
     return total;
 }
 
-/**
- * Multiplies the axis length by the road factor constant from env
- * to get an estimated on-road length in km.
- */
 export function estimateRoadLengthKm(axisKm: number): number {
     const factor = parseFloat(import.meta.env.VITE_ROUTE_ROAD_FACTOR ?? "1.35");
     return axisKm * factor;
 }
 
-/**
- * Returns the min/max km-per-day and minimum trip days from env.
- */
 export function getRouteLengthConstraints(): RouteLengthConstraints {
     return {
         minKmPerDay: parseFloat(import.meta.env.VITE_ROUTE_MIN_KM_PER_DAY ?? "40"),
@@ -53,19 +64,12 @@ export function getRouteLengthConstraints(): RouteLengthConstraints {
     };
 }
 
-/**
- * Computes both axis and estimated road length from a set of editor points.
- * Returns 0 for both if there are fewer than 2 points.
- */
 export function computeEstimatedLength(points: EditorPoint[]): { axisKm: number; roadKm: number } {
     const axisKm = calculateAxisLengthKm(points);
     const roadKm = estimateRoadLengthKm(axisKm);
     return { axisKm, roadKm };
 }
 
-/**
- * Returns the allowed season months from env.
- */
 export function getSeasonConstraints(): SeasonConstraints {
     return {
         startMonth: parseInt(import.meta.env.VITE_SEASON_START_MONTH ?? "5", 10),
@@ -73,9 +77,6 @@ export function getSeasonConstraints(): SeasonConstraints {
     };
 }
 
-/**
- * Returns true if the given date falls within the allowed season.
- */
 export function isInSeason(date: Date): boolean {
     const { startMonth, endMonth } = getSeasonConstraints();
     const month = date.getMonth() + 1;

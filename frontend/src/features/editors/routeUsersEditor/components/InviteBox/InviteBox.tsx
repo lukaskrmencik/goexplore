@@ -21,10 +21,7 @@ const InviteBox: React.FC<InviteBoxProps> = ({ link, isGenerating }) => {
     const handleCopy = async () => {
         if (!link) return;
         const succeeded = await copyTextToClipboard(link);
-        if (!succeeded) {
-            console.error("Copy to clipboard failed");
-            return;
-        }
+        if (!succeeded) return;
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
     };
@@ -37,8 +34,7 @@ const InviteBox: React.FC<InviteBoxProps> = ({ link, isGenerating }) => {
                 text: 'Ahoj, přidej se k mé trase a naplánujme to společně.',
                 url: link,
             });
-        } catch (err) {
-            console.error('Error sharing:', err);
+        } catch {
         }
     };
 

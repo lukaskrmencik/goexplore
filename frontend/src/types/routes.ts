@@ -1,5 +1,6 @@
 import type { LineString, Point } from "geojson";
 import type { User, RouteUser } from "./users";
+import type { GeneralEquipment, MyEquipment } from "./equipment";
 
 export type RouteMode = 'simple' | 'manual';
 
@@ -27,7 +28,7 @@ export interface Route {
   equipment?: RouteEquipment[];
   waypoints: RouteWaypoint[];
   users: RouteUser[];
-  user?: User; // Owner of the route
+  user?: User;
 
   created_at: string;
   updated_at: string;
@@ -68,20 +69,12 @@ export interface RouteEquipment {
   general_equipment_id?: number;
   my_equipment_id?: number;
 
-  general_equipment?: any; // GeneralEquipment (Circular dep if imported?)
-  my_equipment?: any;      // MyEquipment
+  general_equipment?: GeneralEquipment;
+  my_equipment?: MyEquipment;
 
-  // Joins/Appends might provide these directly flattened or nested?
-  // Frontend code uses item.name directly, implying flattened or eager loaded with accessor?
-  // Actually, looking at RouteUsersEditor, it constructs objects. 
-  // Let's assume the backend 'Route' model 'equipment' relation returns the *Equipment* objects with pivot info, OR the RouteEquipment pivot objects with Equipment info.
-  // Controller 'addEquipment' returns RouteEquipment pivot.
-  // Frontend code in RouteEquipmentEditor expects: item.name, item.general_equipment_id, item.my_equipment_id. 
-  // This suggests the array contains objects that have both pivot data AND equipment data mixed, or it's the pivot object with 'general_equipment'/'my_equipment' relation loaded.
-  // Given "item.name", let's include loose typing for now to satisfy the build, or correct fields.
   name?: string;
   img?: string;
-  specifications?: any;
+  specifications?: Record<string, unknown>;
   created_at?: string;
   updated_at?: string;
 }
@@ -104,10 +97,10 @@ export interface RouteItem {
   length_meters?: number;
   simplified_geojson?: string;
   users?: RouteUser[];
-  user?: User; // Owner for shared routes
+  user?: User;
   created_at?: string;
   updated_at?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface RoutesListResponse {
@@ -145,4 +138,11 @@ export interface PaceInfo {
     isUnderMin: boolean;
     isOverMax: boolean;
     isValid: boolean;
+}
+
+export interface CalculationProgressData {
+    progress: number;
+    status: string;
+    state: string;
+    error?: string;
 }

@@ -20,7 +20,7 @@ export const useMapViewer = (routeId: number | null) => {
     useEffect(() => {
         fetchMyProfile()
             .then(setCurrentUser)
-            .catch(console.error);
+            .catch(() => {});
     }, []);
 
     const fetchRoute = useCallback(async () => {
@@ -39,7 +39,6 @@ export const useMapViewer = (routeId: number | null) => {
             setRoute(routeData);
             setRouteLine(routeData.complete_route);
         } catch (err) {
-            console.error(err);
             setError(getErrorMessage(err, "Nepodařilo se načíst trasu"));
         } finally {
             setLoading(false);

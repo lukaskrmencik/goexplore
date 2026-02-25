@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { deleteRoute, removeUserFromRoute } from '../../../../services/routesApiService';
-import { decodeJwtUserId } from '../../../../utils/auth';
+import { decodeJwtUserId, AUTH_TOKEN_KEY } from '../../../../utils/auth';
 
 export const useRouteActions = (onSuccess: () => void) => {
     const [routeIdToDelete, setRouteIdToDelete] = useState<number | null>(null);
@@ -18,8 +18,7 @@ export const useRouteActions = (onSuccess: () => void) => {
         try {
             await deleteRoute(routeIdToDelete);
             onSuccess();
-        } catch (err) {
-            console.error('Nepodařilo se smazat cestu', err);
+        } catch {
             alert('Nepodařilo se smazat cestu. Zkuste to prosím znovu.');
         } finally {
             setIsProcessing(false);
@@ -31,13 +30,12 @@ export const useRouteActions = (onSuccess: () => void) => {
         if (routeIdToUnjoin === null) return;
         setIsProcessing(true);
         try {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem(AUTH_TOKEN_KEY);
             if (!token) throw new Error('Not authenticated');
             const currentUserId = decodeJwtUserId(token);
             await removeUserFromRoute(routeIdToUnjoin, currentUserId);
             onSuccess();
-        } catch (err) {
-            console.error('Nepodařilo se odpojit od cesty', err);
+        } catch {
             alert('Nepodařilo se odpojit z cesty. Zkuste to prosím znovu.');
         } finally {
             setIsProcessing(false);

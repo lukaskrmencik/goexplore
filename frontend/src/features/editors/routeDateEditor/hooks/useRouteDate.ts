@@ -106,7 +106,6 @@ export const useRouteDate = (route: Route | null, onUpdateRoute: (route: Route) 
             const updatedRoute = await updateRoute(route.id, { start_date: startIso, end_date: endIso });
             onUpdateRoute(updatedRoute);
         } catch (err) {
-            console.error(err);
             throw err;
         }
     };

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Plus, Package, Search, User } from "lucide-react";
 import type { RouteEditorProps } from "../../../../types/editor";
+import type { MyEquipment } from "../../../../types/equipment";
 import { useRouteEquipment } from ".././hooks/useRouteEquipment";
 import EquipmentCard from ".././components/EquipmentCard/EquipmentCard";
 import BackpackPanel from ".././components/BackpackPanel/BackpackPanel";
@@ -36,10 +37,10 @@ const RouteEquipmentEditor: React.FC<RouteEditorProps> = ({ route, onUpdate }) =
 
     const [isBackpackPanelOpen, setIsBackpackPanelOpen] = React.useState(false);
     const [isEquipmentModalOpen, setIsEquipmentModalOpen] = React.useState(false);
-    const [equipmentBeingEdited, setEquipmentBeingEdited] = React.useState<any | null>(null);
+    const [equipmentBeingEdited, setEquipmentBeingEdited] = React.useState<MyEquipment | null>(null);
     const [equipmentIdPendingDeletion, setEquipmentIdPendingDeletion] = React.useState<number | null>(null);
 
-    const handleOpenEditModal = (item: any) => {
+    const handleOpenEditModal = (item: MyEquipment) => {
         setEquipmentBeingEdited(item);
         setIsEquipmentModalOpen(true);
     };

@@ -1,11 +1,7 @@
 import apiClient from "./apiClient";
+import type { PoiDetail } from "../types/mapViewer";
 
-
-interface PoiDetailResponse {
-    poi: any; // Type this better based on user data
-}
-
-export const fetchPoiDetail = async (id: number) => {
-    const response = await apiClient.get<{ data: PoiDetailResponse }>(`/poi/${id}`);
+export const fetchPoiDetail = async (id: number): Promise<PoiDetail> => {
+    const response = await apiClient.get<{ data: { poi: PoiDetail } }>(`/poi/${id}`);
     return response.data.data.poi;
 };

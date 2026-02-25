@@ -1,7 +1,8 @@
 import React from 'react';
+import type { CampDetail } from '../../../../../../types/mapViewer';
 
 interface CampInfoSectionProps {
-    data: any;
+    data: CampDetail;
 }
 
 const CampInfoSection: React.FC<CampInfoSectionProps> = ({ data }) => (
@@ -34,7 +35,7 @@ const CampInfoSection: React.FC<CampInfoSectionProps> = ({ data }) => (
             <div>
                 <h4 className="detail-sidebar-section-title">Ubytování</h4>
                 <div className="detail-sidebar-chips-row">
-                    {data.accommodation_types.map((acc: any) => (
+                    {data.accommodation_types.map(acc => (
                         <span key={acc.id} className="detail-sidebar-chip-acc">{acc.name}</span>
                     ))}
                 </div>
@@ -44,7 +45,7 @@ const CampInfoSection: React.FC<CampInfoSectionProps> = ({ data }) => (
             <div>
                 <h4 className="detail-sidebar-section-title">Služby</h4>
                 <ul className="detail-sidebar-services-list">
-                    {data.service.map((svc: any) => (
+                    {data.service.map(svc => (
                         <li key={svc.id} className="detail-sidebar-service-item">
                             <div className="detail-sidebar-service-dot"></div>
                             <span style={{ lineHeight: 1.375 }}>{svc.name}</span>

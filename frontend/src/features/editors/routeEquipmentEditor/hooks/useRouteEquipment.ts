@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import type { Route } from "../../../../types/routes";
 import type { GeneralEquipment, MyEquipment, EquipmentType } from "../../../../types/equipment";
 import type { User } from "../../../../types/users";
+import type { PaginationMeta } from "../../../../types/general";
 import {
     fetchGeneralEquipment,
     deleteMyEquipment
@@ -57,8 +58,8 @@ function resolveBackpackItemDisplay(
 export const useRouteEquipment = (route: Route, onUpdate: (route: Route) => void) => {
     const [generalList, setGeneralList] = useState<GeneralEquipment[]>([]);
     const [myList, setMyList] = useState<MyEquipment[]>([]);
-    const [generalMeta, setGeneralMeta] = useState({ page: 1, total_pages: 1, total_items: 0 });
-    const [myMeta, setMyMeta] = useState({ page: 1, total_pages: 1, total_items: 0 });
+    const [generalMeta, setGeneralMeta] = useState<PaginationMeta>({ page: 1, total_pages: 1, total_items: 0 });
+    const [myMeta, setMyMeta] = useState<PaginationMeta>({ page: 1, total_pages: 1, total_items: 0 });
 
     const [isLoading, setIsLoading] = useState(false);
     const [search, setSearch] = useState("");
@@ -72,7 +73,7 @@ export const useRouteEquipment = (route: Route, onUpdate: (route: Route) => void
     useEffect(() => {
         fetchMyUser()
             .then(user => setCurrentUser(user))
-            .catch(err => console.error(err));
+            .catch(() => {});
     }, []);
 
     const loadLists = useCallback(async (silent = false) => {
@@ -98,8 +99,7 @@ export const useRouteEquipment = (route: Route, onUpdate: (route: Route) => void
                     total_items: myRes.meta.total_items ?? 0
                 });
             }
-        } catch (err) {
-            console.error(err);
+        } catch {
         } finally {
             if (!silent) setIsLoading(false);
         }
@@ -127,7 +127,6 @@ export const useRouteEquipment = (route: Route, onUpdate: (route: Route) => void
             const updatedRoute = await fetchGetRoute(route.id);
             onUpdate(updatedRoute);
         } catch (err) {
-            console.error(err);
             setError(getErrorMessage(err, "Akce se nezdařila."));
         } finally {
             setProcessingId(null);
@@ -145,8 +144,7 @@ export const useRouteEquipment = (route: Route, onUpdate: (route: Route) => void
                 const updatedRoute = await fetchGetRoute(route.id);
                 onUpdate(updatedRoute);
             }
-        } catch (err) {
-            console.error(err);
+        } catch {
             setError("Nepodařilo se přidat nové vybavení do trasy.");
         }
     };

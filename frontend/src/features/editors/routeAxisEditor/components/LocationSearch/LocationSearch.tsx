@@ -55,8 +55,7 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
                     setResults(data);
                     setIsOpen(true);
                 })
-                .catch(error => {
-                    console.error("Search failed", error);
+                .catch(() => {
                     setResults([]);
                 })
                 .finally(() => {

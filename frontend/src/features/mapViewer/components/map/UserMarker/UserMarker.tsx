@@ -47,7 +47,7 @@ const UserMarker: React.FC<UserMarkerProps> = ({ user }) => {
     maxAgeDate.setDate(maxAgeDate.getDate() - USER_MARKER_MAX_AGE_DAYS);
     if (updatedAt < maxAgeDate) return null;
 
-    const position = geojsonPointToLatLng(user.location as any);
+    const position = geojsonPointToLatLng(user.location!);
 
     const avatarHtml = renderToString(
         <div className="user-marker-avatar-wrapper">

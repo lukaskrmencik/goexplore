@@ -97,21 +97,22 @@ const DetailSidebar: React.FC<DetailSidebarProps> = ({ type, id, onClose }) => {
                             {type === 'poi' && <PoiInfoSection data={data} />}
                             {type === 'camp' && <CampInfoSection data={data} />}
 
-                            {data.equipment && data.equipment.length > 0 && (
-                                <div>
-                                    <h4 className="detail-sidebar-section-title" style={{ marginTop: 0, marginBottom: "0.75rem" }}>Vybavení</h4>
-                                    <div className="detail-sidebar-chips-row">
-                                        {data.equipment.map((eq: any) => (
-                                            <span key={eq.id} className="detail-sidebar-chip-eq">{eq.name}</span>
-                                        ))}
-                                    </div>
+
+                        {data.equipment && data.equipment.length > 0 && (
+                            <div>
+                                <h4 className="detail-sidebar-section-title" style={{ marginTop: 0, marginBottom: "0.75rem" }}>Vybavení</h4>
+                                <div className="detail-sidebar-chips-row">
+                                    {data.equipment.map(eq => (
+                                        <span key={eq.id} className="detail-sidebar-chip-eq">{eq.name}</span>
+                                    ))}
                                 </div>
-                            )}
+                            </div>
+                        )}
 
                             {(data.labels || data.tags) && (
                                 <div className="detail-sidebar-tags-section">
                                     <div className="detail-sidebar-chips-row">
-                                        {[...(data.labels || []), ...(data.tags || [])].map((tag: any) => (
+                                        {[...(data.labels || []), ...(data.tags || [])].map(tag => (
                                             <span key={tag.id} className="detail-sidebar-tag-item">#{tag.name}</span>
                                         ))}
                                     </div>

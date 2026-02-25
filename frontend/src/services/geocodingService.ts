@@ -11,10 +11,7 @@ export const searchPlace = async (query: string): Promise<SearchResult[]> => {
     if (!query || query.length < GEOCODING_MIN_QUERY_LENGTH) return [];
 
     const apiKey = import.meta.env.VITE_MAPY_CZ_API_KEY;
-    if (!apiKey) {
-        console.error("Mapy.cz API key is missing");
-        return [];
-    }
+    if (!apiKey) return [];
 
     try {
         const response = await axios.get<MapyCzResponse>(`https://api.mapy.cz/v1/geocode`, {
@@ -51,8 +48,7 @@ export const searchPlace = async (query: string): Promise<SearchResult[]> => {
                 display_name: displayName
             };
         });
-    } catch (error) {
-        console.error("Geocoding error:", error);
+    } catch {
         return [];
     }
 };

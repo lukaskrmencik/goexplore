@@ -61,11 +61,11 @@ const RoutePolyline: React.FC<RoutePolylineProps> = ({ coordinates, onSegmentCli
                                 onSegmentClick(i, e.latlng.lat, e.latlng.lng);
                             },
                             mouseover: (e) => {
-                                const el = (e.target as any)._path;
+                                const el = (e.target as LeafletMouseEvent['target'] & { _path?: SVGElement })._path;
                                 if (el) el.style.cursor = 'copy';
                             },
                             mouseout: (e) => {
-                                const el = (e.target as any)._path;
+                                const el = (e.target as LeafletMouseEvent['target'] & { _path?: SVGElement })._path;
                                 if (el) el.style.cursor = '';
                             }
                         }}

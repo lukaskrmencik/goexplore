@@ -2,18 +2,13 @@ import { useState, useEffect } from "react";
 import { fetchAllRoutes, fetchSharedRoutes } from "../../../../services/routesApiService";
 import type { RouteItem } from "../../../../types/routes";
 import { getErrorMessage } from "../../../../utils/apiError";
-
-interface RoutesPaginationMeta {
-    page: number;
-    total_pages: number;
-    total_items: number;
-}
+import type { PaginationMeta } from "../../../../types/general";
 
 export const useRoutesList = (page = 1, searchQuery = "") => {
     const [ownedRoutes, setOwnedRoutes] = useState<RouteItem[]>([]);
     const [sharedRoutes, setSharedRoutes] = useState<RouteItem[]>([]);
-    const [ownedPagination, setOwnedPagination] = useState<RoutesPaginationMeta>({ page: 1, total_pages: 1, total_items: 0 });
-    const [sharedPagination, setSharedPagination] = useState<RoutesPaginationMeta>({ page: 1, total_pages: 1, total_items: 0 });
+    const [ownedPagination, setOwnedPagination] = useState<PaginationMeta>({ page: 1, total_pages: 1, total_items: 0 });
+    const [sharedPagination, setSharedPagination] = useState<PaginationMeta>({ page: 1, total_pages: 1, total_items: 0 });
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -37,7 +32,6 @@ export const useRoutesList = (page = 1, searchQuery = "") => {
                 total_items: sharedResponse.total_items,
             });
         } catch (err) {
-            console.error(err);
             setError(getErrorMessage(err, "Nepodařilo se načíst seznam tras."));
         } finally {
             setIsLoading(false);

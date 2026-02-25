@@ -21,14 +21,14 @@ export const useRouteUsers = (route: Route, onUpdateRoute: (route: Route) => voi
     useEffect(() => {
         fetchMyUser()
             .then(user => setCurrentUserId(user.id))
-            .catch(err => console.error(err));
+            .catch(() => {});
     }, []);
 
     useEffect(() => {
         if (!route.id) return;
         fetchGetRoute(route.id)
             .then(onUpdateRoute)
-            .catch(err => console.error(err));
+            .catch(() => {});
     }, [route.id, onUpdateRoute]);
 
     const generateInviteLink = useCallback(async () => {
@@ -39,7 +39,6 @@ export const useRouteUsers = (route: Route, onUpdateRoute: (route: Route) => voi
             const baseUrl = import.meta.env.VITE_INVITE_BASE_URL?.trim() || window.location.origin;
             setInviteLink(`${baseUrl}/join/${token}`);
         } catch (err) {
-            console.error(err);
             setError(getErrorMessage(err, "Nepodařilo se vytvořit odkaz."));
         } finally {
             setIsGenerating(false);
@@ -57,8 +56,7 @@ export const useRouteUsers = (route: Route, onUpdateRoute: (route: Route) => voi
                 if (JSON.stringify(updatedRoute.users) !== JSON.stringify(route.users)) {
                     onUpdateRoute(updatedRoute);
                 }
-            } catch (err) {
-                console.error(err);
+            } catch {
             }
         }, ROUTE_USERS_POLLING_INTERVAL);
 
@@ -73,7 +71,6 @@ export const useRouteUsers = (route: Route, onUpdateRoute: (route: Route) => voi
             const updatedRoute = await fetchGetRoute(route.id);
             onUpdateRoute(updatedRoute);
         } catch (err) {
-            console.error(err);
             setError(getErrorMessage(err, "Nepodařilo se odebrat uživatele."));
         } finally {
             setIsRemovingId(null);

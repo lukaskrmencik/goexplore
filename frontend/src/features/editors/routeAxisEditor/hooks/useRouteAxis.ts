@@ -50,8 +50,7 @@ export const useRouteAxis = (route: Route | null, onUpdateRoute: (route: Route) 
             if (cached) {
                 nameCache = JSON.parse(cached);
             }
-        } catch (error) {
-            console.error(error);
+        } catch {
         }
 
         const getName = (lat: number, lng: number, defaultName: string) => {

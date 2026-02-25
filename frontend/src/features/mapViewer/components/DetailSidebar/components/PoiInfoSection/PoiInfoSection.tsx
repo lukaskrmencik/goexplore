@@ -1,17 +1,18 @@
 import React, { useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
+import type { PoiDetail, OpeningHours } from '../../../../../../types/mapViewer';
 
 const CZECH_MONTHS = ["Leden", "Únor", "Březen", "Duben", "Květen", "Červen", "Červenec", "Srpen", "Září", "Říjen", "Listopad", "Prosinec"];
 const CZECH_DAYS = ["Pondělí", "Úterý", "Středa", "Čtvrtek", "Pátek", "Sobota", "Neděle"];
 
-const OpeningHoursItem: React.FC<{ oh: any }> = ({ oh }) => {
+const OpeningHoursItem: React.FC<{ oh: OpeningHours }> = ({ oh }) => {
     const [isExpanded, setIsExpanded] = useState(false);
 
     const monthFrom = CZECH_MONTHS[oh.month_from - 1] || oh.month_from;
     const monthTo = CZECH_MONTHS[oh.month_to - 1] || oh.month_to;
 
     const daysList = Object.entries(oh.days || {})
-        .map(([dayNum, times]: [string, any]) => ({
+        .map(([dayNum, times]) => ({
             dayName: CZECH_DAYS[parseInt(dayNum) - 1] || dayNum,
             timeFrom: times.from ? times.from.substring(0, 5) : "",
             timeTo: times.to ? times.to.substring(0, 5) : "",
@@ -46,7 +47,7 @@ const OpeningHoursItem: React.FC<{ oh: any }> = ({ oh }) => {
 };
 
 interface PoiInfoSectionProps {
-    data: any;
+    data: PoiDetail;
 }
 
 const PoiInfoSection: React.FC<PoiInfoSectionProps> = ({ data }) => (
@@ -85,7 +86,7 @@ const PoiInfoSection: React.FC<PoiInfoSectionProps> = ({ data }) => (
             <div>
                 <h4 className="detail-sidebar-section-title">Otevírací doba</h4>
                 <div className="detail-sidebar-info-card">
-                    {data.opening_hours.map((oh: any, idx: number) => (
+                    {data.opening_hours.map((oh, idx) => (
                         <OpeningHoursItem key={idx} oh={oh} />
                     ))}
                 </div>

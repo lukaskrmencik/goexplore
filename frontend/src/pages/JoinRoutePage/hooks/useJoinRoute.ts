@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { acceptInviteToRoute, fetchInviteDetails } from "../../../services/routesApiService";
 import type { InviteDetails } from "../../../types/routes";
 import { getErrorMessage } from "../../../utils/apiError";
+import { AUTH_TOKEN_KEY } from "../../../utils/auth";
 
 export const useJoinRoute = () => {
     const { token } = useParams<{ token: string }>();
@@ -15,7 +16,7 @@ export const useJoinRoute = () => {
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        const authToken = localStorage.getItem("token");
+        const authToken = localStorage.getItem(AUTH_TOKEN_KEY);
         if (!authToken) {
             const redirectUrl = encodeURIComponent(location.pathname + location.search);
             navigate(`/login?redirect=${redirectUrl}`);
@@ -31,7 +32,6 @@ export const useJoinRoute = () => {
         fetchInviteDetails(token)
             .then(details => setInviteDetails(details))
             .catch(err => {
-                console.error(err);
                 setError(getErrorMessage(err, "Tuto pozvánku se nepodařilo načíst."));
             })
             .finally(() => setIsFetchingDetails(false));
@@ -50,7 +50,6 @@ export const useJoinRoute = () => {
             const routeId = await acceptInviteToRoute(token);
             navigate(`/map-viewer?id=${routeId}`);
         } catch (err) {
-            console.error(err);
             setError(getErrorMessage(err, "Nepodařilo se přijmout pozvánku. Zkuste to prosím znovu."));
         } finally {
             setIsAcceptingInvite(false);
