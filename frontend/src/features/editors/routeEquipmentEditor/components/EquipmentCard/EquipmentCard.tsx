@@ -2,6 +2,7 @@ import React from 'react';
 import { Plus, Loader2, Trash2, Package, Pencil } from 'lucide-react';
 import type { GeneralEquipment, MyEquipment, EquipmentType } from '../../../../../types/equipment';
 import UserAvatar from '../../../../../components/ui/UserAvatar/UserAvatar';
+import { getImageUrl } from '../../../../../utils/imageUrl';
 import "./EquipmentCard.css";
 
 interface EquipmentCardProps {
@@ -31,8 +32,7 @@ const EquipmentCard: React.FC<EquipmentCardProps> = ({
     // Helper to get initials
     const getInitials = (name: string) => name.slice(0, 2).toUpperCase();
 
-    // Image URL
-    const imageUrl = item.img ? `https://goexplore.lukaskrmencik.cz/php/storage/${item.img}` : null;
+    const imageUrl = getImageUrl(item.img);
 
     // Determine the "Type" name (General Equipment Name)
     let typeName = '';

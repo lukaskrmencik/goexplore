@@ -3,7 +3,8 @@ import type {
   Route,
   RouteMode,
   RouteWaypoint,
-  RoutesListResponse
+  RoutesListResponse,
+  InviteDetails
 } from "../types/routes";
 import type {
   ApiResponse,
@@ -102,8 +103,8 @@ export const removeUserFromRoute = async (routeId: number, userId: number): Prom
   });
 };
 
-export const fetchInviteDetails = async (token: string): Promise<{ inviter_name: string, route_name: string, route_id: number, is_owner: boolean, is_member: boolean }> => {
-  const response = await apiClient.get<ApiResponse<{ inviter_name: string, route_name: string, route_id: number, is_owner: boolean, is_member: boolean }>>(`/routes/users/invite/${token}`);
+export const fetchInviteDetails = async (token: string): Promise<InviteDetails> => {
+  const response = await apiClient.get<ApiResponse<InviteDetails>>(`/routes/users/invite/${token}`);
   return response.data?.data || { inviter_name: 'Neznámý', route_name: 'Neznámá trasa', route_id: 0, is_owner: false, is_member: false };
 };
 
@@ -146,7 +147,9 @@ export const removeEquipmentFromRoute = async (routeId: number, type: EquipmentT
   });
 };
 
-export const fetchAvailableRouteEquipment = async (routeId: number, page: number = 1, search: string = "", perPage: number = 12): Promise<{ data: MyEquipment[], meta: any }> => {
+const DEFAULT_EQUIPMENT_PER_PAGE = Number(import.meta.env.VITE_EQUIPMENT_PER_PAGE ?? "12");
+
+export const fetchAvailableRouteEquipment = async (routeId: number, page: number = 1, search: string = "", perPage: number = DEFAULT_EQUIPMENT_PER_PAGE): Promise<{ data: MyEquipment[], meta: any }> => {
   const response = await apiClient.post(`/routes/${routeId}/equipment/available-my`, {
     search: search || undefined,
     page,

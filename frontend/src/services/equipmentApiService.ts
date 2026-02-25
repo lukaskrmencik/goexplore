@@ -1,10 +1,12 @@
 import apiClient from "./apiClient";
 import type { GeneralEquipment, MyEquipment } from "../types/equipment";
 
+const DEFAULT_EQUIPMENT_PER_PAGE = Number(import.meta.env.VITE_EQUIPMENT_PER_PAGE ?? "12");
+
 export const fetchGeneralEquipment = async (
     page: number = 1,
     search: string = "",
-    perPage: number = 12
+    perPage: number = DEFAULT_EQUIPMENT_PER_PAGE
 ): Promise<{ data: GeneralEquipment[], meta: any }> => {
     const response = await apiClient.post('/general-equipment/list', {
         page,

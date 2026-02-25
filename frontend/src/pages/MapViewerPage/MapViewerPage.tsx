@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import Map from '../../features/mapViewer/components/map/Map/Map'
 import { useMapViewer } from "../../features/mapViewer/hooks/useMapViewer";
 import { useLocation } from "react-router-dom";
@@ -7,6 +7,9 @@ import RouteControlPanel from '../../features/mapViewer/components/RouteControlP
 import CalculationOverlay from '../../features/mapViewer/components/CalculationOverlay/CalculationOverlay';
 import { Loader2, Check } from 'lucide-react';
 import Toast from '../../components/ui/Toast/Toast';
+import { fetchMyProfile } from '../../services/userApiService';
+import type { User } from '../../types/users';
+import { getErrorMessage } from '../../utils/apiError';
 
 // Editors
 import RouteAxisEditor from '../../features/editors/routeAxisEditor/RouteAxisEditor/RouteAxisEditor';
@@ -29,6 +32,12 @@ const MapViewerPage: React.FC = () => {
   const { route, pois, camps, clusters, routeLine, loading: _loading, setRoute, refetch } = useMapViewer(routeId);
 
   const [activeEditor, setActiveEditor] = useState<'axis' | 'date' | 'users' | 'equipment' | 'config' | null>(null);
+
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    fetchMyProfile().then(setCurrentUser).catch(console.error);
+  }, []);
 
   // Toast Error State
   const [toastError, setToastError] = useState<string | null>(null);
@@ -94,15 +103,7 @@ const MapViewerPage: React.FC = () => {
       handleCloseEditor();
     } catch (e: any) {
       console.error("Failed to save editor", e);
-      let msg = "Nepodařilo se uložit změny.";
-      if (e?.response?.data?.error_message) {
-        msg = e.response.data.error_message;
-      } else if (e?.response?.data?.message) {
-        msg = e.response.data.message;
-      } else if (e?.message) {
-        msg = e.message;
-      }
-      setToastError(msg);
+      setToastError(getErrorMessage(e, "Nepodařilo se uložit změny."));
     }
   };
 
@@ -168,7 +169,42 @@ const MapViewerPage: React.FC = () => {
     }
   };
 
+  // Polling for map viewer updates (completion / location tracking)
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+
+    // We only poll if we have a route, aren't actively editing, and aren't regenerating it
+    if (route && !activeEditor && !isRegenerating) {
+      const isComplete = !!route.complete_route;
+      const delay = isComplete
+        ? Number(import.meta.env.VITE_MAP_VIEWER_POLLING_COMPLETE ?? "15000")
+        : Number(import.meta.env.VITE_MAP_VIEWER_POLLING_GENERATING ?? "5000");
+
+      interval = setInterval(() => {
+        refetch();
+      }, delay);
+    }
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [route?.id, route?.complete_route, activeEditor, isRegenerating, refetch]);
+
   if (!route) return <div className="map-viewer-loading"><Loader2 className="map-viewer-spinner text-emerald-600" /></div>;
+
+  // View state for incomplete routes (blocks the map for invited users)
+  // We only show this if they aren't actively editing it (owners will be in 'axis' editor etc)
+  if (route && !route.complete_route && !activeEditor) {
+    return (
+      <div className="map-viewer-generating-container">
+        <Loader2 size={48} className="map-viewer-spinner map-viewer-generating-icon" />
+        <h2 className="map-viewer-generating-title">Trasa se právě zpracovává</h2>
+        <p className="map-viewer-generating-desc">
+          Prosím vyčkejte. Organizátor trasy ji právě vytváří nebo systém propočítává body v mapě. Tato stránka se automaticky načte, jakmile bude trasa připravena.
+        </p>
+      </div>
+    );
+  }
 
   const getEditorTitle = () => {
     switch (activeEditor) {
@@ -189,12 +225,15 @@ const MapViewerPage: React.FC = () => {
 
         {/* MAP Layer: Hide if AxisEditor is full screen overlay? No, allow map to be seen behind backdrop */}
         <Map
+          key={route?.id}
           pois={pois}
           camps={camps}
           clusters={clusters}
           routeLine={routeLine}
           start={route?.start}
           end={route?.end}
+          users={route?.users?.filter(u => u.id !== currentUser?.id)}
+          user={route?.user?.id === currentUser?.id ? undefined : route?.user}
           onPoiClick={handlePoiClick}
           onCampClick={handleCampClick}
         />

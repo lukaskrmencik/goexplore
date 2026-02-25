@@ -1,6 +1,7 @@
 import React from 'react';
 import { Trash2, Pencil, Package } from 'lucide-react';
 import type { MyEquipment } from '../../../../../types/equipment';
+import { getImageUrl } from '../../../../../utils/imageUrl';
 import './EquipmentManagerCard.css';
 
 interface EquipmentManagerCardProps {
@@ -16,8 +17,7 @@ const EquipmentManagerCard: React.FC<EquipmentManagerCardProps> = ({
     onDelete,
     onEdit
 }) => {
-    // Image URL
-    const imageUrl = item.img ? `https://goexplore.lukaskrmencik.cz/php/storage/${item.img}` : null;
+    const imageUrl = getImageUrl(item.img);
 
     // Determine the "Type" name (General Equipment Name)
     let typeName = '';

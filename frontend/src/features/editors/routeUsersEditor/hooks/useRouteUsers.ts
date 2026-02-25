@@ -13,6 +13,8 @@ export const useRouteUsers = (route: Route, onUpdateRoute: (route: Route) => voi
     const [error, setError] = useState<string | null>(null);
     const [isRemovingId, setIsRemovingId] = useState<number | null>(null);
 
+    const ROUTE_USERS_POLLING_INTERVAL = Number(import.meta.env.VITE_ROUTE_USERS_POLLING_INTERVAL ?? "5000");
+
     useEffect(() => {
         const intervalId = setInterval(async () => {
             try {
@@ -23,7 +25,7 @@ export const useRouteUsers = (route: Route, onUpdateRoute: (route: Route) => voi
             } catch (error) {
                 console.error(error);
             }
-        }, 5000);
+        }, ROUTE_USERS_POLLING_INTERVAL);
 
         return () => clearInterval(intervalId);
     }, [route.id, route.users, onUpdateRoute]);

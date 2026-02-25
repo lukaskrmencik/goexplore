@@ -1,6 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { fetchMyEquipment, deleteMyEquipment } from '../../../../services/equipmentApiService';
 import type { MyEquipment } from '../../../../types/equipment';
+import { useDebounce } from '../../../../hooks/useDebounce';
+
+const EQUIPMENT_SEARCH_DEBOUNCE = Number(import.meta.env.VITE_EQUIPMENT_SEARCH_DEBOUNCE ?? "300");
 
 export const useEquipment = () => {
     const [equipmentList, setEquipmentList] = useState<MyEquipment[]>([]);
@@ -12,19 +15,11 @@ export const useEquipment = () => {
     const [processingId, setProcessingId] = useState<number | null>(null);
     const [error, setError] = useState<string | null>(null);
 
-    // Debounce state for search input
-    const [debouncedSearch, setDebouncedSearch] = useState('');
+    const debouncedSearch = useDebounce(search, EQUIPMENT_SEARCH_DEBOUNCE);
 
     useEffect(() => {
-        const handler = setTimeout(() => {
-            setDebouncedSearch(search);
-            setPage(1); // Reset to page 1 on new search
-        }, 300);
-
-        return () => {
-            clearTimeout(handler);
-        };
-    }, [search]);
+        setPage(1);
+    }, [debouncedSearch]);
 
     const loadEquipment = useCallback(async () => {
         setIsLoading(true);

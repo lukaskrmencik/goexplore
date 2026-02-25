@@ -2,8 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { X, Check, Dumbbell, AlertTriangle, Camera, Upload, Loader2 } from 'lucide-react';
 import type { GeneralEquipment, MyEquipment } from '../../../../types/equipment';
 import { fetchGeneralEquipment, createMyEquipment, updateMyEquipment, uploadEquipmentImage } from '../../../../services/equipmentApiService';
+import { getImageUrl } from '../../../../utils/imageUrl';
 import Toast from '../../../../components/ui/Toast/Toast';
 import './CreateEquipmentModal.css';
+
+const EQUIPMENT_IMAGE_MAX_SIZE_MB = Number(import.meta.env.VITE_EQUIPMENT_IMAGE_MAX_SIZE_MB ?? "2");
+const EQUIPMENT_SEARCH_DEBOUNCE = Number(import.meta.env.VITE_EQUIPMENT_SEARCH_DEBOUNCE ?? "300");
 
 interface CreateEquipmentModalProps {
     isOpen: boolean;
@@ -19,6 +23,11 @@ const CreateEquipmentModal: React.FC<CreateEquipmentModalProps> = ({ isOpen, onC
     const [generalEquipment, setGeneralEquipment] = useState<GeneralEquipment[]>([]);
     const [isLoadingPatterns, setIsLoadingPatterns] = useState(false);
 
+    // Pagination for Catalog
+    const [patternPage, setPatternPage] = useState(1);
+    const [patternTotalPages, setPatternTotalPages] = useState(1);
+    const [searchTerm, setSearchTerm] = useState('');
+
     // Form State
     const [name, setName] = useState('');
     const [specs, setSpecs] = useState<Record<string, any>>({});
@@ -31,10 +40,24 @@ const CreateEquipmentModal: React.FC<CreateEquipmentModalProps> = ({ isOpen, onC
     // --- Effects ---
     useEffect(() => {
         if (isOpen) {
-            loadPatterns();
+            loadPatterns(1, '');
             resetForm();
+            setSearchTerm('');
+            setPatternPage(1);
         }
     }, [isOpen]);
+
+    // Handle search debounce
+    useEffect(() => {
+        if (!isOpen) return;
+        const delayDebounceFn = setTimeout(() => {
+            if (isOpen) {
+                loadPatterns(1, searchTerm);
+            }
+        }, EQUIPMENT_SEARCH_DEBOUNCE);
+
+        return () => clearTimeout(delayDebounceFn);
+    }, [searchTerm, isOpen]);
 
     // Handle initial data changes (e.g. when opening edit mode)
     useEffect(() => {
@@ -81,9 +104,8 @@ const CreateEquipmentModal: React.FC<CreateEquipmentModalProps> = ({ isOpen, onC
 
                 setSpecs(mergedSpecs);
 
-                // Set preview if image exists
                 if (initialData.img) {
-                    setPreviewUrl(`https://goexplore.lukaskrmencik.cz/php/storage/${initialData.img}`);
+                    setPreviewUrl(getImageUrl(initialData.img));
                 }
             }
         }
@@ -91,11 +113,13 @@ const CreateEquipmentModal: React.FC<CreateEquipmentModalProps> = ({ isOpen, onC
 
 
     // --- Helpers ---
-    const loadPatterns = async () => {
+    const loadPatterns = async (pageToLoad: number, searchQ: string) => {
         setIsLoadingPatterns(true);
         try {
-            const response = await fetchGeneralEquipment(1, '');
+            const response = await fetchGeneralEquipment(pageToLoad, searchQ);
             setGeneralEquipment(response.data || []);
+            setPatternPage(response.meta?.current_page || 1);
+            setPatternTotalPages(Math.ceil((response.meta?.total || 0) / (response.meta?.per_page || 15)) || 1);
         } catch (err) {
             console.error("Failed to load equipment patterns", err);
             setToast({ message: "Nepodařilo se načíst seznam vybavení.", type: "error" });
@@ -243,9 +267,9 @@ const CreateEquipmentModal: React.FC<CreateEquipmentModalProps> = ({ isOpen, onC
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            // Check file size (2MB limit = 2 * 1024 * 1024)
-            if (file.size > 2 * 1024 * 1024) {
-                setToast({ message: "Obrázek je příliš velký. Maximální velikost je 2 MB.", type: "error" });
+            const maxSizeBytes = EQUIPMENT_IMAGE_MAX_SIZE_MB * 1024 * 1024;
+            if (file.size > maxSizeBytes) {
+                setToast({ message: `Obrázek je příliš velký. Maximální velikost je ${EQUIPMENT_IMAGE_MAX_SIZE_MB} MB.`, type: "error" });
                 e.target.value = ''; // Reset input
                 return;
             }
@@ -253,6 +277,26 @@ const CreateEquipmentModal: React.FC<CreateEquipmentModalProps> = ({ isOpen, onC
             setImageFile(file);
             setPreviewUrl(URL.createObjectURL(file));
         }
+    };
+
+    // Helper to generate pagination numbers
+    const getPageNumbers = () => {
+        const pages = [];
+        let start = Math.max(1, patternPage - 2);
+        let end = Math.min(patternTotalPages, patternPage + 2);
+
+        if (end - start < 4) {
+            if (start === 1) {
+                end = Math.min(patternTotalPages, start + 4);
+            } else if (end === patternTotalPages) {
+                start = Math.max(1, end - 4);
+            }
+        }
+
+        for (let i = start; i <= end; i++) {
+            pages.push(i);
+        }
+        return pages;
     };
 
     // --- Render ---
@@ -267,7 +311,7 @@ const CreateEquipmentModal: React.FC<CreateEquipmentModalProps> = ({ isOpen, onC
                 <div className="create-equipment-modal-header">
                     <div className="create-equipment-modal-title-wrapper">
                         <h2 className="create-equipment-modal-title">
-                            {step === 'select' ? 'Nové vybavení' : (initialData ? 'Upravit vybavení' : 'Detaily vybavení')}
+                            {step === 'select' ? 'Katalog vybavení' : (initialData ? 'Upravit vybavení' : 'Detaily vybavení')}
                         </h2>
                     </div>
                     <button
@@ -288,63 +332,127 @@ const CreateEquipmentModal: React.FC<CreateEquipmentModalProps> = ({ isOpen, onC
                     )}
 
                     {step === 'select' ? (
-                        <div className="create-equipment-modal-select-grid">
+                        <div className="create-equipment-modal-select-view">
+                            <div className="create-equipment-modal-search-wrapper">
+                                <input
+                                    type="text"
+                                    placeholder="Hledat šablony (např. Stan, Vařič)..."
+                                    className="create-equipment-modal-search-input"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    autoFocus
+                                />
+                            </div>
+
                             {isLoadingPatterns ? (
                                 <div className="create-equipment-modal-patterns-loading">
                                     <div className="create-equipment-modal-spinner"></div>
-                                    <span>Načítám šablony...</span>
+                                    <span>Načítám katalog...</span>
                                 </div>
                             ) : (
-                                generalEquipment?.map((item) => (
-                                    <button
-                                        key={item.id}
-                                        onClick={() => handlePatternSelect(item)}
-                                        className="create-equipment-modal-pattern-btn"
-                                    >
-                                        <div className="create-equipment-modal-pattern-icon-wrapper">
-                                            {item.img ? (
-                                                <img
-                                                    src={`https://goexplore.lukaskrmencik.cz/php/storage/${item.img}`}
-                                                    alt={item.name}
-                                                    className="create-equipment-modal-pattern-image"
-                                                />
-                                            ) : (
-                                                <Dumbbell size={24} strokeWidth={2.5} />
-                                            )}
+                                <>
+                                    <div className="create-equipment-modal-pattern-grid">
+                                        {generalEquipment.map((item) => (
+                                            <button
+                                                key={item.id}
+                                                onClick={() => handlePatternSelect(item)}
+                                                className="create-equipment-modal-pattern-card"
+                                            >
+                                                <div className="create-equipment-modal-pattern-card-icon">
+                                    {item.img ? (
+                                        <img
+                                            src={getImageUrl(item.img) ?? undefined}
+                                            alt={item.name}
+                                        />
+                                                    ) : (
+                                                        <Dumbbell size={28} strokeWidth={2.5} />
+                                                    )}
+                                                </div>
+                                                <div className="create-equipment-modal-pattern-card-info">
+                                                    <h3 className="create-equipment-modal-pattern-card-name">{item.name}</h3>
+                                                    {item.general_specifications && Object.keys(item.general_specifications).length > 0 ? (
+                                                        <div className="create-equipment-modal-pattern-card-specs">
+                                                            {Object.entries(item.general_specifications).slice(0, 3).map(([key, value]) => (
+                                                                <span key={key} className="create-equipment-modal-pattern-card-spec-badge">
+                                                                    {key.replace(/_/g, ' ')}: {String(value)}
+                                                                </span>
+                                                            ))}
+                                                            {Object.keys(item.general_specifications).length > 3 && (
+                                                                <span className="create-equipment-modal-pattern-card-spec-badge">
+                                                                    +{Object.keys(item.general_specifications).length - 3} další
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    ) : (
+                                                        <span className="create-equipment-modal-pattern-card-meta">
+                                                            Vlastní specifikace
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </button>
+                                        ))}
+                                        {generalEquipment.length === 0 && (
+                                            <div className="create-equipment-modal-no-results">
+                                                Žádné šablony odpovídající hledání.
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Pagination */}
+                                    {patternTotalPages > 1 && generalEquipment.length > 0 && (
+                                        <div className="equipment-editor-pagination">
+                                            <button
+                                                onClick={() => loadPatterns(Math.max(1, patternPage - 1), searchTerm)}
+                                                disabled={patternPage === 1}
+                                                className="equipment-editor-page-btn"
+                                            >
+                                                Předchozí
+                                            </button>
+
+                                            <div className="equipment-editor-page-numbers">
+                                                {getPageNumbers().map(num => (
+                                                    <button
+                                                        key={num}
+                                                        onClick={() => loadPatterns(num, searchTerm)}
+                                                        className={`equipment-editor-num-btn ${patternPage === num ? 'equipment-editor-num-btn-active' : 'equipment-editor-num-btn-inactive'}`}
+                                                    >
+                                                        {num}
+                                                    </button>
+                                                ))}
+                                            </div>
+
+                                            <button
+                                                onClick={() => loadPatterns(Math.min(patternTotalPages, patternPage + 1), searchTerm)}
+                                                disabled={patternPage === patternTotalPages}
+                                                className="equipment-editor-page-btn"
+                                            >
+                                                Další
+                                            </button>
                                         </div>
-                                        <h3 className="create-equipment-modal-pattern-name">{item.name}</h3>
-                                        <div className="create-equipment-modal-pattern-specs">
-                                            {item.specifications_keys ? Object.keys(item.specifications_keys).length : 0} vlastností
-                                        </div>
-                                    </button>
-                                ))
+                                    )}
+                                </>
                             )}
                         </div>
                     ) : (
-                        <div className="create-equipment-modal-details-container">
-                            {/* Top Section: Image + Name (Mobile Stacked, Desktop Split) */}
-                            <div className="create-equipment-modal-image-col">
-                                {/* Image Upload */}
+                        <div className="create-equipment-modal-details-split">
+
+                            {/* Left Column: Image Upload */}
+                            <div className="create-equipment-modal-image-pane">
                                 <label className="create-equipment-modal-image-upload">
-                                    <div className={`create-equipment-modal-image-area ${previewUrl ? 'create-equipment-modal-image-area-with-preview' : 'create-equipment-modal-image-area-empty'}`}>
+                                    <div className={`create-equipment-modal-image-area ${previewUrl ? 'has-image' : ''}`}>
                                         {previewUrl ? (
                                             <>
                                                 <img src={previewUrl} alt="Preview" className="create-equipment-modal-preview-img" />
                                                 <div className="create-equipment-modal-preview-overlay">
-                                                    <div className="create-equipment-modal-preview-action">
-                                                        <Camera size={18} strokeWidth={2.5} />
-                                                        <span className="create-equipment-modal-preview-action-text">Změnit</span>
-                                                    </div>
+                                                    <Camera size={20} strokeWidth={2.5} />
+                                                    <span>Změnit fotku</span>
                                                 </div>
                                             </>
                                         ) : (
                                             <div className="create-equipment-modal-empty-state">
-                                                <div className="create-equipment-modal-upload-icon-wrapper">
-                                                    <Upload size={32} strokeWidth={2} />
-                                                </div>
-                                                <span className="create-equipment-modal-upload-title">Nahrát fotku</span>
-                                                <span className="create-equipment-modal-upload-title-mobile">Nahrát fotku</span>
-                                                <p className="create-equipment-modal-upload-hint">Platné soubory: JPG, PNG<br />(max 2MB)</p>
+                                                <Upload size={32} strokeWidth={2} className="create-equipment-modal-empty-icon" />
+                                                <span className="create-equipment-modal-empty-text">Nahrát fotku</span>
+                                                <span className="create-equipment-modal-empty-hint">JPG, PNG (max 2MB)</span>
                                             </div>
                                         )}
                                     </div>
@@ -355,64 +463,30 @@ const CreateEquipmentModal: React.FC<CreateEquipmentModalProps> = ({ isOpen, onC
                                         onChange={handleFileChange}
                                     />
                                 </label>
-
-                                {/* Name Input (Mobile: Under Image, Desktop: In right Col) */}
-                                <div className="create-equipment-modal-name-mobile">
-                                    <label className="create-equipment-modal-name-label-mobile">Název vybavení</label>
-                                    <div className="create-equipment-modal-name-input-wrapper-mobile">
-                                        <input
-                                            type="text"
-                                            placeholder={`Např. Můj ${selectedPattern?.name?.toLowerCase()}`}
-                                            value={name}
-                                            onChange={(e) => setName(e.target.value)}
-                                            className="create-equipment-modal-name-input-mobile"
-                                            autoFocus
-                                        />
-                                    </div>
-                                </div>
                             </div>
 
                             {/* Right Column: Form Fields */}
-                            <div className="create-equipment-modal-form-col">
-                                {/* Desktop Name Input */}
-                                <div className="create-equipment-modal-name-desktop">
-                                    <h3 className="create-equipment-modal-section-title">
-                                        <span className="create-equipment-modal-section-number">01</span>
-                                        Základní informace
-                                        <div className="create-equipment-modal-section-line" />
-                                    </h3>
-                                    <div className="create-equipment-modal-name-input-wrapper-desktop">
-                                        <div className="create-equipment-modal-name-label-desktop">Název vybavení</div>
+                            <div className="create-equipment-modal-form-pane">
+
+                                <div className="create-equipment-modal-name-group">
+                                    <label className="create-equipment-modal-input-label">Název vybavení</label>
+                                    <div className="create-equipment-modal-name-input-wrapper">
                                         <input
                                             type="text"
                                             placeholder={`Např. Můj ${selectedPattern?.name?.toLowerCase()}`}
                                             value={name}
                                             onChange={(e) => setName(e.target.value)}
-                                            className="create-equipment-modal-name-input-desktop"
+                                            className="create-equipment-modal-name-input"
                                             autoFocus
                                         />
                                     </div>
                                 </div>
 
                                 <div className="create-equipment-modal-specs-section">
-                                    {/* Mobile Heading for Specs */}
-                                    <h3 className="create-equipment-modal-section-title">
-                                        <div className="create-equipment-modal-section-title-mobile-wrap">
-                                            <span className="create-equipment-modal-section-number">
-                                                <span className="create-equipment-modal-section-number-desktop">02</span>
-                                                <span className="create-equipment-modal-section-number-mobile">Parametry</span>
-                                            </span>
-                                            <span className="create-equipment-modal-section-title-text-desktop">
-                                                Technické parametry
-                                            </span>
-                                        </div>
-                                        <div className="create-equipment-modal-section-line" />
-                                    </h3>
-
                                     <div className="create-equipment-modal-specs-grid">
                                         {selectedPattern?.specifications_keys && Object.entries(selectedPattern.specifications_keys).map(([key, type]) => (
                                             <div key={key} className="create-equipment-modal-spec-group">
-                                                <label className="create-equipment-modal-spec-label">
+                                                <label className="create-equipment-modal-input-label">
                                                     {key.replace(/_/g, ' ')}
                                                 </label>
                                                 {type === 'boolean' ? (
@@ -445,7 +519,7 @@ const CreateEquipmentModal: React.FC<CreateEquipmentModalProps> = ({ isOpen, onC
                                     {(!selectedPattern?.specifications_keys || Object.keys(selectedPattern.specifications_keys).length === 0) && (
                                         <div className="create-equipment-modal-no-specs">
                                             <div className="create-equipment-modal-no-specs-icon"><Check size={24} /></div>
-                                            Toto vybavení nemá žádné další parametry.
+                                            Toto vybavení nemá žádné parametry.
                                         </div>
                                     )}
                                 </div>
@@ -472,7 +546,7 @@ const CreateEquipmentModal: React.FC<CreateEquipmentModalProps> = ({ isOpen, onC
                                 className="create-equipment-modal-submit-btn"
                             >
                                 {isSubmitting ? <span className="create-equipment-modal-spinner-icon"><Loader2 size={20} /></span> : <Check size={20} strokeWidth={3} />}
-                                <span>{initialData ? 'Uložit' : 'Vytvořit'}</span>
+                                <span>{initialData ? 'Uložit změny' : 'Vytvořit vybavení'}</span>
                             </button>
                         )}
                     </div>

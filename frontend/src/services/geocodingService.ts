@@ -1,32 +1,14 @@
 import axios from "axios";
 import qs from "qs";
+import type { SearchResult, MapyCzResponse } from "../types/geocoding";
 
-export interface SearchResult {
-    place_id: number;
-    lat: string;
-    lon: string;
-    display_name: string;
-}
+export type { SearchResult };
 
-// Mapy.cz Geocode API types
-interface MapyCzGeocodeItem {
-    name: string;
-    label: string;
-    location: string;
-    position: {
-        lat: number;
-        lon: number;
-    };
-    type: string;
-    zip?: string;
-}
-
-interface MapyCzResponse {
-    items: MapyCzGeocodeItem[];
-}
+const GEOCODING_RESULT_LIMIT = Number(import.meta.env.VITE_GEOCODING_RESULT_LIMIT ?? "15");
+const GEOCODING_MIN_QUERY_LENGTH = Number(import.meta.env.VITE_GEOCODING_MIN_QUERY_LENGTH ?? "2");
 
 export const searchPlace = async (query: string): Promise<SearchResult[]> => {
-    if (!query || query.length < 2) return [];
+    if (!query || query.length < GEOCODING_MIN_QUERY_LENGTH) return [];
 
     const apiKey = import.meta.env.VITE_MAPY_CZ_API_KEY;
     if (!apiKey) {
@@ -35,14 +17,13 @@ export const searchPlace = async (query: string): Promise<SearchResult[]> => {
     }
 
     try {
-        // Use qs for array parameter serialization to match 'type=...&type=...' format if needed,
-        // but axios paramsSerializer can also handle it. Let's use correct params.
         const response = await axios.get<MapyCzResponse>(`https://api.mapy.cz/v1/geocode`, {
             params: {
                 apikey: apiKey,
                 query: query,
-                limit: 15,
+                limit: GEOCODING_RESULT_LIMIT,
                 lang: 'cs',
+                locality: 'cz',
                 type: [
                     'regional.municipality',
                     'regional.municipality_part',
@@ -64,7 +45,7 @@ export const searchPlace = async (query: string): Promise<SearchResult[]> => {
             const displayName = context ? `${name}, ${context}` : name;
 
             return {
-                place_id: index, // Geocode items might not have a stable ID in this response, using index or fallback
+                place_id: index,
                 lat: item.position.lat.toString(),
                 lon: item.position.lon.toString(),
                 display_name: displayName

@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { useRoutesList } from ".././hooks/useRoutesList";
+
+const ROUTES_SEARCH_DEBOUNCE = Number(import.meta.env.VITE_LOCATION_SEARCH_DEBOUNCE ?? "500");
 import { deleteRoute } from "../../../../services/routesApiService";
 import RouteCard from ".././components/RouteCard/RouteCard";
 import { Plus, LayoutGrid, Share2, Search } from "lucide-react"; // Icons for tabs
@@ -21,7 +23,7 @@ const RoutesListEditor = () => {
             if (searchInput !== debouncedSearch) {
                 pagination.setPage(1);
             }
-        }, 500);
+        }, ROUTES_SEARCH_DEBOUNCE);
 
         return () => {
             clearTimeout(handler);

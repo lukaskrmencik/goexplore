@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import type { Route } from '../../../../types/routes';
 import { Map, Calendar, Users, Briefcase, Settings, Edit2, RefreshCw, AlertTriangle, X } from 'lucide-react';
 import { updateRoute } from '../../../../services/routesApiService';
+import { getErrorMessage } from '../../../../utils/apiError';
 import "./RouteControlPanel.css";
 
 interface RouteControlPanelProps {
@@ -70,17 +71,7 @@ const RouteControlPanel: React.FC<RouteControlPanelProps> = ({
             } catch (error: any) {
                 console.error("Failed to update name", error);
                 setTempName(route.name);
-
-                // Show toast error - robust extraction
-                let msg = "Nepodařilo se uložit název trasy";
-                if (error?.response?.data?.error_message) {
-                    msg = error.response.data.error_message;
-                } else if (error?.response?.data?.message) {
-                    msg = error.response.data.message;
-                } else if (error?.message) {
-                    msg = error.message;
-                }
-                onError(msg);
+                onError(getErrorMessage(error, "Nepodařilo se uložit název trasy"));
             }
         }
         setIsEditingName(false);

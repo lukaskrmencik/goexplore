@@ -13,7 +13,8 @@ import {
 } from "../../../../services/routesApiService";
 import type { GeneralEquipment, MyEquipment, EquipmentType } from "../../../../types/equipment";
 
-const PER_PAGE = 12;
+const PER_PAGE = Number(import.meta.env.VITE_EQUIPMENT_PER_PAGE ?? "12");
+const EQUIPMENT_SEARCH_DEBOUNCE = Number(import.meta.env.VITE_EQUIPMENT_SEARCH_DEBOUNCE ?? "300");
 
 export const useRouteEquipment = (route: Route, onUpdate: (route: Route) => void) => {
     // Data States
@@ -68,7 +69,7 @@ export const useRouteEquipment = (route: Route, onUpdate: (route: Route) => void
     }, [search]);
 
     useEffect(() => {
-        const timeout = setTimeout(loadLists, 300);
+        const timeout = setTimeout(loadLists, EQUIPMENT_SEARCH_DEBOUNCE);
         return () => clearTimeout(timeout);
     }, [loadLists]);
 

@@ -27,6 +27,7 @@ export interface Route {
   equipment?: RouteEquipment[];
   waypoints: RouteWaypoint[];
   users: RouteUser[];
+  user?: User; // Owner of the route
 
   created_at: string;
   updated_at: string;
@@ -101,6 +102,7 @@ export interface RouteItem {
   start_date?: string;
   end_date?: string;
   length_meters?: number;
+  simplified_geojson?: string;
   users?: RouteUser[];
   user?: User; // Owner for shared routes
   created_at?: string;
@@ -114,4 +116,33 @@ export interface RoutesListResponse {
   total_pages: number;
   total_items: number;
   items: RouteItem[];
+}
+
+export interface InviteDetails {
+  inviter_name: string;
+  route_name: string;
+  route_id: number;
+  is_owner: boolean;
+  is_member: boolean;
+}
+
+export interface RouteLengthConstraints {
+    minKmPerDay: number;
+    maxKmPerDay: number;
+    minDays: number;
+}
+
+export interface SeasonConstraints {
+    startMonth: number;
+    endMonth: number;
+}
+
+export interface PaceInfo {
+    tripDays: number;
+    kmPerDay: number;
+    minKmPerDay: number;
+    maxKmPerDay: number;
+    isUnderMin: boolean;
+    isOverMax: boolean;
+    isValid: boolean;
 }

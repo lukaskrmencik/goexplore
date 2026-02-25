@@ -1,14 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import type { Route, RouteMode } from "../../../types/routes";
 import { WizardStep } from "../../../types/wizard";
 import { STEP_URLS, getStepFromUrl } from "../../../utils/wizardNav";
+import { getCompletedSteps, getFirstIncompleteStep } from "../../../utils/wizardCompletion";
 import {
     createRoute,
     fetchGetRoute,
     updateRoute,
     calculateRoute,
-    getCalculationProgress
+    getCalculationProgress,
+    deleteRoute
 } from "../../../services/routesApiService";
 import { getErrorMessage } from "../../../utils/apiError";
 import { SIMPLE_MODE_CONFIG } from "../../../config/simpleMode";
@@ -20,6 +22,7 @@ export const useCreateRoute = () => {
     const [route, setRoute] = useState<Route | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
+    const [hasRedirected, setHasRedirected] = useState(false);
 
     const [isCalculating, setIsCalculating] = useState(false);
     const [calculationProgress, setCalculationProgress] = useState(0);
@@ -27,11 +30,36 @@ export const useCreateRoute = () => {
 
     const currentStep = getStepFromUrl(step);
 
+    // Compute completed steps from route data
+    const completedSteps = useMemo(() => {
+        return getCompletedSteps(route, route?.mode);
+    }, [route]);
+
     useEffect(() => {
         if (routeId && (!route || route.id !== Number(routeId))) {
+            setHasRedirected(false);
             loadRoute(routeId);
         }
     }, [routeId]);
+
+    // Resume: redirect to first incomplete step when route loads
+    useEffect(() => {
+        if (route && !hasRedirected && routeId) {
+            const firstIncomplete = getFirstIncompleteStep(route, route.mode);
+            const currentUrl = step;
+            // @ts-ignore
+            const targetUrl = STEP_URLS[firstIncomplete];
+
+            // Only redirect if we're on the LOCATION step (default entry) 
+            // and the first incomplete step is different
+            if (currentUrl === STEP_URLS[WizardStep.LOCATION] && targetUrl && targetUrl !== currentUrl) {
+                setHasRedirected(true);
+                navigate(`/routes/${route.id}/${targetUrl}`, { replace: true });
+            } else {
+                setHasRedirected(true);
+            }
+        }
+    }, [route, hasRedirected, routeId]);
 
     const initializeRoute = async (mode: RouteMode, name: string) => {
         setIsLoading(true);
@@ -88,6 +116,15 @@ export const useCreateRoute = () => {
         }
     };
 
+    const goToStep = (stepId: number) => {
+        if (!route) return;
+        // @ts-ignore
+        const url = STEP_URLS[stepId];
+        if (url) {
+            navigate(`/routes/${route.id}/${url}`);
+        }
+    };
+
     const prevStep = () => {
         if (!route) return;
         let prevStepNum = currentStep - 1;
@@ -101,6 +138,22 @@ export const useCreateRoute = () => {
             // @ts-ignore
             navigate(`/routes/${route.id}/${STEP_URLS[prevStepNum]}`);
         } else if (prevStepNum < WizardStep.LOCATION) {
+            // On step 1, going back deletes the route
+            handleDeleteAndGoBack();
+        }
+    };
+
+    const handleDeleteAndGoBack = async () => {
+        if (!route) return;
+        setIsLoading(true);
+        try {
+            await deleteRoute(route.id);
+        } catch (err) {
+            console.error("Failed to delete route on back:", err);
+            // Don't block navigation even if delete fails
+        } finally {
+            setIsLoading(false);
+            setRoute(null);
             navigate(`/routes/new`);
         }
     };
@@ -168,6 +221,8 @@ export const useCreateRoute = () => {
 
     // Modified poll to handle simple mode retries
     const pollCalculation = async (jobId: string, currentRetryStage: number) => {
+        const CALCULATION_POLLING_INTERVAL = Number(import.meta.env.VITE_CALCULATION_POLLING_INTERVAL ?? "2000");
+
         const interval = setInterval(async () => {
             try {
                 const progressData = await getCalculationProgress(jobId);
@@ -191,38 +246,7 @@ export const useCreateRoute = () => {
                     if (currentRetryStage !== -1 && currentRetryStage < SIMPLE_MODE_CONFIG.BUFFER_RETRY_STAGES.length - 1) {
                         console.log(`Calculation failed at stage ${currentRetryStage}. Retrying with next stage...`);
                         setRetryStage(prev => prev + 1);
-                        // Trigger next attempt immediately
-                        // We need to use recursion carefully or useEffect. 
-                        // Since startCalculation relies on state, it's safer to call it again.
-                        // However, state updates (setRetryStage) are async.
-                        // But we passed currentRetryStage as arg to pollCalculation to track it.
-
-                        // We need to force a re-run. 
-                        // To avoid infinite loops or stack overflow, we use setTimeout.
                         setTimeout(() => {
-                            // We must manually increment stage for the function call, as state might not match yet inside closure
-                            // Actually, better to rely on the updated state in next render or force it here.
-                            // Let's refactor startCalculation to accept stage explicitly? 
-                            // Easier: just update state and let a useEffect trigger? 
-                            // No, explicit call is better.
-
-                            // We can't access the *new* state here easily.
-                            // But we know we want (currentRetryStage + 1).
-
-                            // We need to update the route buffer first. 
-                            // Let's recursively call a special internal retry function or just startCalculation.
-                            // But startCalculation reads "retryStage" from state.
-                            // So we MUST update state first.
-
-                            // Problem: setRetryStage is async. 
-                            // Workaround: We will use a temp variable or pass stage to startCalculation.
-                            // But startCalculation is designed to read from state for existing implementation?
-                            // No, I just modified it to read from state. 
-
-                            // FIXED: I will modify startCalculation to NOT depend on state for the *next* buffer, 
-                            // OR I will simply trigger it after state update.
-
-                            // Let's try this:
                             handleSimpleRetry(currentRetryStage + 1);
                         }, 100);
 
@@ -238,7 +262,7 @@ export const useCreateRoute = () => {
                 setIsCalculating(false);
                 clearInterval(interval);
             }
-        }, 2000);
+        }, CALCULATION_POLLING_INTERVAL);
     };
 
     const handleSimpleRetry = (nextStage: number) => {
@@ -249,22 +273,11 @@ export const useCreateRoute = () => {
         const stages = SIMPLE_MODE_CONFIG.BUFFER_RETRY_STAGES;
         const nextBuffer = stages[nextStage];
 
-        // Notify user
-        // toast.info(`Nenalezeno. Zkouším rozšířit hledání na ${nextBuffer} km...`);
         setCalculationStatus(`Nenalezeno. Zkouším rozšířit hledání na ${nextBuffer} km...`);
 
-        // Call backend updates + calc
-        // We reuse logic but bypass startCalculation's state dependency by calling a helper or just updating route here.
-
-        // Actually best is to just call startCalculation() but we need it to use the NEW stage.
-        // But startCalculation reads state `retryStage`.
-        // If we setRetryStage(nextStage), on next render it is fine. 
-        // But we are in an interval callback (closure).
-
-        // We can just execute the logic directly here:
         (async () => {
             try {
-                if (!route) return; // Should not happen
+                if (!route) return;
 
                 const updatedRoute = await updateRoute(route.id, {
                     buffer_size: nextBuffer,
@@ -295,6 +308,8 @@ export const useCreateRoute = () => {
         setRoute,
         nextStep,
         prevStep,
+        goToStep,
+        completedSteps,
         startCalculation,
         isCalculating,
         calculationProgress,

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { fetchMyProfile, type UserProfile } from '../../../services/userApiService';
-import { Map, Package, Plus, User, PlusCircle, MapPin, LogOut } from 'lucide-react';
+import { fetchMyProfile } from '../../../services/userApiService';
+import type { User } from '../../../types/users';
+import { Map, Package, Plus, User as UserIcon, PlusCircle, MapPin, LogOut } from 'lucide-react';
 import UserAvatar from '../../../components/ui/UserAvatar/UserAvatar';
 import { useLocationTracker } from '../../../hooks/useLocationTracker';
 import './MainLayout.css';
@@ -14,11 +15,9 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    // Enable background location tracking for authenticated users every 30 seconds
-    // Note: Since MainLayout is used in ProtectedRoute, we know they are authenticated, so we can just pass `true`.
-    const { permissionState, requestPermission } = useLocationTracker(true, 30000);
+    const { permissionState, requestPermission } = useLocationTracker(true);
 
-    const [user, setUser] = useState<UserProfile | null>(null);
+    const [user, setUser] = useState<User | null>(null);
 
     useEffect(() => {
         const loadUser = async () => {
@@ -40,14 +39,14 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     const desktopNavItems = [
         { icon: Map, label: 'Moje cesty', path: '/' },
         { icon: Package, label: 'Vybavení', path: '/equipment' },
-        { icon: User, label: 'Účet', path: '/account' },
+        { icon: UserIcon, label: 'Účet', path: '/account' },
     ];
 
     const mobileNavItems = [
         { icon: Map, label: 'Moje cesty', path: '/', isCenter: false, isLogout: false },
         { icon: Package, label: 'Vybavení', path: '/equipment', isCenter: false, isLogout: false },
         { icon: Plus, label: 'Nová cesta', path: '/routes/new', isCenter: true, isLogout: false },
-        { icon: User, label: 'Účet', path: '/account', isCenter: false, isLogout: false },
+        { icon: UserIcon, label: 'Účet', path: '/account', isCenter: false, isLogout: false },
         { icon: LogOut, label: 'Odhlásit', path: '', isCenter: false, isLogout: true },
     ];
 
