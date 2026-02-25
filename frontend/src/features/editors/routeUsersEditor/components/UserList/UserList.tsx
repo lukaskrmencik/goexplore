@@ -1,4 +1,3 @@
-
 import type { RouteUser } from "../../../../../types/users";
 import { Trash2, Crown } from "lucide-react";
 import UserAvatar from "../../../../../components/ui/UserAvatar/UserAvatar";
@@ -6,8 +5,8 @@ import "./UserList.css";
 
 interface UserListProps {
     users: RouteUser[];
-    currentUserId: number; // Abychom neodebrali sami sebe
-    ownerId: number;       // Abychom poznali organizátora
+    currentUserId: number;
+    ownerId: number;
     onRemove: (id: number) => void;
     isRemovingId: number | null;
 }
@@ -16,16 +15,15 @@ const UserList: React.FC<UserListProps> = ({ users, currentUserId, ownerId, onRe
     return (
         <div className="user-list-container">
             {users.map((user) => {
-                const isMe = user.id === currentUserId;
+                const isCurrentUser = user.id === currentUserId;
                 const isOwner = user.id === ownerId;
 
                 return (
                     <div
                         key={user.id}
-                        className={`user-list-item ${isMe ? 'user-list-item-me' : 'user-list-item-other'}`}
+                        className={`user-list-item ${isCurrentUser ? 'user-list-item-me' : 'user-list-item-other'}`}
                     >
                         <div className="user-list-info-container">
-                            {/* Avatar */}
                             <div className="user-list-avatar">
                                 <UserAvatar
                                     name={user.name}
@@ -40,9 +38,8 @@ const UserList: React.FC<UserListProps> = ({ users, currentUserId, ownerId, onRe
                                 )}
                             </div>
 
-                            {/* Info */}
                             <div>
-                                <p className={isMe ? 'user-list-name-me' : 'user-list-name-other'}>
+                                <p className={isCurrentUser ? 'user-list-name-me' : 'user-list-name-other'}>
                                     {user.name}
                                 </p>
                                 <p className="user-list-role">
@@ -51,8 +48,7 @@ const UserList: React.FC<UserListProps> = ({ users, currentUserId, ownerId, onRe
                             </div>
                         </div>
 
-                        {/* Actions (Only the owner logic or "not me" logic needs handling, keep "not me" for remove for now) */}
-                        {!isMe && !isOwner && (
+                        {!isCurrentUser && !isOwner && (
                             <button
                                 onClick={() => onRemove(user.id)}
                                 disabled={isRemovingId === user.id}

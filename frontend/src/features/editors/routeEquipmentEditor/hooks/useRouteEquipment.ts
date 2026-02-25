@@ -1,29 +1,65 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import type { Route } from "../../../../types/routes";
+import type { GeneralEquipment, MyEquipment, EquipmentType } from "../../../../types/equipment";
+import type { User } from "../../../../types/users";
 import {
     fetchGeneralEquipment,
     deleteMyEquipment
 } from "../../../../services/equipmentApiService";
-
 import {
     addEquipmentToRoute,
     removeEquipmentFromRoute,
     fetchGetRoute,
     fetchAvailableRouteEquipment
 } from "../../../../services/routesApiService";
-import type { GeneralEquipment, MyEquipment, EquipmentType } from "../../../../types/equipment";
+import { fetchMyUser } from "../../../../services/usersApiService";
+import { getErrorMessage } from "../../../../utils/apiError";
 
 const PER_PAGE = Number(import.meta.env.VITE_EQUIPMENT_PER_PAGE ?? "12");
 const EQUIPMENT_SEARCH_DEBOUNCE = Number(import.meta.env.VITE_EQUIPMENT_SEARCH_DEBOUNCE ?? "300");
 
+export interface ResolvedBackpackItem {
+    pivotId: number;
+    displayItem: GeneralEquipment | MyEquipment;
+    equipmentType: EquipmentType;
+    equipmentId: number;
+}
+
+function resolveBackpackItemDisplay(
+    item: NonNullable<Route['equipment']>[0],
+    myList: MyEquipment[],
+    generalList: GeneralEquipment[]
+): GeneralEquipment | MyEquipment {
+    const isMy = !!item.my_equipment_id;
+
+    if (isMy && item.my_equipment) return item.my_equipment as MyEquipment;
+    if (!isMy && item.general_equipment) return item.general_equipment as GeneralEquipment;
+    if (isMy) {
+        const found = myList.find(m => m.id === item.my_equipment_id);
+        if (found) return found;
+    } else {
+        const found = generalList.find(g => g.id === item.general_equipment_id);
+        if (found) return found;
+    }
+
+    const fallbackId = isMy ? item.my_equipment_id! : item.general_equipment_id!;
+    return {
+        id: fallbackId,
+        name: item.name || "Unknown Item",
+        img: null,
+        specifications: {},
+        general_specifications: {},
+        created_at: null,
+        updated_at: null,
+    } as GeneralEquipment;
+}
+
 export const useRouteEquipment = (route: Route, onUpdate: (route: Route) => void) => {
-    // Data States
     const [generalList, setGeneralList] = useState<GeneralEquipment[]>([]);
     const [myList, setMyList] = useState<MyEquipment[]>([]);
-    const [generalMeta, setGeneralMeta] = useState<{ page: number; total_pages: number; total_items: number }>({ page: 1, total_pages: 1, total_items: 0 });
-    const [myMeta, setMyMeta] = useState<{ page: number; total_pages: number; total_items: number }>({ page: 1, total_pages: 1, total_items: 0 });
+    const [generalMeta, setGeneralMeta] = useState({ page: 1, total_pages: 1, total_items: 0 });
+    const [myMeta, setMyMeta] = useState({ page: 1, total_pages: 1, total_items: 0 });
 
-    // UI States
     const [isLoading, setIsLoading] = useState(false);
     const [search, setSearch] = useState("");
     const [generalPage, setGeneralPage] = useState(1);
@@ -31,8 +67,14 @@ export const useRouteEquipment = (route: Route, onUpdate: (route: Route) => void
     const [activeTab, setActiveTab] = useState<EquipmentType>('my');
     const [processingId, setProcessingId] = useState<number | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [currentUser, setCurrentUser] = useState<User | null>(null);
 
-    // Load current tab's list with pagination
+    useEffect(() => {
+        fetchMyUser()
+            .then(user => setCurrentUser(user))
+            .catch(err => console.error(err));
+    }, []);
+
     const loadLists = useCallback(async (silent = false) => {
         if (!silent) setIsLoading(true);
         try {
@@ -73,7 +115,6 @@ export const useRouteEquipment = (route: Route, onUpdate: (route: Route) => void
         return () => clearTimeout(timeout);
     }, [loadLists]);
 
-    // Add/Remove from Route
     const handleToggleItem = async (type: EquipmentType, id: number, isCurrentlyAdded: boolean) => {
         setProcessingId(id);
         setError(null);
@@ -83,95 +124,101 @@ export const useRouteEquipment = (route: Route, onUpdate: (route: Route) => void
             } else {
                 await addEquipmentToRoute(route.id, type, id);
             }
-
-            // Re-fetch route to get updated equipment list
-            // We need to import fetchGetRoute! It was missing in the simplified replacement?
-            // Wait, I laid out imports. Let's check imports.
-            // If fetchGetRoute is missing, I need to add it.
-            // And use it.
             const updatedRoute = await fetchGetRoute(route.id);
             onUpdate(updatedRoute);
-        } catch (err: any) {
+        } catch (err) {
             console.error(err);
-            setError(err.response?.data?.message || "Akce se nezdařila.");
+            setError(getErrorMessage(err, "Akce se nezdařila."));
         } finally {
             setProcessingId(null);
         }
     };
 
-    // Handle Created Equipment (from Modal)
     const handleEquipmentCreated = async (newEquipment: MyEquipment) => {
         setError(null);
         try {
-            // 1. Refresh "My Equipment" list to ensure it's up to date
             await loadLists();
-
-            // 2. Check if it's already in the route
             const isAlreadyInRoute = route.equipment?.some(e => Number(e.my_equipment_id) === Number(newEquipment.id));
-
             if (!isAlreadyInRoute) {
-                // 3. Automatically add to the current route if not present
                 await handleToggleItem('my', newEquipment.id, false);
             } else {
-                // If already in route, we still want to refresh the route to show updated details
-                // handleToggleItem does this, but since we skip it, we must do it manually here.
                 const updatedRoute = await fetchGetRoute(route.id);
                 onUpdate(updatedRoute);
             }
-
-            return true;
-        } catch (err: any) {
+        } catch (err) {
             console.error(err);
             setError("Nepodařilo se přidat nové vybavení do trasy.");
-            return false;
         }
     };
 
-    // Delete Custom Equipment (Generic)
     const handleDeleteMyEquipment = async (id: number) => {
-        // Confirmation is now handled by UI (ConfirmDialog)
-
         setProcessingId(id);
         try {
             await deleteMyEquipment(id);
-            await loadLists(true); // Silent reload of available list
-
-            // Refresh route data to remove the deleted item from the backpack
+            await loadLists(true);
             const updatedRoute = await fetchGetRoute(route.id);
             onUpdate(updatedRoute);
-        } catch (err: any) {
-            setError(err.response?.data?.message || "Smazání se nezdařilo.");
+        } catch (err) {
+            setError(getErrorMessage(err, "Smazání se nezdařilo."));
         } finally {
             setProcessingId(null);
         }
-    }
+    };
 
+    const availableGeneral = useMemo(() =>
+        generalList.filter(item => item.name.toLowerCase().includes(search.toLowerCase())),
+        [generalList, search]
+    );
+
+    const availableMy = useMemo(() =>
+        myList.filter(item => item.name.toLowerCase().includes(search.toLowerCase())),
+        [myList, search]
+    );
+
+    const isItemInRoute = (type: EquipmentType, id: number): boolean => {
+        return (route.equipment || []).some(e =>
+            (type === 'general' && Number(e.general_equipment_id) === Number(id)) ||
+            (type === 'my' && Number(e.my_equipment_id) === Number(id))
+        );
+    };
+
+    const resolvedBackpackItems: ResolvedBackpackItem[] = useMemo(() =>
+        (route.equipment || []).map(item => {
+            const isMy = !!item.my_equipment_id;
+            const equipmentType: EquipmentType = isMy ? 'my' : 'general';
+            const equipmentId = isMy ? item.my_equipment_id! : item.general_equipment_id!;
+            return {
+                pivotId: item.id,
+                displayItem: resolveBackpackItemDisplay(item, myList, generalList),
+                equipmentType,
+                equipmentId,
+            };
+        }),
+        [route.equipment, myList, generalList]
+    );
 
     const currentPage = activeTab === 'general' ? generalPage : myPage;
     const setCurrentPage = activeTab === 'general' ? setGeneralPage : setMyPage;
     const totalPages = activeTab === 'general' ? generalMeta.total_pages : myMeta.total_pages;
 
     return {
-        generalList,
-        myList,
+        availableGeneral,
+        availableMy,
+        resolvedBackpackItems,
         isLoading,
         search,
         setSearch,
         activeTab,
         setActiveTab,
-        generalPage,
-        myPage,
-        setGeneralPage,
-        setMyPage,
         currentPage,
         setCurrentPage,
         totalPages,
-        generalMeta,
-        myMeta,
+        isItemInRoute,
         handleToggleItem,
         handleEquipmentCreated,
         handleDeleteMyEquipment,
         processingId,
+        currentUser,
         error,
         clearError: () => setError(null),
     };

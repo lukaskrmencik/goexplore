@@ -1,15 +1,14 @@
-
 import { useState, useEffect } from "react";
 import { Link, Check, Copy, Share2, MessageCircle, Mail } from "lucide-react";
+import { copyTextToClipboard } from "../../../../../utils/clipboard";
 import "./InviteBox.css";
+
+const INVITE_EXPIRATION_HOURS = Number(import.meta.env.VITE_INVITE_EXPIRATION_HOURS) || 48;
 
 interface InviteBoxProps {
     link: string | null;
     isGenerating: boolean;
-    onGenerate: () => void;
 }
-
-const INVITE_EXPIRATION_HOURS = Number(import.meta.env.VITE_INVITE_EXPIRATION_HOURS) || 48;
 
 const InviteBox: React.FC<InviteBoxProps> = ({ link, isGenerating }) => {
     const [copied, setCopied] = useState(false);
@@ -19,41 +18,10 @@ const InviteBox: React.FC<InviteBoxProps> = ({ link, isGenerating }) => {
         setCanShare(!!navigator.share);
     }, []);
 
-    const copyToClipboard = async (text: string): Promise<boolean> => {
-        // Modern Clipboard API (requires secure context + permissions in some browsers)
-        try {
-            if (navigator.clipboard?.writeText) {
-                await navigator.clipboard.writeText(text);
-                return true;
-            }
-        } catch {
-            // fall through to legacy method
-        }
-
-        // Legacy fallback (works in more restricted contexts)
-        try {
-            const textarea = document.createElement("textarea");
-            textarea.value = text;
-            textarea.setAttribute("readonly", "true");
-            textarea.style.position = "fixed";
-            textarea.style.top = "0";
-            textarea.style.left = "0";
-            textarea.style.opacity = "0";
-            document.body.appendChild(textarea);
-            textarea.focus();
-            textarea.select();
-            const ok = document.execCommand("copy");
-            document.body.removeChild(textarea);
-            return ok;
-        } catch {
-            return false;
-        }
-    };
-
     const handleCopy = async () => {
         if (!link) return;
-        const ok = await copyToClipboard(link);
-        if (!ok) {
+        const succeeded = await copyTextToClipboard(link);
+        if (!succeeded) {
             console.error("Copy to clipboard failed");
             return;
         }
@@ -62,32 +30,29 @@ const InviteBox: React.FC<InviteBoxProps> = ({ link, isGenerating }) => {
     };
 
     const handleNativeShare = async () => {
-        if (link && navigator.share) {
-            try {
-                await navigator.share({
-                    title: 'Přidej se k mé trase na GoExplore!',
-                    text: 'Ahoj, přidej se k mé trase a naplánujme to společně.',
-                    url: link,
-                });
-            } catch (err) {
-                console.error('Error sharing:', err);
-            }
+        if (!link || !navigator.share) return;
+        try {
+            await navigator.share({
+                title: 'Přidej se k mé trase na GoExplore!',
+                text: 'Ahoj, přidej se k mé trase a naplánujme to společně.',
+                url: link,
+            });
+        } catch (err) {
+            console.error('Error sharing:', err);
         }
     };
 
-    // Construct social links
-    const encodedText = encodeURIComponent("Přidej se k mé trase na GoExplore!");
+    const whatsappShareUrl = link
+        ? `https://wa.me/?text=${encodeURIComponent(`Přidej se k mé trase: ${link}`)}`
+        : "#";
 
-    // WhatsApp
-    const whatsappLink = link ? `https://wa.me/?text=${encodeURIComponent(`Přidej se k mé trase: ${link}`)}` : "#";
-
-    // Email (Added UTF-8 encoding potentially, but URL encoding does this)
-    const emailLink = link ? `mailto:?subject=${encodedText}&body=${encodeURIComponent(`Ahoj,\n\npřidej se k mé trase a naplánujme to společně:\n${link}`)}` : "#";
+    const emailShareUrl = link
+        ? `mailto:?subject=${encodeURIComponent("Přidej se k mé trase na GoExplore!")}&body=${encodeURIComponent(`Ahoj,\n\npřidej se k mé trase a naplánujme to společně:\n${link}`)}`
+        : "#";
 
     return (
         <div className="invite-box-container">
 
-            {/* 1. Main Link Input */}
             <div className="invite-box-input-group">
                 <div className="invite-box-input-wrapper group">
                     <div className="invite-box-link-icon-wrapper">
@@ -95,12 +60,10 @@ const InviteBox: React.FC<InviteBoxProps> = ({ link, isGenerating }) => {
                     </div>
 
                     {isGenerating || !link ? (
-                        // Skeleton Loading
                         <div className="invite-box-skeleton">
                             <div className="invite-box-skeleton-bar"></div>
                         </div>
                     ) : (
-                        // Actual Input
                         <input
                             readOnly
                             value={link}
@@ -109,15 +72,11 @@ const InviteBox: React.FC<InviteBoxProps> = ({ link, isGenerating }) => {
                         />
                     )}
 
-                    {/* Copy Button (Inside Input) */}
                     {link && (
                         <div className="invite-box-copy-wrapper">
                             <button
                                 onClick={handleCopy}
-                                className={`invite-box-copy-btn ${copied
-                                    ? 'invite-box-copy-btn-copied'
-                                    : 'invite-box-copy-btn-default'
-                                    }`}
+                                className={`invite-box-copy-btn ${copied ? 'invite-box-copy-btn-copied' : 'invite-box-copy-btn-default'}`}
                                 title="Zkopírovat odkaz"
                             >
                                 {copied ? <Check size={20} /> : <Copy size={20} />}
@@ -127,11 +86,8 @@ const InviteBox: React.FC<InviteBoxProps> = ({ link, isGenerating }) => {
                 </div>
             </div>
 
-            {/* 2. Share Actions */}
             {link && (
                 <div className="invite-box-share-actions">
-
-                    {/* Native Share (If supported) */}
                     {canShare ? (
                         <button
                             onClick={handleNativeShare}
@@ -141,10 +97,9 @@ const InviteBox: React.FC<InviteBoxProps> = ({ link, isGenerating }) => {
                             Sdílet s přáteli
                         </button>
                     ) : (
-                        /* Secondary Options Grid (Fallback if Native Share not available) */
                         <div className="invite-box-secondary-grid">
                             <a
-                                href={whatsappLink}
+                                href={whatsappShareUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="invite-box-secondary-link invite-box-link-whatsapp"
@@ -155,7 +110,7 @@ const InviteBox: React.FC<InviteBoxProps> = ({ link, isGenerating }) => {
                             </a>
 
                             <a
-                                href={emailLink}
+                                href={emailShareUrl}
                                 className="invite-box-secondary-link invite-box-link-email"
                                 title="Poslat emailem"
                             >

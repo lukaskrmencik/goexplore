@@ -3,10 +3,8 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import type { LucideIcon } from 'lucide-react';
 import './mapIcons.css';
 
-// Common marker styles
 const MARKER_BASE_CLASS = "custom-marker-base";
 
-// Helper to create a custom marker icon
 export const createCustomIcon = (
     Icon: LucideIcon,
     params: {
@@ -21,46 +19,32 @@ export const createCustomIcon = (
     const html = renderToStaticMarkup(
         <div
             className={MARKER_BASE_CLASS}
-            style={{
-                width: `${size}px`,
-                height: `${size}px`,
-                backgroundColor: bgColor,
-                color: color,
-            }}
+            style={{ width: `${size}px`, height: `${size}px`, backgroundColor: bgColor, color }}
         >
             <Icon size={iconSize} strokeWidth={2.5} />
-            {/* Triangle pointer at bottom */}
-            <div
-                className="custom-marker-pointer"
-                style={{ backgroundColor: bgColor }}
-            />
+            <div className="custom-marker-pointer" style={{ backgroundColor: bgColor }} />
         </div>
     );
 
     return L.divIcon({
-        html: html,
-        className: 'custom-marker-icon', // Empty class to remove default styles
+        html,
+        className: 'custom-marker-icon',
         iconSize: [size, size],
-        iconAnchor: [size / 2, size + 4], // Anchor at bottom tip
+        iconAnchor: [size / 2, size + 4],
         popupAnchor: [0, -size - 4],
     });
 };
 
-// Simplified dot marker for less important points
 export const createDotIcon = (color: string, size = 12) => {
     const html = renderToStaticMarkup(
         <div
             className="custom-dot-marker"
-            style={{
-                width: `${size}px`,
-                height: `${size}px`,
-                backgroundColor: color,
-            }}
+            style={{ width: `${size}px`, height: `${size}px`, backgroundColor: color }}
         />
     );
 
     return L.divIcon({
-        html: html,
+        html,
         className: 'custom-dot-icon',
         iconSize: [size, size],
         iconAnchor: [size / 2, size / 2],

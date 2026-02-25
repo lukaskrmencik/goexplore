@@ -1,42 +1,36 @@
 import { useState, useEffect } from "react";
 import type { Route, RoutePoi, RouteCluster } from '../../../types/routes';
 
+function extractPoisAndClusters(route: Route): { pois: RoutePoi[]; clusters: RouteCluster[] } {
+    const pois: RoutePoi[] = [];
+    const clusters: RouteCluster[] = [];
+
+    for (const poiWrapper of route.poi) {
+        if (poiWrapper.type === "cluster") {
+            if (poiWrapper.cluster) clusters.push(poiWrapper.cluster);
+            if (poiWrapper.poi_data) pois.push(...poiWrapper.poi_data);
+        } else if (poiWrapper.type === "single") {
+            if (poiWrapper.poi_data) pois.push(...poiWrapper.poi_data);
+        }
+    }
+
+    return { pois, clusters };
+}
+
 export const usePois = (route?: Route) => {
     const [pois, setPois] = useState<RoutePoi[]>([]);
     const [clusters, setClusters] = useState<RouteCluster[]>([]);
 
     useEffect(() => {
-        const makePoiList = () => {
-            if (!route?.poi) {
-                setPois([]);
-                setClusters([]);
-                return;
-            }
-
-            const newPois: RoutePoi[] = [];
-            const newClusters: RouteCluster[] = [];
-
-            for (const poi of route.poi) {
-                if (poi.type === "cluster") {
-                    if (poi.cluster) {
-                        newClusters.push(poi.cluster);
-                    }
-                    if (poi.poi_data) {
-                        newPois.push(...poi.poi_data);
-                    }
-                } else if (poi.type === "single") {
-                    if (poi.poi_data) {
-                        newPois.push(...poi.poi_data);
-                    }
-                }
-            }
-
-            setPois(newPois);
-            setClusters(newClusters);
-        };
-
-        makePoiList();
+        if (!route?.poi) {
+            setPois([]);
+            setClusters([]);
+            return;
+        }
+        const { pois: newPois, clusters: newClusters } = extractPoisAndClusters(route);
+        setPois(newPois);
+        setClusters(newClusters);
     }, [route]);
 
     return { pois, clusters };
-}
+};

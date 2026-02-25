@@ -1,5 +1,7 @@
 import type { Route } from "./routes";
 
+export type EditorType = 'axis' | 'date' | 'users' | 'equipment' | 'config';
+
 export interface EditorPoint {
     id: string;
     dbId?: number;
@@ -12,6 +14,7 @@ export interface EditorPoint {
 
 export interface RouteAxisEditorHandle {
     save: () => Promise<void>;
+    getEstimatedRoadKm: () => number;
 }
 
 export interface RouteDateEditorHandle {
@@ -26,4 +29,5 @@ export interface RouteEditorProps {
     route: Route;
     onUpdate: (route: Route) => void;
     onChange?: () => void;
+    estimatedRoadKm?: number;
 }

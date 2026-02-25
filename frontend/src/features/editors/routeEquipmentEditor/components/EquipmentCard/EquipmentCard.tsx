@@ -1,6 +1,7 @@
 import React from 'react';
 import { Plus, Loader2, Trash2, Package, Pencil } from 'lucide-react';
 import type { GeneralEquipment, MyEquipment, EquipmentType } from '../../../../../types/equipment';
+import type { User } from '../../../../../types/users';
 import UserAvatar from '../../../../../components/ui/UserAvatar/UserAvatar';
 import { getImageUrl } from '../../../../../utils/imageUrl';
 import "./EquipmentCard.css";
@@ -14,7 +15,34 @@ interface EquipmentCardProps {
     onDelete?: (id: number) => void;
     onEdit?: () => void;
     variant?: 'standard' | 'compact';
-    currentUser?: { id: number; name: string; profile_picture?: string | null } | null; // Pass entire user object
+    currentUser?: User | null;
+}
+
+function resolveItemTypeName(item: GeneralEquipment | MyEquipment): string {
+    if ('general_equipment' in item && item.general_equipment) {
+        return item.general_equipment.name;
+    }
+    return '';
+}
+
+function resolveItemSpecsList(item: GeneralEquipment | MyEquipment): [string, unknown][] {
+    let specs: Record<string, unknown> = {};
+
+    if ('specifications' in item) {
+        specs = item.specifications;
+    } else if ('general_specifications' in item) {
+        specs = item.general_specifications;
+    }
+
+    if (typeof specs === 'string') {
+        try {
+            specs = JSON.parse(specs);
+        } catch {
+            specs = {};
+        }
+    }
+
+    return Object.entries(specs).slice(0, 4);
 }
 
 const EquipmentCard: React.FC<EquipmentCardProps> = ({
@@ -28,88 +56,63 @@ const EquipmentCard: React.FC<EquipmentCardProps> = ({
     variant = 'standard',
     currentUser
 }) => {
-
-    // Helper to get initials
-    const getInitials = (name: string) => name.slice(0, 2).toUpperCase();
-
     const imageUrl = getImageUrl(item.img);
+    const typeName = resolveItemTypeName(item);
+    const specsList = resolveItemSpecsList(item);
 
-    // Determine the "Type" name (General Equipment Name)
-    let typeName = '';
+    const isOwnedByCurrentUser = 'users_id' in item && currentUser && item.users_id === currentUser.id;
+    const itemOwnerUser = 'user' in item ? item.user : null;
 
-    // If it's MyEquipment (has general_equipment_id)
-    if ('general_equipment' in item && item.general_equipment) {
-        typeName = item.general_equipment.name;
-    }
-
-    // Prepare specs for display
-    let specs: Record<string, any> = {};
-
-    if ('specifications' in item) {
-        specs = item.specifications;
-    } else if ('general_specifications' in item) {
-        specs = item.general_specifications;
-    }
-
-    // Safeguard against stringified JSON (legacy data)
-    if (typeof specs === 'string') {
-        try {
-            specs = JSON.parse(specs);
-        } catch (e) {
-            specs = {};
+    const OwnerBadgeContent: React.FC = () => {
+        if (isOwnedByCurrentUser) {
+            return (
+                <>
+                    <UserAvatar
+                        name={currentUser!.name}
+                        profilePicture={currentUser!.profile_picture}
+                        size="sm"
+                        className="eq-card-compact-avatar"
+                    />
+                    <span>Moje</span>
+                </>
+            );
         }
-    }
-    const specsList = Object.entries(specs).slice(0, 4); // Show max 4 specs
+        if (itemOwnerUser) {
+            return (
+                <>
+                    <UserAvatar
+                        name={itemOwnerUser.name}
+                        profilePicture={itemOwnerUser.profile_picture}
+                        size="sm"
+                        className="eq-card-compact-avatar"
+                    />
+                    <span>{itemOwnerUser.name}</span>
+                </>
+            );
+        }
+        return <span>Sdílené</span>;
+    };
 
-    // --- COMPACT VARIANT (Horizontal - for Vybrané vybavení) ---
     if (variant === 'compact') {
         return (
             <div className={`eq-card-compact ${isAdded ? 'eq-card-compact-added' : 'eq-card-compact-default'}`}>
-                {/* Image / Icon */}
                 <div className={`eq-card-compact-image-wrapper ${imageUrl ? 'eq-card-compact-image-bg-image' : 'eq-card-compact-image-bg-icon'}`}>
                     {imageUrl ? (
                         <img src={imageUrl} alt={item.name} className="eq-card-compact-img" />
                     ) : (
-                        <span>{getInitials(item.name)}</span>
+                        <span>{item.name.slice(0, 2).toUpperCase()}</span>
                     )}
                 </div>
 
-                {/* Content - two rows: title, then badges + specs */}
                 <div className="eq-card-compact-content">
-                    <h4 className="eq-card-compact-title">
-                        {item.name}
-                    </h4>
+                    <h4 className="eq-card-compact-title">{item.name}</h4>
                     <div className="eq-card-compact-meta-row">
                         {typeName && typeName !== item.name && (
-                            <span className="eq-card-compact-type-badge">
-                                {typeName}
-                            </span>
+                            <span className="eq-card-compact-type-badge">{typeName}</span>
                         )}
                         {type === 'my' && (
                             <span className="eq-card-compact-my-badge">
-                                {'users_id' in item && currentUser && item.users_id === currentUser.id ? (
-                                    <>
-                                        <UserAvatar
-                                            name={currentUser.name}
-                                            profilePicture={currentUser.profile_picture}
-                                            size="sm"
-                                            className="eq-card-compact-avatar"
-                                        />
-                                        <span>Moje</span>
-                                    </>
-                                ) : 'user' in item && item.user ? (
-                                    <>
-                                        <UserAvatar
-                                            name={item.user.name}
-                                            profilePicture={item.user.profile_picture}
-                                            size="sm"
-                                            className="eq-card-compact-avatar"
-                                        />
-                                        <span>{item.user.name}</span>
-                                    </>
-                                ) : (
-                                    <span>Sdílené</span>
-                                )}
+                                <OwnerBadgeContent />
                             </span>
                         )}
                     </div>
@@ -127,7 +130,6 @@ const EquipmentCard: React.FC<EquipmentCardProps> = ({
                     )}
                 </div>
 
-                {/* Actions */}
                 <button
                     onClick={() => onToggle(type, item.id, isAdded)}
                     disabled={isProcessing}
@@ -146,60 +148,29 @@ const EquipmentCard: React.FC<EquipmentCardProps> = ({
         );
     }
 
-    // --- STANDARD VARIANT (Vertical - for Warehouse/Catalog) ---
     return (
         <div className={`eq-card-standard ${isAdded ? 'eq-card-standard-added' : 'eq-card-standard-default'}`}>
-            {/* Subtle tint when added (no big checkmark) */}
-            {isAdded && (
-                <div className="eq-card-overlay" />
-            )}
+            {isAdded && <div className="eq-card-overlay" />}
 
-            {/* Image Section */}
             <div className={`eq-card-image-section ${isAdded ? 'eq-card-image-section-added' : ''}`}>
                 {imageUrl ? (
-                    <img
-                        src={imageUrl}
-                        alt={item.name}
-                        className="eq-card-image"
-                    />
+                    <img src={imageUrl} alt={item.name} className="eq-card-image" />
                 ) : (
                     <div className="eq-card-no-image">
                         <Package className="eq-card-no-image-icon" strokeWidth={1.5} />
                     </div>
                 )}
 
-                {/* Badges */}
                 <div className="eq-card-badges">
                     {type === 'my' && (
                         <span className="eq-card-badge-my">
-                            {'users_id' in item && currentUser && item.users_id === currentUser.id ? (
-                                <>
-                                    <UserAvatar
-                                        name={currentUser.name}
-                                        profilePicture={currentUser.profile_picture}
-                                        className="eq-card-badge-avatar"
-                                    />
-                                    <span>Moje</span>
-                                </>
-                            ) : 'user' in item && item.user ? (
-                                <>
-                                    <UserAvatar
-                                        name={item.user.name}
-                                        profilePicture={item.user.profile_picture}
-                                        className="eq-card-badge-avatar"
-                                    />
-                                    <span>{item.user.name}</span>
-                                </>
-                            ) : (
-                                <span>Sdílené</span>
-                            )}
+                            <OwnerBadgeContent />
                         </span>
                     )}
                 </div>
 
-                {/* Actions Overlay (Edit/Delete) Only show if it belongs to current user directly */}
                 <div className="eq-card-actions-overlay">
-                    {type === 'my' && ('users_id' in item && currentUser && item.users_id === currentUser.id) && (
+                    {type === 'my' && isOwnedByCurrentUser && (
                         <>
                             {onEdit && (
                                 <button
@@ -224,25 +195,20 @@ const EquipmentCard: React.FC<EquipmentCardProps> = ({
                 </div>
             </div>
 
-            {/* Content Section */}
             <div className="eq-card-content-section">
-
                 <div className="eq-card-content-inner">
                     <div className="eq-card-title-container">
-                        {/* Type Name */}
                         {typeName && typeName !== item.name && (
                             <div className="eq-card-type-name">
                                 <span className={`eq-card-type-dot ${isAdded ? 'eq-card-type-dot-added' : 'eq-card-type-dot-default'}`}></span>
                                 {typeName}
                             </div>
                         )}
-
                         <h3 className={`eq-card-name ${isAdded ? 'eq-card-name-added' : 'eq-card-name-default'}`}>
                             {item.name}
                         </h3>
                     </div>
 
-                    {/* Specs Grid */}
                     <div className="eq-card-specs-container">
                         {specsList.length > 0 ? (
                             <div className="eq-card-specs-flex">
@@ -264,7 +230,6 @@ const EquipmentCard: React.FC<EquipmentCardProps> = ({
                     </div>
                 </div>
 
-                {/* Primary Action Button */}
                 <button
                     onClick={() => onToggle(type, item.id, isAdded)}
                     disabled={isProcessing}

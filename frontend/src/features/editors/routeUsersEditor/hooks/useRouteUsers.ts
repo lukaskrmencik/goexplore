@@ -1,19 +1,54 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import type { Route } from "../../../../types/routes";
+import type { RouteUser } from "../../../../types/users";
 import {
     inviteUserToRoute,
     removeUserFromRoute,
     fetchGetRoute
 } from "../../../../services/routesApiService";
+import { fetchMyUser } from "../../../../services/usersApiService";
 import { getErrorMessage } from "../../../../utils/apiError";
+
+const ROUTE_USERS_POLLING_INTERVAL = Number(import.meta.env.VITE_ROUTE_USERS_POLLING_INTERVAL ?? "5000");
 
 export const useRouteUsers = (route: Route, onUpdateRoute: (route: Route) => void) => {
     const [inviteLink, setInviteLink] = useState<string | null>(null);
     const [isGenerating, setIsGenerating] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [isRemovingId, setIsRemovingId] = useState<number | null>(null);
+    const [currentUserId, setCurrentUserId] = useState<number>(0);
 
-    const ROUTE_USERS_POLLING_INTERVAL = Number(import.meta.env.VITE_ROUTE_USERS_POLLING_INTERVAL ?? "5000");
+    useEffect(() => {
+        fetchMyUser()
+            .then(user => setCurrentUserId(user.id))
+            .catch(err => console.error(err));
+    }, []);
+
+    useEffect(() => {
+        if (!route.id) return;
+        fetchGetRoute(route.id)
+            .then(onUpdateRoute)
+            .catch(err => console.error(err));
+    }, [route.id, onUpdateRoute]);
+
+    const generateInviteLink = useCallback(async () => {
+        setIsGenerating(true);
+        setError(null);
+        try {
+            const token = await inviteUserToRoute(route.id);
+            const baseUrl = import.meta.env.VITE_INVITE_BASE_URL?.trim() || window.location.origin;
+            setInviteLink(`${baseUrl}/join/${token}`);
+        } catch (err) {
+            console.error(err);
+            setError(getErrorMessage(err, "Nepodařilo se vytvořit odkaz."));
+        } finally {
+            setIsGenerating(false);
+        }
+    }, [route.id]);
+
+    useEffect(() => {
+        generateInviteLink();
+    }, [generateInviteLink]);
 
     useEffect(() => {
         const intervalId = setInterval(async () => {
@@ -22,41 +57,13 @@ export const useRouteUsers = (route: Route, onUpdateRoute: (route: Route) => voi
                 if (JSON.stringify(updatedRoute.users) !== JSON.stringify(route.users)) {
                     onUpdateRoute(updatedRoute);
                 }
-            } catch (error) {
-                console.error(error);
+            } catch (err) {
+                console.error(err);
             }
         }, ROUTE_USERS_POLLING_INTERVAL);
 
         return () => clearInterval(intervalId);
     }, [route.id, route.users, onUpdateRoute]);
-
-    // Auto-generate link on mount
-    useEffect(() => {
-        if (!inviteLink && !isGenerating) {
-            generateLink();
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
-    const generateLink = async () => {
-        setIsGenerating(true);
-        setError(null);
-        try {
-            const token = await inviteUserToRoute(route.id);
-
-            const baseUrl =
-                import.meta.env.VITE_INVITE_BASE_URL?.trim() ||
-                (typeof window !== "undefined" ? window.location.origin : "");
-
-            const url = `${baseUrl}/join/${token}`;
-            setInviteLink(url);
-        } catch (err) {
-            console.error(err);
-            setError(getErrorMessage(err, "Nepodařilo se vytvořit odkaz."));
-        } finally {
-            setIsGenerating(false);
-        }
-    };
 
     const removeUser = async (userId: number) => {
         setIsRemovingId(userId);
@@ -75,10 +82,31 @@ export const useRouteUsers = (route: Route, onUpdateRoute: (route: Route) => voi
 
     const clearError = () => setError(null);
 
+    const ownerId = route.user?.id ?? 0;
+
+    const ownerAsRouteUser: RouteUser | null = route.user
+        ? {
+            ...route.user,
+            role: "owner",
+            pivot: {
+                routes_id: route.id,
+                users_id: route.user.id,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            }
+        }
+        : null;
+
+    const allUsers: RouteUser[] = ownerAsRouteUser
+        ? [ownerAsRouteUser, ...(route.users || [])]
+        : [...(route.users || [])];
+
     return {
         inviteLink,
         isGenerating,
-        generateLink,
+        allUsers,
+        currentUserId,
+        ownerId,
         removeUser,
         isRemovingId,
         error,

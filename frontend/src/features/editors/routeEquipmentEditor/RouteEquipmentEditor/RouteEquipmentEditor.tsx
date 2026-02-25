@@ -1,21 +1,21 @@
-import React, { useMemo } from 'react';
-import { Search, Package, User, Plus } from "lucide-react";
+import React from 'react';
+import { Plus, Package, Search, User } from "lucide-react";
 import type { RouteEditorProps } from "../../../../types/editor";
 import { useRouteEquipment } from ".././hooks/useRouteEquipment";
 import EquipmentCard from ".././components/EquipmentCard/EquipmentCard";
+import BackpackPanel from ".././components/BackpackPanel/BackpackPanel";
+import EquipmentSearchTabs from ".././components/EquipmentSearchTabs/EquipmentSearchTabs";
 import CreateEquipmentModal from "../../equipmentEditor/CreateEquipmentModal/CreateEquipmentModal";
 import ConfirmDialog from "../../../../components/ui/ConfirmDialog/ConfirmDialog";
 import Toast from "../../../../components/ui/Toast/Toast";
 import Pagination from "../../../../components/ui/Pagination/Pagination";
-import { ChevronUp, X } from "lucide-react";
-import { fetchMyUser } from "../../../../services/usersApiService";
-import type { User as UserType } from "../../../../types/users";
 import "./RouteEquipmentEditor.css";
 
 const RouteEquipmentEditor: React.FC<RouteEditorProps> = ({ route, onUpdate }) => {
     const {
-        generalList,
-        myList,
+        availableGeneral,
+        availableMy,
+        resolvedBackpackItems,
         isLoading,
         search,
         setSearch,
@@ -24,229 +24,60 @@ const RouteEquipmentEditor: React.FC<RouteEditorProps> = ({ route, onUpdate }) =
         currentPage,
         setCurrentPage,
         totalPages,
+        isItemInRoute,
         handleToggleItem,
         handleEquipmentCreated,
         handleDeleteMyEquipment,
         processingId,
+        currentUser,
         error,
         clearError
     } = useRouteEquipment(route, onUpdate);
 
-    const [isModalOpen, setIsModalOpen] = React.useState(false);
-    const [editingEquipment, setEditingEquipment] = React.useState<any | null>(null);
-    const [deletingId, setDeletingId] = React.useState<number | null>(null);
-    const [currentUser, setCurrentUser] = React.useState<UserType | null>(null);
+    const [isBackpackPanelOpen, setIsBackpackPanelOpen] = React.useState(false);
+    const [isEquipmentModalOpen, setIsEquipmentModalOpen] = React.useState(false);
+    const [equipmentBeingEdited, setEquipmentBeingEdited] = React.useState<any | null>(null);
+    const [equipmentIdPendingDeletion, setEquipmentIdPendingDeletion] = React.useState<number | null>(null);
 
-    React.useEffect(() => {
-        const loadUser = async () => {
-            try {
-                const user = await fetchMyUser();
-                setCurrentUser(user);
-            } catch (err) {
-                console.error("Failed to load current user", err);
-            }
-        };
-        loadUser();
-    }, []);
-
-    // Mobile Bottom Sheet State
-    const [isBackpackOpen, setIsBackpackOpen] = React.useState(false);
-
-    // Filter Logic
-    // 1. Available Items (Warehouse)
-    const availableGeneral = useMemo(() => {
-        // Filter out items that are already in the route? 
-        // Design decision: Keep them visible but marked as added, or hide them?
-        // Let's keep them visible so you can remove them from here too.
-        return generalList.filter(item =>
-            item.name.toLowerCase().includes(search.toLowerCase())
-        );
-    }, [generalList, search]);
-
-    const availableMy = useMemo(() => {
-        return myList.filter(item =>
-            item.name.toLowerCase().includes(search.toLowerCase())
-        );
-    }, [myList, search]);
-
-    // 2. Route Items (Backpack)
-    const routeEquipment = useMemo(() => {
-        return route.equipment || [];
-    }, [route.equipment]);
-
-
-    // Helper to check if item is in route
-    const isItemInRoute = (type: 'general' | 'my', id: number) => {
-        return routeEquipment.some(e =>
-            (type === 'general' && Number(e.general_equipment_id) === Number(id)) ||
-            (type === 'my' && Number(e.my_equipment_id) === Number(id))
-        );
+    const handleOpenEditModal = (item: any) => {
+        setEquipmentBeingEdited(item);
+        setIsEquipmentModalOpen(true);
     };
 
-    const handleEditMyEquipment = (item: any) => {
-        setEditingEquipment(item);
-        setIsModalOpen(true);
-    };
-
-    const handleCreateNew = () => {
-        setEditingEquipment(null);
-        setIsModalOpen(true);
+    const handleOpenCreateModal = () => {
+        setEquipmentBeingEdited(null);
+        setIsEquipmentModalOpen(true);
     };
 
     return (
         <div className="route-equipment-editor-container">
 
-            {/* --- BACKDROP (Mobile Only) --- */}
-            {isBackpackOpen && (
+            {isBackpackPanelOpen && (
                 <div
                     className="route-equipment-editor-backdrop"
-                    onClick={() => setIsBackpackOpen(false)}
+                    onClick={() => setIsBackpackPanelOpen(false)}
                 />
             )}
 
-            {/* --- LEFT PANEL: BACKPACK (Route Equipment) --- */}
-            <div className={`route-equipment-editor-backpack-panel ${isBackpackOpen ? 'route-equipment-editor-backpack-open' : 'route-equipment-editor-backpack-closed'}`}>
-                {/* Drag Handle / Header (Mobile Toggle) */}
-                <div
-                    className="route-equipment-editor-backpack-header"
-                    onClick={() => setIsBackpackOpen(!isBackpackOpen)}
-                >
-                    <div className="route-equipment-editor-backpack-header-content">
-                        <div>
-                            <h2 className="route-equipment-editor-backpack-title">
-                                Vybrané vybavení
-                                <ChevronUp size={20} className={`route-equipment-editor-chevron ${isBackpackOpen ? 'route-equipment-editor-chevron-open' : ''}`} />
-                            </h2>
-                            <p className="route-equipment-editor-backpack-subtitle">
-                                {routeEquipment.length} položek
-                                {!isBackpackOpen && <span className="route-equipment-editor-backpack-hint">(Klikni pro otevření)</span>}
-                            </p>
-                        </div>
-                    </div>
-                    {isBackpackOpen && (
-                        <button
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                setIsBackpackOpen(false);
-                            }}
-                            className="route-equipment-editor-backpack-close-btn"
-                        >
-                            <X size={24} />
-                        </button>
-                    )}
-                </div>
+            <BackpackPanel
+                isOpen={isBackpackPanelOpen}
+                onTogglePanel={() => setIsBackpackPanelOpen(!isBackpackPanelOpen)}
+                onClosePanel={() => setIsBackpackPanelOpen(false)}
+                resolvedBackpackItems={resolvedBackpackItems}
+                processingId={processingId}
+                currentUser={currentUser}
+                onToggleEquipment={handleToggleItem}
+            />
 
-                <div className="route-equipment-editor-backpack-list">
-                    {routeEquipment.length === 0 ? (
-                        <div className="route-equipment-editor-backpack-empty">
-                            <p className="route-equipment-editor-backpack-empty-text">Zatím nemáte vybrané vybavení.</p>
-                            <button
-                                onClick={() => setIsBackpackOpen(false)}
-                                className="route-equipment-editor-backpack-add-btn"
-                            >
-                                Přidat vybavení
-                            </button>
-                        </div>
-                    ) : (
-                        routeEquipment.map((item) => {
-                            const isMy = !!item.my_equipment_id;
-
-                            // Prefer loaded nested relations from RouteController
-                            // If it's My Equipment
-                            let displayItem: any = null;
-
-                            if (isMy && item.my_equipment) {
-                                displayItem = item.my_equipment;
-                            }
-                            // If it's General Equipment
-                            else if (!isMy && item.general_equipment) {
-                                displayItem = item.general_equipment;
-                            }
-                            // Fallback to list lookup (legacy/cache)
-                            else if (isMy) {
-                                displayItem = myList.find(m => m.id === item.my_equipment_id);
-                            } else {
-                                displayItem = generalList.find(g => g.id === item.general_equipment_id);
-                            }
-
-                            // Ultimate fallback
-                            if (!displayItem) {
-                                displayItem = {
-                                    id: isMy ? item.my_equipment_id! : item.general_equipment_id!,
-                                    name: item.name || "Unknown Item",
-                                    img: null,
-                                    specifications: {}
-                                };
-                            }
-
-                            return (
-                                <EquipmentCard
-                                    key={item.id} // Use pivot ID
-                                    item={displayItem}
-                                    type={isMy ? 'my' : 'general'}
-                                    isAdded={true}
-                                    isProcessing={processingId === (isMy ? item.my_equipment_id : item.general_equipment_id)}
-                                    onToggle={(t, id, _) => handleToggleItem(t, id, true)}
-                                    variant="compact"
-                                    currentUser={currentUser}
-                                />
-                            );
-                        })
-                    )}
-                </div>
-            </div>
-
-
-            {/* --- RIGHT PANEL: WAREHOUSE (Available Equipment) --- */}
             <div className="route-equipment-editor-warehouse-panel">
 
-                {/* Header & Search */}
-                <div className="route-equipment-editor-warehouse-header">
-                    <div className="route-equipment-editor-warehouse-title-row">
-                        <h2 className="route-equipment-editor-warehouse-title">Výběr vybavení</h2>
-                    </div>
+                <EquipmentSearchTabs
+                    search={search}
+                    onSearchChange={setSearch}
+                    activeTab={activeTab}
+                    onTabChange={setActiveTab}
+                />
 
-                    <div className="route-equipment-editor-search-row">
-                        <div className="route-equipment-editor-search-wrapper">
-                            <Search className="route-equipment-editor-search-icon" size={18} />
-                            <input
-                                type="text"
-                                placeholder="Hledat vybavení..."
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                                className="route-equipment-editor-search-input"
-                            />
-                        </div>
-                    </div>
-
-                    {/* Tabs */}
-                    <div className="route-equipment-editor-tabs">
-                        <button
-                            onClick={() => setActiveTab('general')}
-                            className={`route-equipment-editor-tab-btn ${activeTab === 'general'
-                                ? 'route-equipment-editor-tab-active'
-                                : 'route-equipment-editor-tab-inactive'
-                                }`}
-                        >
-                            <Package size={16} className="route-equipment-editor-tab-icon" />
-                            <span className="route-equipment-editor-tab-text-desktop">Katalog</span>
-                            <span className="route-equipment-editor-tab-text-mobile">Katalog</span>
-                        </button>
-                        <button
-                            onClick={() => setActiveTab('my')}
-                            className={`route-equipment-editor-tab-btn ${activeTab === 'my'
-                                ? 'route-equipment-editor-tab-active'
-                                : 'route-equipment-editor-tab-inactive'
-                                }`}
-                        >
-                            <User size={16} className="route-equipment-editor-tab-icon" />
-                            <span className="route-equipment-editor-tab-text-desktop">Moje vybavení</span>
-                            <span className="route-equipment-editor-tab-text-mobile">Moje</span>
-                        </button>
-                    </div>
-                </div>
-
-                {/* List Content */}
                 <div className="route-equipment-editor-warehouse-list">
                     {isLoading ? (
                         <div className="route-equipment-editor-loading">
@@ -255,10 +86,9 @@ const RouteEquipmentEditor: React.FC<RouteEditorProps> = ({ route, onUpdate }) =
                         </div>
                     ) : (
                         <div className="route-equipment-editor-grid">
-                            {/* Create Card (Only for My Equipment) - same style as "Naplánovat" on Moje cesty */}
                             {activeTab === 'my' && (
                                 <div
-                                    onClick={handleCreateNew}
+                                    onClick={handleOpenCreateModal}
                                     className="route-equipment-editor-create-card"
                                 >
                                     <div className="route-equipment-editor-create-card-icon-wrapper">
@@ -290,15 +120,14 @@ const RouteEquipmentEditor: React.FC<RouteEditorProps> = ({ route, onUpdate }) =
                                         isAdded={isItemInRoute('my', item.id)}
                                         isProcessing={processingId === item.id}
                                         onToggle={handleToggleItem}
-                                        onDelete={(id) => setDeletingId(id)}
-                                        onEdit={() => handleEditMyEquipment(item)}
+                                        onDelete={(id) => setEquipmentIdPendingDeletion(id)}
+                                        onEdit={() => handleOpenEditModal(item)}
                                         variant="standard"
                                         currentUser={currentUser}
                                     />
                                 ))
                             )}
 
-                            {/* Empty States */}
                             {activeTab === 'general' && availableGeneral.length === 0 && (
                                 <div className="route-equipment-editor-empty-state route-equipment-editor-empty-state-general">
                                     <Search size={48} strokeWidth={1} className="route-equipment-editor-empty-icon" />
@@ -314,7 +143,6 @@ const RouteEquipmentEditor: React.FC<RouteEditorProps> = ({ route, onUpdate }) =
                         </div>
                     )}
 
-                    {/* Pagination - same as Moje cesty */}
                     {!isLoading && totalPages > 1 && (
                         <div className="route-equipment-editor-pagination-wrapper">
                             <Pagination
@@ -326,36 +154,33 @@ const RouteEquipmentEditor: React.FC<RouteEditorProps> = ({ route, onUpdate }) =
                     )}
                 </div>
 
-                {/* Warning/Info Toast Placeholder */}
                 {error && <Toast message={error} onClose={clearError} />}
             </div>
 
-            {/* Create Modal */}
             <CreateEquipmentModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                initialData={editingEquipment}
+                isOpen={isEquipmentModalOpen}
+                onClose={() => setIsEquipmentModalOpen(false)}
+                initialData={equipmentBeingEdited}
                 onSubmit={(newEquipment) => {
                     handleEquipmentCreated(newEquipment);
-                    setIsModalOpen(false);
+                    setIsEquipmentModalOpen(false);
                 }}
             />
 
-            {/* Confirm Delete Dialog */}
             <ConfirmDialog
-                isOpen={!!deletingId}
+                isOpen={!!equipmentIdPendingDeletion}
                 title="Smazat vybavení?"
                 description="Tato akce je nevratná. Vybavení bude odebráno ze všech tras a trvale smazáno."
                 confirmLabel="Smazat"
                 isDestructive={true}
                 onConfirm={async () => {
-                    if (deletingId) {
-                        await handleDeleteMyEquipment(deletingId);
-                        setDeletingId(null);
+                    if (equipmentIdPendingDeletion) {
+                        await handleDeleteMyEquipment(equipmentIdPendingDeletion);
+                        setEquipmentIdPendingDeletion(null);
                     }
                 }}
-                onCancel={() => setDeletingId(null)}
-                isLoading={processingId === deletingId}
+                onCancel={() => setEquipmentIdPendingDeletion(null)}
+                isLoading={processingId === equipmentIdPendingDeletion}
             />
 
         </div>
