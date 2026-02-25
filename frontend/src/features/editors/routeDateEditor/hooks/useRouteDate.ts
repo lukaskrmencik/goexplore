@@ -1,16 +1,16 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
+import { format, setHours, setMinutes, startOfDay } from "date-fns";
 import type { Route, PaceInfo } from "../../../../types/routes";
 import { updateRoute } from "../../../../services/routesApiService";
 import { toInputDateTimeString, toIsoString, calculateDuration } from "../../../../utils/date";
-import { getErrorMessage } from "../../../../utils/apiError";
-import { getRouteLengthConstraints } from "../../../../utils/routeLengthEstimator";
+import { getRouteLengthConstraints, isInSeason, getSeasonConstraints } from "../../../../utils/routeLengthEstimator";
 
-export type { PaceInfo };
+const TIME_SLOT_INTERVAL_MINUTES = 15;
 
-export const useRouteDate = (route: Route | null, onUpdateRoute: (route: Route) => void, estimatedRoadKm: number = 0) => {
-    const [startDate, setStartDate] = useState<string>("");
-    const [endDate, setEndDate] = useState<string>("");
-    const [error, setError] = useState<string | null>(null);
+export const useRouteDate = (route: Route | null, onUpdateRoute: (route: Route) => void, estimatedRoadKm = 0) => {
+    const [startDate, setStartDate] = useState("");
+    const [endDate, setEndDate] = useState("");
+    const [activeField, setActiveField] = useState<'start' | 'end'>('start');
 
     useEffect(() => {
         if (route) {
@@ -19,101 +19,112 @@ export const useRouteDate = (route: Route | null, onUpdateRoute: (route: Route) 
         }
     }, [route]);
 
+    const startDateObj = startDate ? new Date(startDate) : null;
+    const endDateObj = endDate ? new Date(endDate) : null;
+    const activeDateObj = activeField === 'start' ? startDateObj : endDateObj;
+
+    const applyActiveFieldDate = useCallback((date: Date) => {
+        const isoDate = format(date, "yyyy-MM-dd'T'HH:mm");
+        if (activeField === 'start') {
+            setStartDate(isoDate);
+        } else {
+            setEndDate(isoDate);
+        }
+    }, [activeField]);
+
+    const handleDateSelect = useCallback((date: Date | null) => {
+        if (!date) return;
+        const currentActiveDateObj = activeField === 'start'
+            ? (startDate ? new Date(startDate) : null)
+            : (endDate ? new Date(endDate) : null);
+
+        let newDate = new Date(date);
+        if (currentActiveDateObj) {
+            newDate = setHours(newDate, currentActiveDateObj.getHours());
+            newDate = setMinutes(newDate, currentActiveDateObj.getMinutes());
+        } else {
+            const now = new Date();
+            newDate = setHours(newDate, now.getHours());
+            newDate = setMinutes(newDate, now.getMinutes());
+        }
+        applyActiveFieldDate(newDate);
+    }, [activeField, startDate, endDate, applyActiveFieldDate]);
+
+    const handleTimeSelect = useCallback((timeStr: string) => {
+        const [hours, minutes] = timeStr.split(':').map(Number);
+        const currentActiveDateObj = activeField === 'start'
+            ? (startDate ? new Date(startDate) : null)
+            : (endDate ? new Date(endDate) : null);
+
+        let newDate = currentActiveDateObj ? new Date(currentActiveDateObj) : new Date();
+        newDate = setHours(newDate, hours);
+        newDate = setMinutes(newDate, minutes);
+        applyActiveFieldDate(newDate);
+    }, [activeField, startDate, endDate, applyActiveFieldDate]);
+
+    const handleReset = () => {
+        setStartDate("");
+        setEndDate("");
+        setActiveField('start');
+    };
+
     const handleSave = async () => {
         if (!route) return;
-        setError(null);
 
         const startIso = toIsoString(startDate);
         const endIso = toIsoString(endDate);
 
         if (!startIso || !endIso) {
-            const msg = "Musíte vyplnit oba datumy.";
-            setError(msg);
-            throw new Error(msg);
+            throw new Error("Musíte vyplnit oba datumy.");
         }
 
-        const startObj = new Date(startDate);
-        const endObj = new Date(endDate);
-        const diffMs = endObj.getTime() - startObj.getTime();
+        const diffMs = new Date(endDate).getTime() - new Date(startDate).getTime();
         const minDurationHours = Number(import.meta.env.VITE_ROUTE_MIN_DURATION_HOURS ?? "3");
-        const minDiff = minDurationHours * 60 * 60 * 1000;
 
-        if (diffMs < minDiff) {
-            const msg = `Konec cesty musí být alespoň ${minDurationHours} hodiny po začátku.`;
-            setError(msg);
-            throw new Error(msg);
+        if (diffMs < minDurationHours * 60 * 60 * 1000) {
+            throw new Error(`Konec cesty musí být alespoň ${minDurationHours} hodiny po začátku.`);
         }
 
-        // Validate minimum trip duration
         const { minKmPerDay, maxKmPerDay, minDays } = getRouteLengthConstraints();
         const tripDays = diffMs / (1000 * 60 * 60 * 24);
 
         if (tripDays < minDays) {
-            const msg = `Cesta musí trvat alespoň ${minDays} ${minDays === 1 ? 'den' : 'dny'} (vybráno: ${tripDays.toFixed(1)} dní).`;
-            setError(msg);
-            throw new Error(msg);
+            throw new Error(`Cesta musí trvat alespoň ${minDays} ${minDays === 1 ? 'den' : 'dny'} (vybráno: ${tripDays.toFixed(1)} dní).`);
         }
 
-        // Validate pace if we have an estimated length
         if (estimatedRoadKm > 0) {
             const kmPerDay = estimatedRoadKm / tripDays;
-
             if (kmPerDay < minKmPerDay) {
-                const msg = `Příliš pomalé tempo: ${Math.round(kmPerDay)} km/den (minimum je ${minKmPerDay} km/den). Zkraťte dobu cesty.`;
-                setError(msg);
-                throw new Error(msg);
+                throw new Error(`Příliš pomalé tempo: ${Math.round(kmPerDay)} km/den (minimum je ${minKmPerDay} km/den). Zkraťte dobu cesty.`);
             }
             if (kmPerDay > maxKmPerDay) {
-                const msg = `Příliš rychlé tempo: ${Math.round(kmPerDay)} km/den (maximum je ${maxKmPerDay} km/den). Produžťe dobu cesty.`;
-                setError(msg);
-                throw new Error(msg);
+                throw new Error(`Příliš rychlé tempo: ${Math.round(kmPerDay)} km/den (maximum je ${maxKmPerDay} km/den). Produžťe dobu cesty.`);
             }
         }
 
         try {
-            const updatedRoute = await updateRoute(route.id, {
-                start_date: startIso,
-                end_date: endIso
-            });
+            const updatedRoute = await updateRoute(route.id, { start_date: startIso, end_date: endIso });
             onUpdateRoute(updatedRoute);
         } catch (err) {
             console.error(err);
-            const msg = getErrorMessage(err, "Nepodařilo se uložit datum. Zkontrolujte připojení.");
-            setError(msg);
             throw err;
         }
     };
 
     const duration = startDate && endDate ? calculateDuration(startDate, endDate) : null;
 
-    // Duration info for min-days validation in the UI
     const durationInfo = useMemo(() => {
         if (!startDate || !endDate) return null;
-        const startObj = new Date(startDate);
-        const endObj = new Date(endDate);
-        const diffMs = endObj.getTime() - startObj.getTime();
+        const diffMs = new Date(endDate).getTime() - new Date(startDate).getTime();
         const { minDays } = getRouteLengthConstraints();
-        if (diffMs <= 0) {
-            return {
-                tripDays: 0,
-                minDays,
-                isTooShort: true,
-            };
-        }
+        if (diffMs <= 0) return { tripDays: 0, minDays, isTooShort: true };
         const tripDays = diffMs / (1000 * 60 * 60 * 24);
-        return {
-            tripDays,
-            minDays,
-            isTooShort: tripDays < minDays,
-        };
+        return { tripDays, minDays, isTooShort: tripDays < minDays };
     }, [startDate, endDate]);
 
-    // Pace info for UI display
     const paceInfo = useMemo((): PaceInfo | null => {
         if (!startDate || !endDate || estimatedRoadKm <= 0) return null;
-        const startObj = new Date(startDate);
-        const endObj = new Date(endDate);
-        const diffMs = endObj.getTime() - startObj.getTime();
+        const diffMs = new Date(endDate).getTime() - new Date(startDate).getTime();
         if (diffMs <= 0) return null;
         const { minKmPerDay, maxKmPerDay } = getRouteLengthConstraints();
         const tripDays = diffMs / (1000 * 60 * 60 * 24);
@@ -129,15 +140,87 @@ export const useRouteDate = (route: Route | null, onUpdateRoute: (route: Route) 
         };
     }, [startDate, endDate, estimatedRoadKm]);
 
+    const timeSlots = useMemo(() => {
+        const totalSlots = (24 * 60) / TIME_SLOT_INTERVAL_MINUTES;
+        return Array.from({ length: totalSlots }, (_, i) => {
+            const hours = Math.floor((i * TIME_SLOT_INTERVAL_MINUTES) / 60);
+            const minutes = (i * TIME_SLOT_INTERVAL_MINUTES) % 60;
+            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+        });
+    }, []);
+
+    const filterDate = useCallback((date: Date) => {
+        if (!isInSeason(date)) return false;
+        if (activeField === 'end' && startDate) {
+            if (startOfDay(date).getTime() === startOfDay(new Date(startDate)).getTime()) return false;
+        }
+        if (activeField === 'start' && endDate) {
+            if (startOfDay(date).getTime() === startOfDay(new Date(endDate)).getTime()) return false;
+        }
+        return true;
+    }, [activeField, startDate, endDate]);
+
+    const dayClassName = useCallback((date: Date): string => {
+        if (!isInSeason(date)) return "day-off-season";
+
+        const dayTimestamp = startOfDay(date).getTime();
+        const startTimestamp = startDate ? startOfDay(new Date(startDate)).getTime() : 0;
+        const endTimestamp = endDate ? startOfDay(new Date(endDate)).getTime() : 0;
+
+        if (startTimestamp && endTimestamp && dayTimestamp > startTimestamp && dayTimestamp < endTimestamp) {
+            return "range-intermediate";
+        }
+        if (startTimestamp && dayTimestamp === startTimestamp && activeField === 'end') {
+            return "range-start-marker";
+        }
+        if (endTimestamp && dayTimestamp === endTimestamp && activeField === 'start') {
+            return "range-end-marker";
+        }
+        return "";
+    }, [startDate, endDate, activeField]);
+
+    const openToDate = useMemo((): Date | undefined => {
+        const currentActiveDateObj = activeField === 'start'
+            ? (startDate ? new Date(startDate) : null)
+            : (endDate ? new Date(endDate) : null);
+
+        if (activeField === 'end' && !currentActiveDateObj && startDate) {
+            return new Date(startDate);
+        }
+        if (!currentActiveDateObj) {
+            const now = new Date();
+            if (!isInSeason(now)) {
+                const { startMonth } = getSeasonConstraints();
+                const seasonStart = new Date(now.getFullYear(), startMonth - 1, 1);
+                if (seasonStart <= now) {
+                    seasonStart.setFullYear(now.getFullYear() + 1);
+                }
+                return seasonStart;
+            }
+        }
+        return undefined;
+    }, [activeField, startDate, endDate]);
+
     return {
         startDate,
         setStartDate,
         endDate,
         setEndDate,
+        activeField,
+        setActiveField,
+        activeDateObj,
+        startDateObj,
+        endDateObj,
         handleSave,
-        error,
+        handleReset,
+        handleDateSelect,
+        handleTimeSelect,
         duration,
         durationInfo,
         paceInfo,
+        timeSlots,
+        filterDate,
+        dayClassName,
+        openToDate,
     };
 };
