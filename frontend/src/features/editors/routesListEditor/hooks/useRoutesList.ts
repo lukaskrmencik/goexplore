@@ -3,40 +3,39 @@ import { fetchAllRoutes, fetchSharedRoutes } from "../../../../services/routesAp
 import type { RouteItem } from "../../../../types/routes";
 import { getErrorMessage } from "../../../../utils/apiError";
 
-export const useRoutesList = (page = 1) => {
+interface RoutesPaginationMeta {
+    page: number;
+    total_pages: number;
+    total_items: number;
+}
+
+export const useRoutesList = (page = 1, searchQuery = "") => {
     const [ownedRoutes, setOwnedRoutes] = useState<RouteItem[]>([]);
     const [sharedRoutes, setSharedRoutes] = useState<RouteItem[]>([]);
-
-    // Pagination Metadata State
-    const [ownedPagination, setOwnedPagination] = useState({ page: 1, total_pages: 1, total_items: 0 });
-    const [sharedPagination, setSharedPagination] = useState({ page: 1, total_pages: 1, total_items: 0 });
-
+    const [ownedPagination, setOwnedPagination] = useState<RoutesPaginationMeta>({ page: 1, total_pages: 1, total_items: 0 });
+    const [sharedPagination, setSharedPagination] = useState<RoutesPaginationMeta>({ page: 1, total_pages: 1, total_items: 0 });
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    const loadData = async () => {
+    const fetchRoutes = async () => {
         setIsLoading(true);
         try {
-            // Paralelní načtení s paginací
-            const [ownedRes, sharedRes] = await Promise.all([
-                fetchAllRoutes(page),
-                fetchSharedRoutes(page)
+            const [ownedResponse, sharedResponse] = await Promise.all([
+                fetchAllRoutes(page, searchQuery),
+                fetchSharedRoutes(page, searchQuery),
             ]);
-
-            setOwnedRoutes(ownedRes.items);
+            setOwnedRoutes(ownedResponse.items);
             setOwnedPagination({
-                page: ownedRes.page,
-                total_pages: ownedRes.total_pages,
-                total_items: ownedRes.total_items
+                page: ownedResponse.page,
+                total_pages: ownedResponse.total_pages,
+                total_items: ownedResponse.total_items,
             });
-
-            setSharedRoutes(sharedRes.items);
+            setSharedRoutes(sharedResponse.items);
             setSharedPagination({
-                page: sharedRes.page,
-                total_pages: sharedRes.total_pages,
-                total_items: sharedRes.total_items
+                page: sharedResponse.page,
+                total_pages: sharedResponse.total_pages,
+                total_items: sharedResponse.total_items,
             });
-
         } catch (err) {
             console.error(err);
             setError(getErrorMessage(err, "Nepodařilo se načíst seznam tras."));
@@ -46,14 +45,8 @@ export const useRoutesList = (page = 1) => {
     };
 
     useEffect(() => {
-        loadData();
-    }, [page]); // Re-run when page changes
-
-    // Funkce pro nastavení "Aktivní trasy" po kliknutí
-    const openRoute = (routeId: number) => {
-        localStorage.setItem("lastActiveRouteId", routeId.toString());
-        // Zde by byl navigate, ale to uděláme v komponentě
-    };
+        fetchRoutes();
+    }, [page, searchQuery]);
 
     return {
         ownedRoutes,
@@ -62,7 +55,6 @@ export const useRoutesList = (page = 1) => {
         sharedPagination,
         isLoading,
         error,
-        openRoute,
-        refetch: loadData
+        refetch: fetchRoutes,
     };
 };

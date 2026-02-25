@@ -1,3 +1,7 @@
+export const formatShortDate = (dateString: string): string => {
+    return new Date(dateString).toLocaleDateString('cs-CZ', { day: 'numeric', month: 'short' });
+};
+
 export const toInputDateTimeString = (dateString?: string | null): string => {
     if (!dateString) return "";
     const date = new Date(dateString);
