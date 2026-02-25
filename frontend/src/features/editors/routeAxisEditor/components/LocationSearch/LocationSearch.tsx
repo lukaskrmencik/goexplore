@@ -34,13 +34,11 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
     const [isOpen, setIsOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
-    // We use matchRef to prevent re-searching when user selects an item
     const isTypingRef = useRef(false);
     const wrapperRef = useRef<HTMLDivElement>(null);
 
     const debouncedQuery = useDebounce(query, LOCATION_SEARCH_DEBOUNCE);
 
-    // Sync initialValue if provided (and we are not typing)
     useEffect(() => {
         if (!isTypingRef.current && initialValue) {
             setQuery(initialValue);
@@ -48,7 +46,6 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
     }, [initialValue]);
 
     useEffect(() => {
-        // Only search if the user is actively typing
         if (!isTypingRef.current) return;
 
         if (debouncedQuery.length >= GEOCODING_MIN_QUERY_LENGTH) {
@@ -77,14 +74,8 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
     };
 
     const handleSelect = (item: SearchResult) => {
-        isTypingRef.current = false; // Stop searching
-
-        if (clearOnSelect) {
-            setQuery("");
-        } else {
-            setQuery(item.display_name);
-        }
-
+        isTypingRef.current = false;
+        setQuery(clearOnSelect ? "" : item.display_name);
         setIsOpen(false);
         onSelect(parseFloat(item.lat), parseFloat(item.lon), item.display_name);
     };
@@ -119,16 +110,15 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
                         }}
                         autoFocus={autoFocus}
                     />
-                    {isLoading ? (
+                    {isLoading && (
                         <div className="location-search-spinner-container">
                             <svg className="location-search-spinner-icon-compact" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
                         </div>
-                    ) : null}
+                    )}
                 </div>
-                {/* Improved Dropdown for Compact */}
                 {isOpen && results.length > 0 && (
                     <ul className="location-search-dropdown-list location-search-dropdown-list-compact custom-scrollbar">
                         {results.map((item) => (
@@ -143,7 +133,7 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
                     </ul>
                 )}
             </div>
-        )
+        );
     }
 
     return (

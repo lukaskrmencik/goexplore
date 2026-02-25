@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { v4 as uuidv4 } from 'uuid';
 import { LatLng } from "leaflet";
 import type { Route } from "../../../../types/routes";
@@ -14,11 +14,31 @@ import {
     geojsonPointToLatLng,
     leafletLatLngToGeoJsonLineString
 } from "../../../../utils/geo";
+import { computeEstimatedLength } from "../../../../utils/routeLengthEstimator";
+import { isInsideCzechRepublic } from "../../../../utils/czechBoundary";
+
+function reassignPointTypes(pts: EditorPoint[]): EditorPoint[] {
+    return pts.map((p, i) => {
+        let type: 'start' | 'end' | 'waypoint' = 'waypoint';
+        let order = i;
+        if (i === 0) {
+            type = 'start';
+            order = 0;
+        } else if (i === pts.length - 1 && pts.length >= 2) {
+            type = 'end';
+            order = 9999;
+        }
+        if (p.type !== type || p.order !== order) {
+            return { ...p, type, order };
+        }
+        return p;
+    });
+}
 
 export const useRouteAxis = (route: Route | null, onUpdateRoute: (route: Route) => void) => {
     const [points, setPoints] = useState<EditorPoint[]>([]);
 
-    const [customModeFinished, setCustomModeFinished] = useState(false);
+    const estimatedRoadKm = useMemo(() => computeEstimatedLength(points).roadKm, [points]);
 
     useEffect(() => {
         if (!route) return;
@@ -34,12 +54,12 @@ export const useRouteAxis = (route: Route | null, onUpdateRoute: (route: Route) 
             console.error(error);
         }
 
-        const initialPoints: EditorPoint[] = [];
-
         const getName = (lat: number, lng: number, defaultName: string) => {
             const key = `${lat.toFixed(6)},${lng.toFixed(6)}`;
             return nameCache[key] || defaultName;
         };
+
+        const initialPoints: EditorPoint[] = [];
 
         if (route.start) {
             const coords = geojsonPointToLatLng(route.start) as [number, number];
@@ -55,7 +75,6 @@ export const useRouteAxis = (route: Route | null, onUpdateRoute: (route: Route) 
 
         if (route.waypoints && route.waypoints.length > 0) {
             const sortedWaypoints = [...route.waypoints].sort((a, b) => a.order - b.order);
-
             sortedWaypoints.forEach(wp => {
                 const coords = geojsonPointToLatLng(wp.coordinates) as [number, number];
                 initialPoints.push({
@@ -89,31 +108,14 @@ export const useRouteAxis = (route: Route | null, onUpdateRoute: (route: Route) 
         if (!route) return;
         const cacheKey = `route_names_${route.id}`;
         const cache: Record<string, string> = {};
-
         points.forEach(p => {
             if (p.name) {
                 const key = `${p.lat.toFixed(6)},${p.lng.toFixed(6)}`;
                 cache[key] = p.name;
             }
         });
-
         localStorage.setItem(cacheKey, JSON.stringify(cache));
     }, [points, route]);
-
-    const addPoint = useCallback((lat: number, lng: number, name?: string) => {
-        setPoints(prev => {
-            const newPoints = [...prev];
-
-            if (route?.mode === 'manual') {
-                if (newPoints.length === 0) {
-                    newPoints.push({ id: uuidv4(), lat, lng, type: 'start', name: name || 'Start', order: 0 });
-                } else {
-                    newPoints.push({ id: uuidv4(), lat, lng, type: 'waypoint', name: name || 'Bod trasy', order: newPoints.length });
-                }
-            }
-            return newPoints;
-        });
-    }, [route?.mode]);
 
     const setStartPoint = (lat: number, lng: number, name: string) => {
         setPoints(prev => {
@@ -129,17 +131,47 @@ export const useRouteAxis = (route: Route | null, onUpdateRoute: (route: Route) 
         });
     };
 
-    const addSimpleWaypoint = (lat: number, lng: number, name: string) => {
+    const insertSimpleWaypoint = (lat: number, lng: number, name: string, insertIndex: number) => {
         setPoints(prev => {
-            const waypoints = prev.filter(p => p.type === 'waypoint');
-            const maxOrder = waypoints.length > 0 ? Math.max(...waypoints.map(w => w.order)) : 0;
+            const newWaypoint: EditorPoint = { id: uuidv4(), lat, lng, type: 'waypoint', name, order: 0 };
+            const newPoints = [...prev];
+            newPoints.splice(insertIndex, 0, newWaypoint);
+            let currentOrder = 1;
+            newPoints.forEach(p => {
+                if (p.type === 'waypoint') {
+                    p.order = currentOrder++;
+                }
+            });
+            return newPoints;
+        });
+    };
 
-            const end = prev.find(p => p.type === 'end');
-            const others = prev.filter(p => p.type !== 'end');
+    const movePoint = (dragIndex: number, hoverIndex: number) => {
+        setPoints(prev => {
+            if (dragIndex < 0 || dragIndex >= prev.length || hoverIndex < 0 || hoverIndex >= prev.length) return prev;
+            if (prev[dragIndex].type !== 'waypoint') return prev;
 
-            const newWp: EditorPoint = { id: uuidv4(), lat, lng, type: 'waypoint', name, order: maxOrder + 1 };
+            const newPoints = [...prev];
+            const [draggedItem] = newPoints.splice(dragIndex, 1);
+            newPoints.splice(hoverIndex, 0, draggedItem);
 
-            return end ? [...others, newWp, end] : [...others, newWp];
+            let currentOrder = 1;
+            const reorderedPoints = newPoints.map(p => {
+                if (p.type === 'start') return { ...p, order: 0 };
+                if (p.type === 'end') return { ...p, order: 9999 };
+                return { ...p, order: currentOrder++ };
+            });
+
+            const startPoint = reorderedPoints.find(p => p.type === 'start');
+            const endPoint = reorderedPoints.find(p => p.type === 'end');
+            const waypoints = reorderedPoints.filter(p => p.type === 'waypoint');
+
+            const sorted: EditorPoint[] = [];
+            if (startPoint) sorted.push(startPoint);
+            sorted.push(...waypoints);
+            if (endPoint) sorted.push(endPoint);
+
+            return sorted;
         });
     };
 
@@ -147,100 +179,123 @@ export const useRouteAxis = (route: Route | null, onUpdateRoute: (route: Route) 
         setPoints(prev => prev.filter(p => p.id !== id));
     };
 
-    const handleReset = useCallback(() => {
-        setPoints([]);
-        setCustomModeFinished(false);
-    }, []);
+    const handleMapClick = (lat: number, lng: number) => {
+        if (route?.mode !== 'manual') return;
+        if (!isInsideCzechRepublic(lat, lng)) return;
 
-    const finishDrawing = async () => {
         setPoints(prev => {
-            const newPoints = [...prev];
-            if (newPoints.length > 1) {
-                const last = newPoints[newPoints.length - 1];
-                if (last.type !== 'end') {
-                    newPoints[newPoints.length - 1] = { ...last, type: 'end', name: 'Cíl' };
-                }
-            }
-            return newPoints;
+            const newPoint: EditorPoint = {
+                id: uuidv4(),
+                lat,
+                lng,
+                type: 'waypoint',
+                name: prev.length === 0 ? 'Start' : `Bod ${prev.length + 1}`,
+                order: prev.length
+            };
+            return reassignPointTypes([...prev, newPoint]);
         });
     };
 
-    const handleCustomFinish = async () => {
-        setCustomModeFinished(true);
-        await finishDrawing();
-    };
+    const insertPointOnSegment = useCallback((segmentIndex: number, lat: number, lng: number) => {
+        if (!isInsideCzechRepublic(lat, lng)) return;
 
-    const handleMapClick = (lat: number, lng: number) => {
-        if (route?.mode === 'manual' && !customModeFinished) {
-            addPoint(lat, lng);
+        setPoints(prev => {
+            const insertAt = segmentIndex + 1;
+            const newPoint: EditorPoint = {
+                id: uuidv4(),
+                lat,
+                lng,
+                type: 'waypoint',
+                name: 'Bod',
+                order: 0
+            };
+            const newPoints = [...prev];
+            newPoints.splice(insertAt, 0, newPoint);
+            return reassignPointTypes(newPoints);
+        });
+    }, []);
+
+    const updatePointPosition = useCallback((id: string, lat: number, lng: number) => {
+        if (!isInsideCzechRepublic(lat, lng)) {
+            setPoints(prev => [...prev]);
+            return;
         }
-    };
+        setPoints(prev =>
+            prev.map(p => p.id === id ? { ...p, lat, lng } : p)
+        );
+    }, []);
+
+    const removeManualPoint = useCallback((id: string) => {
+        setPoints(prev => reassignPointTypes(prev.filter(p => p.id !== id)));
+    }, []);
+
+    const moveManualPoint = useCallback((dragIndex: number, hoverIndex: number) => {
+        setPoints(prev => {
+            if (dragIndex < 0 || dragIndex >= prev.length || hoverIndex < 0 || hoverIndex >= prev.length) return prev;
+            const newPoints = [...prev];
+            const [draggedItem] = newPoints.splice(dragIndex, 1);
+            newPoints.splice(hoverIndex, 0, draggedItem);
+            return reassignPointTypes(newPoints);
+        });
+    }, []);
+
+    const handleReset = useCallback(() => {
+        setPoints([]);
+    }, []);
 
     const saveChanges = async () => {
         if (!route) return;
 
-        try {
-            const start = points.find(p => p.type === 'start');
-            const end = points.find(p => p.type === 'end');
+        const start = points.find(p => p.type === 'start');
+        const end = points.find(p => p.type === 'end');
+        const effectiveEnd = route.mode === 'manual' && points.length > 1 ? points[points.length - 1] : end;
 
-            const effectiveEnd = route.mode === 'manual' && points.length > 1 ? points[points.length - 1] : end;
-
-            // VALIDATION: Must have at least Start and End
-            if (!start || !effectiveEnd) {
-                throw new Error("Trasa musí mít alespoň začátek a cíl.");
-            }
-
-            const axisPoints = points.map(p => new LatLng(p.lat, p.lng));
-            const axisLineString = leafletLatLngToGeoJsonLineString(axisPoints);
-
-            const updateData: any = {
-                axis: axisLineString.coordinates.length >= 2 ? axisLineString : undefined
-            };
-
-            if (updateData.axis === undefined) delete updateData.axis;
-
-            if (start) {
-                updateData.start = latLngToGeoJsonPoint(start.lat, start.lng);
-            }
-            if (effectiveEnd) {
-                updateData.end = latLngToGeoJsonPoint(effectiveEnd.lat, effectiveEnd.lng);
-            }
-
-            await updateRoute(route.id, updateData);
-
-            const currentWaypointIds = new Set(points.filter(p => p.type === 'waypoint' && p.dbId).map(p => p.dbId));
-            const waypointsToDelete = route.waypoints?.filter(wp => !currentWaypointIds.has(wp.id)) || [];
-
-            if (waypointsToDelete.length > 0) {
-                await Promise.all(waypointsToDelete.map(wp => deleteWaypoint(wp.id)));
-            }
-
-            const waypointsToCreate = points.filter(p => p.type === 'waypoint' && !p.dbId);
-
-            if (waypointsToCreate.length > 0) {
-                await Promise.all(waypointsToCreate.map(p =>
-                    createWaypoint(route.id, p.order, p.lat, p.lng)
-                ));
-            }
-
-            const freshRoute = await fetchGetRoute(route.id);
-            onUpdateRoute(freshRoute);
-
-        } catch (error) {
-            throw error;
+        if (!start || !effectiveEnd) {
+            throw new Error("Trasa musí mít alespoň začátek a cíl.");
         }
+
+        const axisPoints = points.map(p => new LatLng(p.lat, p.lng));
+        const axisLineString = leafletLatLngToGeoJsonLineString(axisPoints);
+
+        const updatePayload: Record<string, unknown> = {
+            start: latLngToGeoJsonPoint(start.lat, start.lng),
+            end: latLngToGeoJsonPoint(effectiveEnd.lat, effectiveEnd.lng),
+        };
+
+        if (axisLineString.coordinates.length >= 2) {
+            updatePayload.axis = axisLineString;
+        }
+
+        await updateRoute(route.id, updatePayload);
+
+        if (route.waypoints && route.waypoints.length > 0) {
+            await Promise.all(route.waypoints.map(wp => deleteWaypoint(wp.id)));
+        }
+
+        const waypointsToCreate = points.filter(p => p.type === 'waypoint');
+        for (let i = 0; i < waypointsToCreate.length; i++) {
+            const p = waypointsToCreate[i];
+            await createWaypoint(route.id, i + 1, p.lat, p.lng);
+        }
+
+        const freshRoute = await fetchGetRoute(route.id);
+        onUpdateRoute(freshRoute);
     };
 
     return {
         points,
-        customModeFinished,
+        estimatedRoadKm,
         setStartPoint,
         setEndPoint,
-        addSimpleWaypoint,
+        insertSimpleWaypoint,
         removePoint,
+        movePoint,
         saveChanges,
         handleReset,
-        handleCustomFinish,
-        handleMapClick
+        handleMapClick,
+        insertPointOnSegment,
+        updatePointPosition,
+        removeManualPoint,
+        moveManualPoint,
     };
 };

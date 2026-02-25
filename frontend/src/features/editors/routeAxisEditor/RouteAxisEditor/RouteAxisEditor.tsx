@@ -1,53 +1,97 @@
-import { forwardRef, useImperativeHandle, useState, useEffect } from "react";
+import { forwardRef, useImperativeHandle, useState, useEffect, useRef, useCallback } from "react";
 import { type LatLngExpression } from "leaflet";
-import { useRouteAxis } from ".././hooks/useRouteAxis";
+import { Trash2 } from "lucide-react";
+import { useRouteAxis } from "../hooks/useRouteAxis";
+import { useSwapAnimation } from "../hooks/useSwapAnimation";
+import { usePointDragAndDrop } from "../hooks/usePointDragAndDrop";
 import type { RouteAxisEditorHandle, RouteEditorProps } from "../../../../types/editor";
 import LeafletMap from "../../../leafletMap/components/LeafletMap/LeafletMap";
-import LocationSearch from ".././components/LocationSearch/LocationSearch";
-import EditorMarkers from ".././components/EditorMarkers/EditorMarkers";
-import RoutePolyline from ".././components/RoutePolyline/RoutePolyline";
-import MapClickHandler from ".././components/MapClickHandler/MapClickHandler";
-import { Navigation, Trash2, Check } from "lucide-react";
+import EditorMarkers from "../components/EditorMarkers/EditorMarkers";
+import RoutePolyline from "../components/RoutePolyline/RoutePolyline";
+import MapClickHandler from "../components/MapClickHandler/MapClickHandler";
+import CzechBoundaryOverlay from "../components/CzechBoundaryOverlay/CzechBoundaryOverlay";
+import RouteLengthBanner from "../components/RouteLengthBanner/RouteLengthBanner";
+import SimpleModePanel from "../components/SimpleModePanel/SimpleModePanel";
+import ManualModePanel from "../components/ManualModePanel/ManualModePanel";
+import { getRouteLengthConstraints } from '../../../../utils/routeLengthEstimator';
+import { preloadCzechBoundary } from '../../../../utils/czechBoundary';
 import './RouteAxisEditor.css';
 
 const RouteAxisEditor = forwardRef<RouteAxisEditorHandle, RouteEditorProps>(({ route, onUpdate, onChange }, ref) => {
     const {
         points,
-        customModeFinished,
-        addSimpleWaypoint,
+        estimatedRoadKm,
+        insertSimpleWaypoint,
         setStartPoint,
         setEndPoint,
         removePoint,
+        movePoint,
         saveChanges,
         handleReset,
-        handleCustomFinish,
-        handleMapClick
+        handleMapClick,
+        insertPointOnSegment,
+        updatePointPosition,
+        removeManualPoint,
+        moveManualPoint,
     } = useRouteAxis(route, onUpdate);
+
+    const { minKmPerDay, minDays } = getRouteLengthConstraints();
+    const minimumRequiredKm = minKmPerDay * minDays;
+
+    const { triggerSwap, getSwapCssClass } = useSwapAnimation();
+    const dragAndDrop = usePointDragAndDrop({
+        points,
+        onMoveSimpleMode: movePoint,
+        onMoveManualMode: moveManualPoint,
+    });
+
+    const [isMobileExpanded, setIsMobileExpanded] = useState(false);
+    const [resetCounter, setResetCounter] = useState(0);
+    const segmentClickInProgressRef = useRef(false);
 
     useEffect(() => {
         onChange?.();
-    }, [points, customModeFinished, onChange]);
+    }, [points, onChange]);
 
-    // Mobile Bottom Sheet State
-    const [isMobileExpanded, setIsMobileExpanded] = useState(false);
+    useEffect(() => {
+        preloadCzechBoundary();
+    }, []);
 
     useImperativeHandle(ref, () => ({
         save: async () => {
+            if (estimatedRoadKm < minimumRequiredKm && estimatedRoadKm > 0) {
+                throw new Error(
+                    `Trasa je příliš krátká. Odhadovaná délka je ${Math.round(estimatedRoadKm)} km, ale minimum je ${Math.round(minimumRequiredKm)} km (${minDays} dny × ${minKmPerDay} km/den).`
+                );
+            }
             await saveChanges();
-        }
-    }));
+        },
+        getEstimatedRoadKm: () => estimatedRoadKm,
+    }), [estimatedRoadKm, minimumRequiredKm, minDays, minKmPerDay, saveChanges]);
 
+    const handleSegmentClick = useCallback((segmentIndex: number, lat: number, lng: number) => {
+        segmentClickInProgressRef.current = true;
+        insertPointOnSegment(segmentIndex, lat, lng);
+        setTimeout(() => { segmentClickInProgressRef.current = false; }, 50);
+    }, [insertPointOnSegment]);
+
+    const handleMapClickGuarded = useCallback((lat: number, lng: number) => {
+        if (segmentClickInProgressRef.current) return;
+        handleMapClick(lat, lng);
+    }, [handleMapClick]);
+
+    const handleResetAll = () => {
+        handleReset();
+        setResetCounter(count => count + 1);
+    };
+
+    const isManualMode = route.mode === 'manual';
     const polylineCoords: LatLngExpression[] = points.map(p => [p.lat, p.lng]);
 
-    // MAP-FIRST LAYOUT: Desktop = Sidebar (Left) + Map (Right). Mobile = Map (Full) + Floating Panel (Top).
     return (
         <div className="route-axis-editor-container">
-
-            {/* 1. SIDEBAR PANELS */}
             <div className={`route-axis-editor-sidebar ${isMobileExpanded ? 'route-axis-editor-sidebar-expanded' : 'route-axis-editor-sidebar-collapsed'}`}>
-                {/* Inner Content Container */}
                 <div className="route-axis-editor-sidebar-inner">
-                    {/* Mobile Handle / Toggle with Label */}
                     <div
                         className="route-axis-editor-mobile-handle"
                         onClick={() => setIsMobileExpanded(!isMobileExpanded)}
@@ -58,130 +102,90 @@ const RouteAxisEditor = forwardRef<RouteAxisEditorHandle, RouteEditorProps>(({ r
                         </span>
                     </div>
 
-                    {/* Header specific to mode */}
                     <div className="route-axis-editor-header">
                         <div className="route-axis-editor-header-left" onClick={() => setIsMobileExpanded(true)}>
-                            <div className="route-axis-editor-header-icon-wrapper">
-                                <Navigation size={18} />
-                            </div>
                             <div className="route-axis-editor-header-text-container">
-                                <h3 className="route-axis-editor-header-title">
-                                    {route.mode === 'simple' ? 'Plánovač' : 'Kreslení'}
-                                </h3>
+                                <h3 className="route-axis-editor-header-title">Plánovač trasy</h3>
                                 <p className="route-axis-editor-header-subtitle-desktop">
-                                    {route.mode === 'simple' ? 'Trasa' : 'Ručně'}
+                                    {isManualMode ? 'Kreslení na mapě' : 'na mapě'}
                                 </p>
                                 <p className="route-axis-editor-header-subtitle-mobile">
                                     {points.length} bodů • {isMobileExpanded ? 'Klepnutím sbalit' : 'Klepnutím upravit'}
                                 </p>
                             </div>
                         </div>
-                        <button
-                            onClick={handleReset}
-                            className="route-axis-editor-reset-btn group"
-                        >
+                        <button onClick={handleResetAll} className="route-axis-editor-reset-btn group">
                             <span className="route-axis-editor-reset-text">Reset</span>
                             <Trash2 size={16} className="route-axis-editor-reset-icon" />
                         </button>
                     </div>
 
-                    {/* Content Scroll Area */}
                     <div className="route-axis-editor-content custom-scrollbar">
-                        {route.mode === 'simple' ? (
-                            <>
-                                <div className="route-axis-editor-simple-mode">
-                                    <LocationSearch
-                                        label="Start"
-                                        placeholder="Odkud?"
-                                        onSelect={(lat, lng, name) => setStartPoint(lat, lng, name)}
-                                        initialValue={points.find(p => p.type === 'start')?.name}
-                                    />
-
-                                    {/* Waypoints List */}
-                                    <div className="route-axis-editor-waypoints-list">
-                                        {points.filter(p => p.type === 'waypoint').map((wp, index) => (
-                                            <div key={wp.id} className="route-axis-editor-waypoint-item">
-                                                <div className="route-axis-editor-waypoint-info">
-                                                    <span className="route-axis-editor-waypoint-number">
-                                                        {index + 1}
-                                                    </span>
-                                                    <span className="route-axis-editor-waypoint-name">{wp.name}</span>
-                                                </div>
-                                                <button onClick={() => removePoint(wp.id)} className="route-axis-editor-waypoint-remove">
-                                                    <Trash2 size={14} />
-                                                </button>
-                                            </div>
-                                        ))}
-
-                                        {/* Add Waypoint Trigger */}
-                                        <div className="route-axis-editor-waypoint-add-wrapper">
-                                            <LocationSearch
-                                                label="Zastávka"
-                                                placeholder="+ Přidat místo"
-                                                onSelect={(lat, lng, name) => addSimpleWaypoint(lat, lng, name)}
-                                                clearOnSelect={true}
-                                                isCompact={true}
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <LocationSearch
-                                        label="Cíl"
-                                        placeholder="Kam?"
-                                        onSelect={(lat, lng, name) => setEndPoint(lat, lng, name)}
-                                        initialValue={points.find(p => p.type === 'end')?.name}
-                                    />
-                                </div>
-                            </>
+                        {isManualMode ? (
+                            <ManualModePanel
+                                points={points}
+                                draggedItemId={dragAndDrop.draggedItemId}
+                                dragOverIndex={dragAndDrop.dragOverIndex}
+                                onDragStart={dragAndDrop.handleDragStart}
+                                onDragOver={dragAndDrop.handleDragOver}
+                                onDragLeave={dragAndDrop.handleDragLeave}
+                                onDrop={dragAndDrop.handleManualModeDrop}
+                                onDragEnd={dragAndDrop.handleDragEnd}
+                                moveManualPoint={moveManualPoint}
+                                removeManualPoint={removeManualPoint}
+                                getSwapCssClass={getSwapCssClass}
+                                triggerSwap={triggerSwap}
+                            />
                         ) : (
-                            <>
-                                <p className="route-axis-editor-manual-instruction">
-                                    Klikáním do mapy vytvořte trasu.
-                                </p>
-
-                                <div className="route-axis-editor-manual-points-count">
-                                    <div className="route-axis-editor-manual-points-label">
-                                        <span className="route-axis-editor-manual-points-label-title">Body</span>
-                                        <span className="route-axis-editor-manual-points-label-subtitle">Počet</span>
-                                    </div>
-                                    <span className="route-axis-editor-manual-points-value">{points.length}</span>
-                                </div>
-
-                                {!customModeFinished ? (
-                                    <button
-                                        onClick={handleCustomFinish}
-                                        disabled={points.length < 2}
-                                        className="route-axis-editor-manual-finish-btn"
-                                    >
-                                        <span>Dokončit</span>
-                                        <Check size={18} />
-                                    </button>
-                                ) : (
-                                    <div className="route-axis-editor-manual-done">
-                                        <div className="route-axis-editor-manual-done-icon">
-                                            <Check size={20} />
-                                        </div>
-                                        <p className="route-axis-editor-manual-done-text">Hotovo!</p>
-                                    </div>
-                                )}
-                            </>
+                            <SimpleModePanel
+                                points={points}
+                                resetCounter={resetCounter}
+                                setStartPoint={setStartPoint}
+                                setEndPoint={setEndPoint}
+                                insertSimpleWaypoint={insertSimpleWaypoint}
+                                removePoint={removePoint}
+                                movePoint={movePoint}
+                                draggedItemId={dragAndDrop.draggedItemId}
+                                dragOverIndex={dragAndDrop.dragOverIndex}
+                                onDragStart={dragAndDrop.handleDragStart}
+                                onDragOver={dragAndDrop.handleDragOver}
+                                onDragLeave={dragAndDrop.handleDragLeave}
+                                onDrop={dragAndDrop.handleSimpleModeDrop}
+                                onDragEnd={dragAndDrop.handleDragEnd}
+                                getSwapCssClass={getSwapCssClass}
+                                triggerSwap={triggerSwap}
+                            />
                         )}
                     </div>
                 </div>
             </div>
 
-            {/* 2. THE MAP */}
-            <div className={`route-axis-editor-map-area ${route.mode === 'manual' && !customModeFinished ? 'route-axis-editor-map-area-crosshair' : ''}`}>
+            <div className={`route-axis-editor-map-area ${isManualMode ? 'route-axis-editor-map-area-crosshair' : ''}`}>
+                <RouteLengthBanner
+                    estimatedKm={estimatedRoadKm}
+                    minimumRequiredKm={minimumRequiredKm}
+                />
                 <LeafletMap>
+                    <CzechBoundaryOverlay />
                     <MapClickHandler
-                        onMapClick={handleMapClick}
-                        isActive={route.mode === 'manual' && !customModeFinished}
+                        onMapClick={handleMapClickGuarded}
+                        isActive={isManualMode}
                     />
-                    <EditorMarkers points={points} />
-                    {polylineCoords.length > 1 && <RoutePolyline coordinates={polylineCoords} />}
+                    <EditorMarkers
+                        points={points}
+                        draggable={isManualMode}
+                        onMarkerDragEnd={isManualMode ? updatePointPosition : undefined}
+                        onRemovePoint={isManualMode ? removeManualPoint : undefined}
+                        mode={route.mode}
+                    />
+                    {polylineCoords.length > 1 && (
+                        <RoutePolyline
+                            coordinates={polylineCoords}
+                            onSegmentClick={isManualMode ? handleSegmentClick : undefined}
+                        />
+                    )}
                 </LeafletMap>
             </div>
-
         </div>
     );
 });
