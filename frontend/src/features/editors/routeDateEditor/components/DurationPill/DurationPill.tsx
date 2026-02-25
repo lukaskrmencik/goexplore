@@ -1,0 +1,37 @@
+import { AlertTriangle } from "lucide-react";
+
+interface DurationInfo {
+    isTooShort: boolean;
+    minDays: number;
+}
+
+interface DurationPillProps {
+    duration: string | null;
+    durationInfo: DurationInfo | null;
+}
+
+const DurationPill: React.FC<DurationPillProps> = ({ duration, durationInfo }) => {
+    return (
+        <div className="route-date-editor-duration-wrapper">
+            {duration ? (
+                <div className={`route-date-editor-duration-pill ${durationInfo?.isTooShort ? 'route-date-editor-duration-pill-error' : ''}`}>
+                    {durationInfo?.isTooShort && (
+                        <AlertTriangle size={14} className="route-date-editor-duration-icon-error" />
+                    )}
+                    <span>{duration}</span>
+                    {durationInfo?.isTooShort && (
+                        <span className="route-date-editor-duration-min-label">
+                            (min. {durationInfo.minDays} {durationInfo.minDays === 1 ? 'den' : 'dny'})
+                        </span>
+                    )}
+                </div>
+            ) : (
+                <div className="route-date-editor-duration-pill route-date-editor-duration-pill-placeholder">
+                    <span>—</span>
+                </div>
+            )}
+        </div>
+    );
+};
+
+export default DurationPill;
