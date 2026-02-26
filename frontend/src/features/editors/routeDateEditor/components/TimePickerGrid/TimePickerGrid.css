@@ -1,0 +1,52 @@
+.route-date-editor-timepicker-grid-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--space-3);
+    padding-bottom: 8rem;
+}
+
+@media (min-width: 768px) {
+    .route-date-editor-timepicker-grid-container {
+        padding: var(--space-4);
+        padding-bottom: 2rem;
+    }
+}
+
+.route-date-editor-timepicker-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-2);
+}
+
+.route-date-editor-time-slot {
+    padding: var(--space-2);
+    border-radius: var(--radius-xl);
+    font-size: 0.875rem;
+    font-weight: 700;
+    transition: all var(--transition-fast);
+    border: none;
+    cursor: pointer;
+}
+
+.route-date-editor-time-slot-selected {
+    background-color: var(--color-primary-600);
+    color: var(--color-white);
+    transform: scale(1.05);
+    box-shadow: 0 0 0 2px var(--color-white), 0 0 0 4px var(--color-primary-500);
+}
+
+.route-date-editor-time-slot-current-hour {
+    background-color: var(--color-neutral-200);
+    color: var(--color-neutral-800);
+}
+
+.route-date-editor-time-slot-default {
+    background-color: var(--color-white);
+    border: 1px solid var(--color-neutral-100);
+    color: var(--color-neutral-500);
+}
+
+.route-date-editor-time-slot-default:hover {
+    border-color: var(--color-primary-300);
+    color: var(--color-primary-600);
+}

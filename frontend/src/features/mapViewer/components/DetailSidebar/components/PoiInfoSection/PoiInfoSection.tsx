@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import type { PoiDetail, OpeningHours } from '../../../../../../types/mapViewer';
+import './PoiInfoSection.css';
 
 const CZECH_MONTHS = ["Leden", "Únor", "Březen", "Duben", "Květen", "Červen", "Červenec", "Srpen", "Září", "Říjen", "Listopad", "Prosinec"];
 const CZECH_DAYS = ["Pondělí", "Úterý", "Středa", "Čtvrtek", "Pátek", "Sobota", "Neděle"];
@@ -24,7 +25,7 @@ const OpeningHoursItem: React.FC<{ oh: OpeningHours }> = ({ oh }) => {
         <div className="detail-sidebar-oh-item">
             <button
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="detail-sidebar-oh-btn group"
+                className="detail-sidebar-oh-btn"
             >
                 <div className="detail-sidebar-oh-btn-text">{monthFrom} - {monthTo}</div>
                 {isExpanded

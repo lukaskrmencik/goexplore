@@ -1,0 +1,166 @@
+.routes-list-editor-skeleton-grid {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: var(--space-6);
+    animation: skeletonPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@media (min-width: 640px) {
+    .routes-list-editor-skeleton-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 1024px) {
+    .routes-list-editor-skeleton-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@keyframes skeletonPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: .5; }
+}
+
+.routes-list-editor-skeleton-card {
+    aspect-ratio: 4 / 3;
+    background-color: var(--color-neutral-200);
+    border-radius: var(--radius-2xl);
+}
+
+.routes-list-editor-error {
+    padding: 2rem;
+    border-radius: var(--radius-2xl);
+    background-color: var(--color-error-50);
+    border: 1px solid var(--color-error-100);
+    text-align: center;
+    color: var(--color-error-600);
+    font-weight: 700;
+}
+
+.routes-list-editor-content-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+}
+
+.routes-list-editor-grid {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: var(--space-6);
+}
+
+@media (min-width: 640px) {
+    .routes-list-editor-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 1024px) {
+    .routes-list-editor-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+.routes-list-editor-create-card {
+    height: 100%;
+    min-height: 14rem;
+    border-radius: var(--radius-2xl);
+    border: 1px solid var(--color-neutral-200);
+    background-color: var(--color-white);
+    box-shadow: var(--shadow-sm);
+    transition: all 0.3s;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+}
+
+.routes-list-editor-create-card:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--color-primary-300);
+    transform: translateY(-0.25rem);
+}
+
+.routes-list-editor-create-icon-wrapper {
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: var(--radius-full);
+    background-color: var(--color-primary-50);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-primary-600);
+    transition: transform 0.3s, background-color 0.3s;
+}
+
+.routes-list-editor-create-card:hover .routes-list-editor-create-icon-wrapper {
+    transform: scale(1.1);
+    background-color: var(--color-primary-100);
+    color: var(--color-primary-700);
+}
+
+.routes-list-editor-create-text {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    color: var(--color-neutral-700);
+    font-size: 1.125rem;
+    transition: color 0.15s;
+}
+
+.routes-list-editor-create-card:hover .routes-list-editor-create-text {
+    color: var(--color-primary-700);
+}
+
+.routes-list-editor-empty-container {
+    grid-column: 1 / -1;
+    padding-top: 5rem;
+    padding-bottom: 5rem;
+    border-radius: var(--radius-3xl);
+    border: 2px dashed var(--color-neutral-200);
+    background-color: var(--color-neutral-50);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-4);
+    text-align: center;
+}
+
+.routes-list-editor-empty-icon-wrapper {
+    width: 4rem;
+    height: 4rem;
+    border-radius: var(--radius-full);
+    background-color: var(--color-neutral-100);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-neutral-300);
+}
+
+.routes-list-editor-empty-text-wrapper {
+    max-width: 20rem;
+}
+
+.routes-list-editor-empty-title {
+    color: var(--color-neutral-900);
+    font-weight: 700;
+    font-size: 1.5rem;
+    line-height: 1.75rem;
+    margin-bottom: 0.25rem;
+}
+
+.routes-list-editor-empty-desc {
+    color: var(--color-neutral-500);
+    font-size: 0.875rem;
+    margin: 0;
+}
+
+.routes-list-editor-pagination-wrapper {
+    display: flex;
+    justify-content: center;
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--color-neutral-100);
+}

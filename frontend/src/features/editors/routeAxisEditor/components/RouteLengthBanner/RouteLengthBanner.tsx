@@ -1,3 +1,5 @@
+import './RouteLengthBanner.css';
+
 interface RouteLengthBannerProps {
     estimatedKm: number;
     minimumRequiredKm: number;

@@ -16,6 +16,8 @@ use App\Enums\EquipmentTypes;
 use App\Jobs\CalculateRouteJob;
 use Illuminate\Validation\Rule;
 use App\Models\Route\RouteCluster;
+use App\Models\Route\CampsOpinion;
+use App\Models\Route\PoiOpinion;
 use Illuminate\Support\Facades\DB;
 use Clickbar\Magellan\Enums\EndCap;
 use App\Http\Controllers\Controller;
@@ -337,6 +339,7 @@ class RouteController extends Controller
 
         //add users to array
         $routeArray['users'] = $route->users;
+        $routeArray['user'] = clone $route->user;
 
         //response
         return response()->success([
@@ -364,9 +367,9 @@ class RouteController extends Controller
             'name', 
             'mode', 
             'start_date', 
-            'end_date',
             //route length in meters
-            DB::raw('ST_Length(complete_route::geography) as length_meters') 
+            DB::raw('ST_Length(complete_route::geography) as length_meters'),
+            DB::raw('ST_AsGeoJSON(ST_Simplify(COALESCE(complete_route, axis)::geometry, 0.005)) as simplified_geojson')
         ])
         ->orderBy('created_at', 'desc');
 
@@ -399,6 +402,10 @@ class RouteController extends Controller
         //delete child records
         $route->waypoints()->delete();
         $route->equipment()->delete();
+        $route->users()->detach();
+        RouteCluster::where('routes_id', $route->id)->delete();
+        CampsOpinion::where('routes_id', $route->id)->delete();
+        PoiOpinion::where('routes_id', $route->id)->delete();
 
         //delete route record
         $route->delete();
@@ -429,7 +436,8 @@ class RouteController extends Controller
                 'routes.users_id', 
                 'routes.start_date', 
                 'routes.end_date',
-                DB::raw('ST_Length(routes.complete_route::geography) as length_meters')
+                DB::raw('ST_Length(routes.complete_route::geography) as length_meters'),
+                DB::raw('ST_AsGeoJSON(ST_Simplify(COALESCE(routes.complete_route, routes.axis)::geometry, 0.005)) as simplified_geojson')
             ]);
 
         //search (if provided)
@@ -449,6 +457,7 @@ class RouteController extends Controller
                 'start_date', 
                 'end_date', 
                 'length_meters', 
+                'simplified_geojson',
                 'user', 
                 'users'
             ]);

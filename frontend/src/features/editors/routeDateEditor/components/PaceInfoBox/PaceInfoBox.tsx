@@ -1,4 +1,5 @@
 import type { PaceInfo } from "../../../../../types/routes";
+import './PaceInfoBox.css';
 
 interface PaceInfoBoxProps {
     paceInfo: PaceInfo | null;

@@ -1,3 +1,9 @@
+export const AUTH_TOKEN_KEY = 'token';
+
+export function isUserAuthenticated(): boolean {
+    return !!localStorage.getItem(AUTH_TOKEN_KEY);
+}
+
 export function decodeJwtUserId(token: string): number {
     const base64Url = token.split('.')[1];
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');

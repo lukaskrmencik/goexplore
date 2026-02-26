@@ -54,7 +54,7 @@ const RouteUsersEditor: React.FC<RouteEditorProps> = ({ route, onUpdate }) => {
 
             <div className={`route-users-editor-right-panel ${isCrewPanelOpen ? 'route-users-editor-right-panel-open' : 'route-users-editor-right-panel-closed'}`}>
                 <div
-                    className="route-users-editor-panel-header group"
+                    className="route-users-editor-panel-header"
                     onClick={() => setIsCrewPanelOpen(!isCrewPanelOpen)}
                 >
                     <div className="route-users-editor-mobile-handle-bar" />

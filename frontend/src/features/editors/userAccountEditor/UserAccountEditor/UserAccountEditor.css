@@ -1,0 +1,78 @@
+.account-editor-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-12);
+    color: var(--color-primary-600);
+    gap: var(--space-4);
+    font-family: var(--font-sans);
+}
+
+.account-editor-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    width: 100%;
+    font-family: var(--font-sans);
+}
+
+@media (min-width: 1024px) {
+    .account-editor-container {
+        grid-template-columns: repeat(3, 1fr);
+        align-items: stretch;
+        gap: 2.5rem;
+    }
+}
+
+.account-page-container {
+    width: 100%;
+    max-width: 80rem;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: var(--space-4);
+    padding-right: var(--space-4);
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+}
+
+@media (min-width: 640px) {
+    .account-page-container {
+        padding-left: var(--space-6);
+        padding-right: var(--space-6);
+    }
+}
+
+@media (min-width: 1024px) {
+    .account-page-container {
+        padding-left: 2rem;
+        padding-right: 2rem;
+    }
+}
+
+.account-page-header-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-6);
+    min-height: 53px;
+}
+
+@media (min-width: 640px) {
+    .account-page-header-wrapper {
+        flex-direction: row;
+    }
+}
+
+.account-page-title {
+    font-size: 1.875rem;
+    line-height: 2.25rem;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    color: var(--color-neutral-900);
+    margin: 0;
+}

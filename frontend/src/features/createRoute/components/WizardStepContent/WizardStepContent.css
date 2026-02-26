@@ -1,0 +1,4 @@
+.create-route-editor-scrollable {
+    height: 100%;
+    overflow-y: auto;
+}

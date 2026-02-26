@@ -12,7 +12,7 @@
 @keyframes slideInFromTop {
     from {
         opacity: 0;
-        transform: translate(-50%, -var(--radius-2xl));
+        transform: translate(-50%, -1rem);
     }
 
     to {
@@ -23,12 +23,12 @@
 
 .toast-content {
     color: var(--color-white);
-    padding: var(--radius-xl) var(--radius-2xl);
+    padding: var(--space-3) var(--space-4);
     border-radius: var(--radius-xl);
     box-shadow: var(--shadow-xl);
     display: flex;
     align-items: center;
-    gap: var(--radius-xl);
+    gap: var(--space-3);
 }
 
 .toast-error {

@@ -44,7 +44,11 @@ class RouteUserPolicy
 
         $route = $routeUser->route;
 
-        return $route->users_id === $user->id;
+        if ($route->users_id === $user->id) {
+            return true;
+        }
+
+        return $route->users->contains('id', $user->id);
     }
 
     //invite policy

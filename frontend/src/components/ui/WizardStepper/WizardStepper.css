@@ -5,11 +5,10 @@
     justify-content: center;
 }
 
-/* Desktop Stepper */
 .stepper-desktop {
     display: none;
     align-items: center;
-    gap: var(--radius-lg);
+    gap: var(--space-2);
 }
 
 @media (min-width: 768px) {
@@ -26,8 +25,8 @@
 .stepper-item {
     display: flex;
     align-items: center;
-    gap: var(--radius-lg);
-    padding: var(--radius-md) var(--radius-xl);
+    gap: var(--space-2);
+    padding: 0.375rem var(--space-3);
     border-radius: var(--radius-full);
     border: 1px solid var(--color-transparent);
     transition: all var(--transition-normal);
@@ -48,9 +47,24 @@
     opacity: 0.5;
 }
 
+.stepper-item-clickable {
+    cursor: pointer;
+    user-select: none;
+}
+
+.stepper-item-clickable:hover {
+    background-color: var(--color-primary-50);
+    border-color: var(--color-primary-100);
+    opacity: 0.9;
+}
+
+.stepper-item-clickable:active {
+    transform: scale(0.97);
+}
+
 .stepper-circle {
-    width: var(--radius-3xl);
-    height: var(--radius-3xl);
+    width: var(--space-6);
+    height: var(--space-6);
     border-radius: var(--radius-full);
     display: flex;
     align-items: center;
@@ -80,7 +94,7 @@
 }
 
 .stepper-label {
-    font-size: var(--radius-xl);
+    font-size: 0.75rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.025em;
@@ -99,8 +113,8 @@
 }
 
 .stepper-connector {
-    width: var(--radius-3xl);
-    height: var(--radius-sm);
+    width: var(--space-6);
+    height: 0.125rem;
     border-radius: var(--radius-full);
     margin-left: 0.25rem;
     margin-right: 0.25rem;
@@ -114,7 +128,6 @@
     background-color: var(--color-neutral-100);
 }
 
-/* Mobile Stepper */
 .stepper-mobile {
     display: flex;
     width: 100%;
@@ -137,8 +150,8 @@
 .stepper-mobile-item {
     display: flex;
     align-items: center;
-    gap: var(--radius-md);
-    padding: 0.25rem var(--radius-lg);
+    gap: 0.375rem;
+    padding: 0.25rem var(--space-2);
     border-radius: var(--radius-full);
     border: 1px solid var(--color-transparent);
     transition: all var(--transition-normal);
@@ -162,7 +175,7 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.025em;
-    var(--color-white)-space: nowrap;
+    white-space: nowrap;
 }
 
 .stepper-mobile-label-visible {
@@ -181,6 +194,6 @@
 
 .stepper-mobile-connector {
     width: 0.25rem;
-    height: var(--radius-sm);
+    height: 0.125rem;
     border-radius: var(--radius-full);
 }

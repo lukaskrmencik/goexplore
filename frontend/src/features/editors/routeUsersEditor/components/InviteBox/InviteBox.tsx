@@ -50,7 +50,7 @@ const InviteBox: React.FC<InviteBoxProps> = ({ link, isGenerating }) => {
         <div className="invite-box-container">
 
             <div className="invite-box-input-group">
-                <div className="invite-box-input-wrapper group">
+                <div className="invite-box-input-wrapper">
                     <div className="invite-box-link-icon-wrapper">
                         <Link size={20} className="invite-box-link-icon" />
                     </div>

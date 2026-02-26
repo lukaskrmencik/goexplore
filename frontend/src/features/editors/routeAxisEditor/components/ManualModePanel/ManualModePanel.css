@@ -1,0 +1,234 @@
+.route-axis-editor-manual-mode {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.route-axis-editor-manual-instruction {
+    font-size: 0.8rem;
+    color: var(--color-neutral-500);
+    line-height: 1.5;
+    padding: 0.65rem 0.85rem;
+    background-color: rgba(248, 250, 252, 0.6);
+    border-radius: var(--radius-xl);
+    border: 1px solid rgba(241, 245, 249, 0.6);
+    margin: 0;
+}
+
+.route-axis-editor-manual-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2.5rem 1rem;
+    color: var(--color-neutral-400);
+    gap: 0.75rem;
+    text-align: center;
+}
+
+.route-axis-editor-manual-empty-icon {
+    opacity: 0.5;
+}
+
+.route-axis-editor-manual-empty p {
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin: 0;
+}
+
+.route-axis-editor-manual-points-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.route-axis-editor-manual-drop-zone {
+    height: 0.75rem;
+    transition: all 0.15s ease;
+    border-radius: var(--radius-full);
+    position: relative;
+}
+
+.route-axis-editor-manual-drop-zone-active {
+    height: 0.75rem;
+}
+
+.route-axis-editor-manual-drop-zone-active::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0.5rem;
+    right: 0.5rem;
+    height: 3px;
+    background-color: var(--color-primary-400);
+    border-radius: var(--radius-full);
+    transform: translateY(-50%);
+}
+
+.route-axis-editor-manual-point-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.6rem;
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--color-neutral-100);
+    background-color: var(--color-white);
+    transition: all 0.15s ease;
+    cursor: default;
+}
+
+.route-axis-editor-manual-point-item:hover {
+    border-color: var(--color-neutral-200);
+    box-shadow: var(--shadow-sm);
+}
+
+.route-axis-editor-manual-point-item-dragging {
+    opacity: 0.4;
+    background-color: var(--color-neutral-50);
+}
+
+.route-axis-editor-manual-point-drag {
+    cursor: grab;
+    color: var(--color-neutral-300);
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.route-axis-editor-manual-point-drag:active {
+    cursor: grabbing;
+}
+
+.route-axis-editor-manual-point-type-badge {
+    width: 1.65rem;
+    height: 1.65rem;
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.route-axis-editor-manual-point-type-start {
+    background-color: rgba(209, 250, 229, 0.7);
+}
+
+.route-axis-editor-manual-point-type-end {
+    background-color: rgba(254, 226, 226, 0.7);
+}
+
+.route-axis-editor-manual-point-type-waypoint {
+    background-color: rgba(254, 243, 199, 0.7);
+}
+
+.route-axis-editor-manual-point-icon-start {
+    color: #059669;
+}
+
+.route-axis-editor-manual-point-icon-end {
+    color: #dc2626;
+}
+
+.route-axis-editor-manual-point-icon-waypoint {
+    color: #d97706;
+}
+
+.route-axis-editor-manual-point-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.05rem;
+    min-width: 0;
+}
+
+.route-axis-editor-manual-point-label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--color-neutral-800);
+}
+
+.route-axis-editor-manual-point-coords {
+    font-size: 0.65rem;
+    font-weight: 500;
+    color: var(--color-neutral-400);
+    font-variant-numeric: tabular-nums;
+}
+
+.route-axis-editor-manual-point-remove {
+    color: var(--color-neutral-300);
+    transition: color 0.15s ease;
+    padding: 0.25rem;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+}
+
+.route-axis-editor-manual-point-remove:hover {
+    color: #ef4444;
+}
+
+.route-axis-editor-mobile-reorder {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex-shrink: 0;
+}
+
+@media (min-width: 768px) {
+    .route-axis-editor-mobile-reorder {
+        display: none;
+    }
+}
+
+.route-axis-editor-mobile-reorder-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border: 1px solid var(--color-neutral-200);
+    border-radius: var(--radius-md);
+    background-color: var(--color-white);
+    color: var(--color-neutral-500);
+    cursor: pointer;
+    padding: 0;
+    transition: all 0.15s ease;
+}
+
+.route-axis-editor-mobile-reorder-btn:active:not(:disabled) {
+    background-color: var(--color-primary-50);
+    border-color: var(--color-primary-300);
+    color: var(--color-primary-600);
+}
+
+.route-axis-editor-mobile-reorder-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+@keyframes swapMoveUp {
+    0% { transform: translateY(0); opacity: 1; }
+    30% { transform: translateY(-100%); opacity: 0.5; }
+    60% { transform: translateY(-100%); opacity: 0; }
+    61% { transform: translateY(50%); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes swapMoveDown {
+    0% { transform: translateY(0); opacity: 1; }
+    30% { transform: translateY(100%); opacity: 0.5; }
+    60% { transform: translateY(100%); opacity: 0; }
+    61% { transform: translateY(-50%); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+
+.route-axis-editor-swap-up {
+    animation: swapMoveUp 0.35s ease-out;
+}
+
+.route-axis-editor-swap-down {
+    animation: swapMoveDown 0.35s ease-out;
+}

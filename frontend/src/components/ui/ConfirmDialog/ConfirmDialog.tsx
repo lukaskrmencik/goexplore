@@ -22,40 +22,31 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
     onConfirm,
     onCancel,
     isDestructive = false,
-    isLoading = false
+    isLoading = false,
 }) => {
     if (!isOpen) return null;
 
     return (
         <div className="dialog-overlay">
-            {/* Backdrop */}
             <div
                 className="dialog-backdrop"
                 onClick={!isLoading ? onCancel : undefined}
             />
 
-            {/* Dialog */}
             <div className="dialog-content">
                 <div className="dialog-body">
                     <div className="dialog-layout">
-                        {/* Icon */}
                         <div className={`dialog-icon-wrapper ${isDestructive ? 'dialog-icon-destructive' : 'dialog-icon-standard'}`}>
                             <AlertTriangle size={24} />
                         </div>
 
-                        {/* Content */}
                         <div className="dialog-text-content">
-                            <h3 className="dialog-title">
-                                {title}
-                            </h3>
-                            <p className="dialog-description">
-                                {description}
-                            </p>
+                            <h3 className="dialog-title">{title}</h3>
+                            <p className="dialog-description">{description}</p>
                         </div>
                     </div>
                 </div>
 
-                {/* Actions */}
                 <div className="dialog-footer">
                     <button
                         onClick={onCancel}

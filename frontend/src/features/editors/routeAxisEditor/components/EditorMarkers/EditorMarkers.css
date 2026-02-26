@@ -1,0 +1,59 @@
+.editor-marker-wrapper {
+    background: transparent !important;
+    border: none !important;
+    overflow: visible !important;
+}
+
+.editor-marker-container {
+    position: relative;
+    display: inline-flex;
+    align-items: flex-start;
+}
+
+.editor-marker-delete-btn {
+    position: absolute;
+    top: -6px;
+    right: -8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.35rem;
+    height: 1.35rem;
+    border-radius: 50%;
+    border: 1.5px solid rgba(239, 68, 68, 0.4);
+    background-color: rgba(255, 255, 255, 0.95);
+    color: #ef4444;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+    padding: 0;
+    opacity: 0;
+    transform: scale(0.7);
+    pointer-events: none;
+    z-index: 9999 !important;
+}
+
+.editor-marker-container:hover .editor-marker-delete-btn {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: auto;
+}
+
+.editor-marker-delete-btn:hover {
+    background-color: #ef4444;
+    color: #ffffff;
+    border-color: #ef4444;
+    transform: scale(1.15) !important;
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.45);
+}
+
+.editor-marker-delete-visible .editor-marker-delete-btn {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: auto;
+}
+
+.editor-marker-delete-btn svg {
+    width: 12px;
+    height: 12px;
+}

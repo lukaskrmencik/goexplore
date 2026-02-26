@@ -1,0 +1,39 @@
+.route-date-editor-duration-wrapper {
+    display: flex;
+    justify-content: center;
+    min-height: 2rem;
+}
+
+.route-date-editor-duration-pill {
+    background-color: var(--color-neutral-100);
+    color: var(--color-neutral-600);
+    padding: 0.375rem var(--space-4);
+    border-radius: var(--radius-full);
+    font-size: 0.875rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.route-date-editor-duration-pill-placeholder {
+    background-color: var(--color-neutral-50);
+    color: var(--color-neutral-300);
+}
+
+.route-date-editor-duration-pill-error {
+    background-color: rgba(254, 226, 226, 0.7);
+    color: #b91c1c;
+}
+
+.route-date-editor-duration-icon-error {
+    color: #ef4444;
+    flex-shrink: 0;
+}
+
+.route-date-editor-duration-min-label {
+    font-weight: 600;
+    font-size: 0.78rem;
+    opacity: 0.85;
+    white-space: nowrap;
+}

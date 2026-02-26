@@ -2,7 +2,15 @@ import { forwardRef, useImperativeHandle, useEffect } from "react";
 import { useRouteConfiguration } from ".././hooks/useRouteConfiguration";
 import type { RouteConfigurationEditorHandle, RouteEditorProps } from "../../../../types/editor";
 import { Settings, Maximize, Navigation, Map } from "lucide-react";
+import ConfigSliderCard from "../components/ConfigSliderCard/ConfigSliderCard";
 import "./RouteConfigurationEditor.css";
+
+const BUFFER_MIN = Number(import.meta.env.VITE_CONFIG_BUFFER_MIN_KM ?? "1");
+const BUFFER_MAX = Number(import.meta.env.VITE_CONFIG_BUFFER_MAX_KM ?? "50");
+const ROUTE_LENGTH_MIN = Number(import.meta.env.VITE_CONFIG_ROUTE_LENGTH_MIN_KM ?? "50");
+const ROUTE_LENGTH_MAX = Number(import.meta.env.VITE_CONFIG_ROUTE_LENGTH_MAX_KM ?? "1000");
+const POI_MIN = Number(import.meta.env.VITE_CONFIG_POI_PER_DAY_MIN ?? "1");
+const POI_MAX = Number(import.meta.env.VITE_CONFIG_POI_PER_DAY_MAX ?? "15");
 
 const RouteConfigurationEditor = forwardRef<RouteConfigurationEditorHandle, RouteEditorProps>(({ route, onUpdate, onChange }, ref) => {
     const {
@@ -12,7 +20,7 @@ const RouteConfigurationEditor = forwardRef<RouteConfigurationEditorHandle, Rout
         setMaxRouteLength,
         poiPerDay,
         setPoiPerDay,
-        handleSave
+        handleSave,
     } = useRouteConfiguration(route, onUpdate);
 
     useEffect(() => {
@@ -22,14 +30,12 @@ const RouteConfigurationEditor = forwardRef<RouteConfigurationEditorHandle, Rout
     useImperativeHandle(ref, () => ({
         save: async () => {
             await handleSave();
-        }
+        },
     }));
 
     return (
         <div className="route-config-editor-container">
             <div className="route-config-editor-content-wrapper">
-
-                {/* Header - Hidden on small mobile to save space, visible on larger */}
                 <div className="route-config-editor-header">
                     <h2 className="route-config-editor-title">
                         <Settings className="route-config-editor-title-icon" size={28} />
@@ -40,109 +46,41 @@ const RouteConfigurationEditor = forwardRef<RouteConfigurationEditorHandle, Rout
                     </p>
                 </div>
 
-                {/* Configuration Grid/List */}
-                {/* Mobile: Divide-y list | Desktop: Grid of cards */}
                 <div className="route-config-editor-grid">
+                    <ConfigSliderCard
+                        icon={<Maximize size={20} />}
+                        title="Okolí trasy"
+                        description="Vzdálenost od čáry, kde hledáme zajímavá místa."
+                        value={bufferSize}
+                        min={BUFFER_MIN}
+                        max={BUFFER_MAX}
+                        step={1}
+                        unit="km"
+                        onChange={setBufferSize}
+                    />
 
-                    {/* Buffer Config */}
-                    <div className="route-config-editor-card group">
-                        <div className="route-config-editor-card-header">
-                            <div className="route-config-editor-card-title-group">
-                                <div className="route-config-editor-card-icon-wrapper">
-                                    <Maximize size={20} />
-                                </div>
-                                <span className="route-config-editor-card-title">Okolí trasy</span>
-                            </div>
-                            <span className="route-config-editor-card-value">{bufferSize} <span className="route-config-editor-card-value-unit">km</span></span>
-                        </div>
+                    <ConfigSliderCard
+                        icon={<Navigation size={20} />}
+                        title="Denní limit"
+                        description="Maximální délka trasy na jeden den."
+                        value={maxRouteLength}
+                        min={ROUTE_LENGTH_MIN}
+                        max={ROUTE_LENGTH_MAX}
+                        step={50}
+                        unit="km"
+                        onChange={setMaxRouteLength}
+                    />
 
-                        <p className="route-config-editor-card-desc">
-                            Vzdálenost od čáry, kde hledáme zajímavá místa.
-                        </p>
-
-                        <div className="route-config-editor-controls">
-                            <input
-                                type="range"
-                                min="1"
-                                max="50"
-                                step="1"
-                                value={bufferSize}
-                                onChange={(e) => setBufferSize(Number(e.target.value))}
-                                className="route-config-editor-range-input"
-                            />
-                            <div className="route-config-editor-range-labels">
-                                <span>1 km</span>
-                                <span>50 km</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Max Length Config */}
-                    <div className="route-config-editor-card group">
-                        <div className="route-config-editor-card-header">
-                            <div className="route-config-editor-card-title-group">
-                                <div className="route-config-editor-card-icon-wrapper">
-                                    <Navigation size={20} />
-                                </div>
-                                <span className="route-config-editor-card-title">Denní limit</span>
-                            </div>
-                            <span className="route-config-editor-card-value">{maxRouteLength} <span className="route-config-editor-card-value-unit">km</span></span>
-                        </div>
-
-                        <p className="route-config-editor-card-desc">
-                            Maximální délka trasy na jeden den.
-                        </p>
-
-                        <div className="route-config-editor-controls">
-                            <input
-                                type="range"
-                                min="50"
-                                max="1000"
-                                step="50"
-                                value={maxRouteLength}
-                                onChange={(e) => setMaxRouteLength(Number(e.target.value))}
-                                className="route-config-editor-range-input"
-                            />
-                            <div className="route-config-editor-range-labels">
-                                <span>50 km</span>
-                                <span>1000 km</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* POI Config */}
-                    <div className="route-config-editor-card group">
-                        <div className="route-config-editor-card-header">
-                            <div className="route-config-editor-card-title-group">
-                                <div className="route-config-editor-card-icon-wrapper">
-                                    <Map size={20} />
-                                </div>
-                                <span className="route-config-editor-card-title">Hustota zastávek</span>
-                            </div>
-                            <span className="route-config-editor-card-value">{poiPerDay}</span>
-                        </div>
-
-                        <p className="route-config-editor-card-desc">
-                            Kolik aktivit chcete stihnout za den.
-                        </p>
-
-                        <div className="route-config-editor-controls">
-                            <input
-                                type="range"
-                                min="1"
-                                max="15"
-                                step="1"
-                                value={poiPerDay}
-                                onChange={(e) => setPoiPerDay(Number(e.target.value))}
-                                className="route-config-editor-range-input"
-                            />
-                            <div className="route-config-editor-range-labels">
-                                <span>1</span>
-                                <span>15</span>
-                            </div>
-                        </div>
-                    </div>
-
+                    <ConfigSliderCard
+                        icon={<Map size={20} />}
+                        title="Hustota zastávek"
+                        description="Kolik aktivit chcete stihnout za den."
+                        value={poiPerDay}
+                        min={POI_MIN}
+                        max={POI_MAX}
+                        step={1}
+                        onChange={setPoiPerDay}
+                    />
                 </div>
             </div>
         </div>

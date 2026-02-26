@@ -1,4 +1,5 @@
 import { Plus, Share2 } from "lucide-react";
+import './RoutesGrid.css';
 import { useNavigate } from "react-router-dom";
 import type { RouteItem } from "../../../../../types/routes";
 import RouteCard from "../RouteCard/RouteCard";
@@ -49,7 +50,7 @@ const RoutesGrid: React.FC<RoutesGridProps> = ({
                 {activeTab === "owned" && currentPage === 1 && (
                     <div
                         onClick={() => navigate("/routes/new")}
-                        className="routes-list-editor-create-card group"
+                        className="routes-list-editor-create-card"
                     >
                         <div className="routes-list-editor-create-icon-wrapper">
                             <Plus size={32} />

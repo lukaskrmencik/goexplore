@@ -7,7 +7,7 @@
 
 @media (min-width: 640px) {
     .pagination-container {
-        gap: var(--radius-lg);
+        gap: var(--space-2);
     }
 }
 
@@ -54,7 +54,7 @@
 .pagination-btn-number-active {
     background-color: var(--color-primary-600);
     color: var(--color-white);
-    box-shadow: 0 10px 15px -3px rgba(5, 150, 105, 0.2), 0 4px 6px -2px rgba(5, 150, 105, 0.1);
+    box-shadow: 0 10px 15px -3px rgba(var(--color-primary-rgb), 0.2), 0 4px 6px -2px rgba(var(--color-primary-rgb), 0.1);
 }
 
 .pagination-btn-number-inactive {
@@ -70,7 +70,7 @@
 .pagination-btn-edge {
     width: 2rem;
     height: 2rem;
-    font-size: var(--radius-xl);
+    font-size: 0.75rem;
     font-weight: 700;
     color: var(--color-neutral-500);
     display: none;
@@ -97,7 +97,7 @@
     align-items: center;
     justify-content: center;
     color: var(--color-neutral-300);
-    font-size: var(--radius-xl);
+    font-size: 0.75rem;
 }
 
 @media (min-width: 640px) {

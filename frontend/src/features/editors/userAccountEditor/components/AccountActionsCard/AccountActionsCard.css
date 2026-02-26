@@ -1,0 +1,79 @@
+.account-editor-actions-card {
+    background-color: var(--color-white);
+    border-radius: var(--radius-2xl);
+    border: 1px solid var(--color-neutral-200);
+    padding: 2.5rem 2rem;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 3rem;
+}
+
+@media (min-width: 768px) {
+    .account-editor-actions-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+}
+
+.account-danger-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+}
+
+.account-action-desc {
+    margin: 0;
+    font-size: 0.75rem;
+    color: var(--color-error-700);
+    line-height: 1.4;
+    max-width: 250px;
+}
+
+.account-logout-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    width: 100%;
+    padding: var(--space-3) var(--space-4);
+    background-color: var(--color-white);
+    color: var(--color-neutral-900);
+    font-weight: 600;
+    border: 1px solid var(--color-neutral-200);
+    border-radius: var(--radius-xl);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.account-logout-btn:hover {
+    background-color: var(--color-neutral-50);
+    border-color: var(--color-neutral-400);
+}
+
+.account-delete-account-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    width: 100%;
+    padding: var(--space-3) var(--space-4);
+    background-color: var(--color-error-50);
+    color: var(--color-error-600);
+    font-weight: 600;
+    border: 1px solid var(--color-error-200);
+    border-radius: var(--radius-xl);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.account-delete-account-btn:hover {
+    background-color: var(--color-error-100);
+    border-color: var(--color-error-300);
+}

@@ -1,5 +1,6 @@
 import React from "react";
 import { User as UserIcon } from "lucide-react";
+import { getImageUrl } from "../../../utils/imageUrl";
 import './UserAvatar.css';
 
 interface UserAvatarProps {
@@ -10,47 +11,49 @@ interface UserAvatarProps {
     showBorder?: boolean;
 }
 
+const AVATAR_COLOR_COUNT = 13;
+
+function resolveAvatarSizeClass(size: "sm" | "md" | "lg"): string {
+    switch (size) {
+        case "sm": return "avatar-sm";
+        case "lg": return "avatar-lg";
+        default: return "avatar-md";
+    }
+}
+
+function resolveUserInitials(userName?: string): string {
+    if (!userName) return "?";
+    const parts = userName.trim().split(" ");
+    if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
 const UserAvatar: React.FC<UserAvatarProps> = ({
     name,
     profilePicture,
     size = "md",
     className = "",
-    showBorder = false
+    showBorder = false,
 }) => {
-    const getSizeClasses = () => {
-        switch (size) {
-            case "sm": return "avatar-sm";
-            case "lg": return "avatar-lg";
-            case "md": default: return "avatar-md";
-        }
-    };
-
-    const getInitials = (userName?: string) => {
-        if (!userName) return "?";
-        const parts = userName.trim().split(" ");
-        if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
-        return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-    };
-
+    const sizeClass = resolveAvatarSizeClass(size);
     const borderClass = showBorder ? "avatar-border" : "";
+    const imageUrl = getImageUrl(profilePicture);
 
-    if (profilePicture) {
+    if (imageUrl) {
         return (
             <img
-                src={profilePicture}
+                src={imageUrl}
                 alt={name || "User"}
-                className={`avatar avatar-image ${getSizeClasses()} ${borderClass} ${className}`}
+                className={`avatar avatar-image ${sizeClass} ${borderClass} ${className}`}
             />
         );
     }
 
-    const numColors = 13;
-    const colorIndex = name ? name.length % numColors : 0;
-    const colorClass = `avatar-color-${colorIndex}`;
+    const colorIndex = name ? name.length % AVATAR_COLOR_COUNT : 0;
 
     return (
-        <div className={`avatar ${colorClass} ${getSizeClasses()} ${borderClass} ${className}`}>
-            {name ? getInitials(name) : <UserIcon size={12} />}
+        <div className={`avatar avatar-color-${colorIndex} ${sizeClass} ${borderClass} ${className}`}>
+            {name ? resolveUserInitials(name) : <UserIcon size={12} />}
         </div>
     );
 };

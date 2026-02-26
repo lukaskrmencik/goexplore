@@ -4,7 +4,6 @@ import { useCallback } from "react";
 export const usePagination = (defaultPage = 1) => {
     const [searchParams, setSearchParams] = useSearchParams();
 
-    // Get current page from URL or default
     const page = parseInt(searchParams.get("page") || String(defaultPage));
 
     const setPage = useCallback((newPage: number) => {
@@ -24,10 +23,5 @@ export const usePagination = (defaultPage = 1) => {
     const next = () => setPage(page + 1);
     const prev = () => setPage(Math.max(1, page - 1));
 
-    return {
-        page,
-        setPage,
-        next,
-        prev
-    };
+    return { page, setPage, next, prev };
 };

@@ -1,12 +1,9 @@
-/* RouteEquipmentEditor.css */
-
 .route-equipment-editor-container {
     width: 100%;
     height: 100%;
     display: flex;
     flex-direction: column;
     background-color: var(--color-neutral-50);
-
     position: relative;
     overflow: hidden;
 }
@@ -14,10 +11,8 @@
 @media (min-width: 768px) {
     .route-equipment-editor-container {
         flex-direction: row;
-
     }
 }
-
 
 .route-equipment-editor-backdrop {
     position: absolute;
@@ -26,9 +21,7 @@
     bottom: 0;
     left: 0;
     background-color: rgba(0, 0, 0, 0.2);
-
     backdrop-filter: blur(4px);
-
     z-index: 30;
     transition: opacity 0.3s;
 }
@@ -36,527 +29,38 @@
 @media (min-width: 768px) {
     .route-equipment-editor-backdrop {
         display: none;
-
     }
 }
 
-/* Left Panel: Backpack */
-.route-equipment-editor-backpack-panel {
-    position: absolute;
-    top: auto;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 40;
-    display: flex;
-    flex-direction: column;
-    background-color: var(--color-white);
-    border-top: 1px solid var(--color-neutral-200);
-    /* border-t border-slate-200 */
-    border-radius: 32px 32px 0 0;
-    /* rounded-t-[32px] */
-    box-shadow: 0 -10px 40px -15px rgba(0, 0, 0, 0.1);
-    transition: all 0.5s cubic-bezier(0.32, 0.72, 0, 1);
-}
-
-.route-equipment-editor-backpack-open {
-    height: 75vh;
-    /* h-[75vh] */
-    transform: translateY(0);
-}
-
-.route-equipment-editor-backpack-closed {
-    height: 4.5rem;
-
-    transform: translateY(0);
-}
-
-@media (min-width: 768px) {
-
-    .route-equipment-editor-backpack-panel,
-    .route-equipment-editor-backpack-open,
-    .route-equipment-editor-backpack-closed {
-        position: static;
-        height: 100%;
-
-        width: 33.333333%;
-
-        border-top: none;
-
-        border-right: 1px solid var(--color-neutral-200);
-        /* md:border-r md:border-r-slate-200 */
-        border-radius: 0;
-
-        box-shadow: none;
-
-        transform: translateY(0);
-
-    }
-}
-
-/* Backpack Header */
-.route-equipment-editor-backpack-header {
-    padding: var(--radius-2xl);
-
-    border-bottom: 1px solid var(--color-neutral-100);
-    /* border-b border-slate-100 */
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background-color: rgba(255, 255, 255, 0.5);
-    /* bg-var(--color-white)/50 */
-    backdrop-filter: blur(24px);
-
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    border-radius: 32px 32px 0 0;
-    /* rounded-t-[32px] */
-    cursor: pointer;
-    height: 4.5rem;
-
-    padding-bottom: var(--radius-2xl);
-
-}
-
-.route-equipment-editor-backpack-close-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: var(--radius-lg);
-    border-radius: var(--radius-full);
-    background-color: rgba(241, 245, 249, 0.5);
-    color: var(--color-neutral-500);
-    border: none;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.route-equipment-editor-backpack-close-btn:hover {
-    background-color: rgba(226, 232, 240, 0.8);
-}
-
-@media (min-width: 768px) {
-    .route-equipment-editor-backpack-close-btn {
-        display: none;
-    }
-}
-
-@media (min-width: 768px) {
-    .route-equipment-editor-backpack-header {
-        padding: var(--radius-3xl);
-
-        border-radius: 0;
-
-        cursor: default;
-
-        height: auto;
-
-        padding-bottom: var(--radius-3xl);
-
-    }
-}
-
-.route-equipment-editor-backpack-header-content {
-    display: flex;
-    align-items: center;
-    gap: var(--radius-xl);
-
-}
-
-.route-equipment-editor-backpack-icon-wrapper {
-    padding: var(--radius-lg);
-
-    background-color: var(--color-primary-100);
-
-    color: var(--color-primary-600);
-
-    border-radius: var(--radius-lg);
-
-    flex-shrink: 0;
-
-}
-
-.route-equipment-editor-backpack-title {
-    font-family: var(--font-heading);
-    font-weight: 700;
-    color: var(--color-neutral-900);
-
-    font-size: 1.25rem;
-
-    display: flex;
-    align-items: center;
-    gap: var(--radius-lg);
-
-    margin: 0;
-}
-
-.route-equipment-editor-chevron {
-    color: var(--color-neutral-400);
-
-    transition: transform 0.3s;
-}
-
-@media (min-width: 768px) {
-    .route-equipment-editor-chevron {
-        display: none;
-
-    }
-}
-
-.route-equipment-editor-chevron-open {
-    transform: rotate(180deg);
-}
-
-.route-equipment-editor-backpack-subtitle {
-    font-size: var(--radius-xl);
-
-    color: var(--color-neutral-500);
-
-    font-weight: 700;
-    margin: 0;
-}
-
-.route-equipment-editor-backpack-hint {
-    font-weight: 400;
-
-    color: var(--color-neutral-400);
-
-    margin-left: 0.25rem;
-
-}
-
-@media (min-width: 768px) {
-    .route-equipment-editor-backpack-hint {
-        display: none;
-
-    }
-}
-
-/* Backpack List */
-.route-equipment-editor-backpack-list {
-    flex: 1;
-    overflow-y: auto;
-    padding: var(--radius-2xl);
-
-    display: flex;
-    flex-direction: column;
-    gap: var(--radius-lg);
-
-    background-color: rgba(248, 250, 252, 0.5);
-
-    padding-bottom: 6rem;
-
-}
-
-@media (min-width: 768px) {
-    .route-equipment-editor-backpack-list {
-        padding-bottom: var(--radius-3xl);
-
-    }
-}
-
-.route-equipment-editor-backpack-empty {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: var(--color-neutral-400);
-
-    padding: 2rem;
-
-    text-align: center;
-    opacity: 0.6;
-}
-
-.route-equipment-editor-backpack-empty-text {
-    margin: 0;
-    font-size: 0.875rem;
-    color: var(--color-neutral-500);
-}
-
-.route-equipment-editor-backpack-add-btn {
-    margin-top: var(--radius-2xl);
-
-    color: var(--color-primary-600);
-
-    font-size: 0.875rem;
-
-    font-weight: 700;
-    background: none;
-    border: none;
-    cursor: pointer;
-}
-
-.route-equipment-editor-backpack-add-btn:hover {
-    text-decoration: underline;
-}
-
-@media (min-width: 768px) {
-    .route-equipment-editor-backpack-add-btn {
-        display: none;
-
-    }
-}
-
-/* Right Panel: Warehouse */
 .route-equipment-editor-warehouse-panel {
     flex: 1;
     display: flex;
     flex-direction: column;
     background-color: var(--color-neutral-50);
-
     position: relative;
     padding-bottom: 0;
     overflow: hidden;
 }
 
-/* Warehouse Header & Search */
-.route-equipment-editor-warehouse-header {
-    padding: var(--radius-xl);
-
-    padding-bottom: var(--radius-lg);
-
-    display: flex;
-    flex-direction: column;
-    gap: var(--radius-lg);
-
-    background-color: rgba(255, 255, 255, 0.8);
-    /* bg-var(--color-white)/80 */
-    backdrop-filter: blur(24px);
-
-    border-bottom: 1px solid var(--color-neutral-200);
-    /* border-b border-slate-200 */
-    z-index: 10;
-    position: sticky;
-    top: 0;
-}
-
-@media (min-width: 768px) {
-    .route-equipment-editor-warehouse-header {
-        padding: var(--radius-3xl);
-
-        gap: var(--radius-2xl);
-
-    }
-}
-
-.route-equipment-editor-warehouse-title-row {
-    display: none;
-
-    align-items: center;
-    justify-content: space-between;
-}
-
-@media (min-width: 768px) {
-    .route-equipment-editor-warehouse-title-row {
-        display: block;
-
-    }
-}
-
-.route-equipment-editor-warehouse-title {
-    font-family: var(--font-heading);
-    font-weight: 700;
-    color: var(--color-neutral-900);
-
-    font-size: 1.25rem;
-
-    margin: 0;
-}
-
-@media (min-width: 768px) {
-    .route-equipment-editor-warehouse-title {
-        font-size: var(--radius-3xl);
-
-    }
-}
-
-.route-equipment-editor-search-row {
-    display: flex;
-    gap: var(--radius-lg);
-
-}
-
-.route-equipment-editor-search-wrapper {
-    position: relative;
-    flex: 1;
-}
-
-.route-equipment-editor-search-icon {
-    position: absolute;
-    left: var(--radius-xl);
-
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--color-neutral-400);
-
-}
-
-.route-equipment-editor-search-input {
-    width: 100%;
-    padding-left: 2.25rem;
-
-    padding-right: var(--radius-2xl);
-
-    padding-top: var(--radius-lg);
-
-    padding-bottom: var(--radius-lg);
-    font-size: 0.875rem;
-
-    border-radius: var(--radius-xl);
-
-    background-color: var(--color-white);
-    /* bg-var(--color-white) */
-    border: 1px solid var(--color-neutral-200);
-
-    outline: none;
-    transition: all 0.15s;
-}
-
-@media (min-width: 768px) {
-    .route-equipment-editor-search-input {
-        padding-left: 2.5rem;
-
-        padding-top: var(--radius-xl);
-
-        padding-bottom: var(--radius-xl);
-        font-size: var(--radius-2xl);
-
-    }
-}
-
-.route-equipment-editor-search-input:focus {
-    border-color: var(--color-primary-500);
-
-    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
-    /* focus:ring-4 focus:ring-emerald-500/10 */
-}
-
-
-.route-equipment-editor-tabs {
-    display: flex;
-    padding: 0.25rem;
-
-    background-color: var(--color-neutral-100);
-
-    border-radius: var(--radius-xl);
-
-}
-
-.route-equipment-editor-tab-btn {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--radius-lg);
-
-    padding-top: var(--radius-md);
-    /* py-1.5 */
-    padding-bottom: var(--radius-md);
-    border-radius: var(--radius-lg);
-
-    font-size: var(--radius-xl);
-
-    font-weight: 700;
-    transition: all 0.15s;
-    border: none;
-    background: var(--color-transparent);
-    cursor: pointer;
-}
-
-@media (min-width: 768px) {
-    .route-equipment-editor-tab-btn {
-        padding-top: 0.625rem;
-        /* md:py-2.5 */
-        padding-bottom: 0.625rem;
-        font-size: 0.875rem;
-
-    }
-}
-
-.route-equipment-editor-tab-active {
-    background-color: var(--color-white);
-    /* bg-var(--color-white) */
-    color: var(--color-primary-600);
-
-    box-shadow: var(--shadow-sm);
-
-}
-
-.route-equipment-editor-tab-inactive {
-    color: var(--color-neutral-500);
-
-}
-
-.route-equipment-editor-tab-inactive:hover {
-    color: var(--color-neutral-700);
-
-}
-
-.route-equipment-editor-tab-icon {
-    width: var(--radius-2xl);
-    height: var(--radius-2xl);
-}
-
-@media (min-width: 768px) {
-    .route-equipment-editor-tab-icon {
-        width: 18px;
-        /* md:w-[18px] */
-        height: 18px;
-        /* md:h-[18px] */
-    }
-}
-
-.route-equipment-editor-tab-text-desktop {
-    display: none;
-
-}
-
-@media (min-width: 640px) {
-    .route-equipment-editor-tab-text-desktop {
-        display: inline;
-
-    }
-}
-
-.route-equipment-editor-tab-text-mobile {
-    display: inline;
-}
-
-@media (min-width: 640px) {
-    .route-equipment-editor-tab-text-mobile {
-        display: none;
-
-    }
-}
-
-/* Warehouse List */
 .route-equipment-editor-warehouse-list {
     flex: 1;
     overflow-y: auto;
-    padding: var(--radius-xl);
-
+    padding: var(--space-3);
     padding-bottom: 6rem;
-
     background-color: var(--color-neutral-50);
-
 }
 
 @media (min-width: 768px) {
     .route-equipment-editor-warehouse-list {
-        padding: var(--radius-2xl);
-
-        padding-bottom: var(--radius-3xl);
-
+        padding: var(--space-4);
+        padding-bottom: var(--space-6);
     }
 }
 
 .route-equipment-editor-pagination-wrapper {
     display: flex;
     justify-content: center;
-    padding-top: var(--radius-2xl);
+    padding-top: var(--space-4);
     border-top: 1px solid var(--color-neutral-100);
 }
 
@@ -566,56 +70,40 @@
     align-items: center;
     justify-content: center;
     padding-top: 5rem;
-
     padding-bottom: 5rem;
     color: var(--color-neutral-400);
-
     animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 .route-equipment-editor-loading-icon {
-    margin-bottom: var(--radius-2xl);
-
+    margin-bottom: var(--space-4);
     opacity: 0.2;
 }
 
 @keyframes pulse {
-
-    0%,
-    100% {
-        opacity: 1;
-    }
-
-    50% {
-        opacity: .5;
-    }
+    0%, 100% { opacity: 1; }
+    50% { opacity: .5; }
 }
 
 .route-equipment-editor-grid {
     display: grid;
     grid-template-columns: repeat(1, minmax(0, 1fr));
-
-    gap: var(--radius-xl);
-
+    gap: var(--space-3);
     grid-auto-rows: min-content;
-
 }
 
 @media (min-width: 640px) {
     .route-equipment-editor-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
-
     }
 }
 
 @media (min-width: 1024px) {
     .route-equipment-editor-grid {
         grid-template-columns: repeat(3, minmax(0, 1fr));
-
     }
 }
 
-/* Create Card (Warehouse) - same look as "Naplánovat" on Moje cesty */
 .route-equipment-editor-create-card {
     height: 100%;
     min-height: 14rem;
@@ -629,7 +117,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: var(--radius-xl);
+    gap: var(--space-3);
 }
 
 @media (max-width: 767px) {
@@ -674,12 +162,9 @@
     color: var(--color-primary-700);
 }
 
-/* Empty States */
 .route-equipment-editor-empty-state {
     grid-column: 1 / -1;
-
     padding-top: 3rem;
-
     padding-bottom: 3rem;
     text-align: center;
     display: flex;
@@ -691,19 +176,14 @@
 
 .route-equipment-editor-empty-state-general {
     color: var(--color-neutral-500);
-
 }
 
 .route-equipment-editor-empty-state-my {
     color: var(--color-neutral-400);
-
     font-size: 0.875rem;
-
 }
 
 .route-equipment-editor-empty-icon {
-    margin-bottom: var(--radius-2xl);
-
+    margin-bottom: var(--space-4);
     color: var(--color-neutral-300);
-
 }

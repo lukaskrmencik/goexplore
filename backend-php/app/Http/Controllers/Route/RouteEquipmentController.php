@@ -139,4 +139,41 @@ class RouteEquipmentController extends Controller
         //response
         return response()->success([], 201);
     }
+
+    //get available my equipment for a route
+    public function availableMyEquipment(Request $request, $routeId)
+    {
+        //validate
+        $request->validate([
+            "search" => 'string|max:255',
+            'per_page' => 'integer|min:1',
+        ]);
+
+        $route = Route::findOrFail($routeId);
+
+        //autorization (user must be able to view the route)
+        $this->authorize('view', $route);
+
+        //get all users associated with this route:
+        //1. owner
+        $userIds = [$route->users_id];
+        //2. invited members
+        $userIds = array_merge($userIds, $route->users->pluck('id')->toArray());
+
+        //make query
+        $query = MyEquipment::whereIn('users_id', $userIds)
+            ->with(['generalEquipment', 'user'])
+            ->orderBy('created_at', 'desc');
+
+        //search - if provided
+        if ($request->filled('search')) {
+            $query->where('name', 'ILIKE', "%{$request->input('search')}%");
+        }
+
+        //paginate
+        $paginator = $query->paginate($request->input('per_page', 10));
+
+        //response
+        return response()->pagination($paginator);
+    }
 }

@@ -42,12 +42,17 @@ class RoutePolicy
         return in_array($user->role, ['user', 'admin']);
     }
 
-    /**
-     * Determine whether the user can update the model.
-     */
     public function update(User $user, Route $route): bool
     {
-        return $user->role == 'admin' || $user->id == $route->users_id;
+        if ($user->role == 'admin') {
+            return true;
+        }
+
+        if ($user->id == $route->users_id) {
+            return true;
+        }
+
+        return $route->users()->where('users.id', $user->id)->exists();
     }
 
     /**

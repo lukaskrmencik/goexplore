@@ -1,4 +1,5 @@
 import { useEffect, useRef, useCallback } from "react";
+import './EditorMarkers.css';
 import { useMap } from "react-leaflet";
 import L from "leaflet";
 import { renderToStaticMarkup } from "react-dom/server";

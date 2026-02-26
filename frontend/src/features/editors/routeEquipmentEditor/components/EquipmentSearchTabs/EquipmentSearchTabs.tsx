@@ -1,4 +1,5 @@
 import { Search, Package, User } from "lucide-react";
+import './EquipmentSearchTabs.css';
 import type { EquipmentType } from "../../../../../types/equipment";
 
 interface EquipmentSearchTabsProps {

@@ -1,4 +1,5 @@
 import { GripVertical, MapPin, Play, Flag, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
+import './ManualModePanel.css';
 import type { EditorPoint } from '../../../../../types/editor';
 
 interface ManualModePanelProps {

@@ -1,5 +1,6 @@
 import React from 'react';
 import type { CampDetail } from '../../../../../../types/mapViewer';
+import './CampInfoSection.css';
 
 interface CampInfoSectionProps {
     data: CampDetail;

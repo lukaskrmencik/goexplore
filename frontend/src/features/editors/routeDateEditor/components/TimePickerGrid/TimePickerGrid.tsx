@@ -1,4 +1,5 @@
 import { format } from "date-fns";
+import './TimePickerGrid.css';
 
 interface TimePickerGridProps {
     timeSlots: string[];

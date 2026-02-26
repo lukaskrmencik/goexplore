@@ -7,7 +7,6 @@ export const toInputDateTimeString = (dateString?: string | null): string => {
     const date = new Date(dateString);
     if (isNaN(date.getTime())) return "";
 
-    // Format: YYYY-MM-DDThh:mm
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
@@ -22,7 +21,6 @@ export const toIsoString = (dateString: string): string | null => {
     const date = new Date(dateString);
     if (isNaN(date.getTime())) return null;
 
-    // Return format YYYY-MM-DDTHH:mm:ssZ (no milliseconds)
     const iso = date.toISOString();
     return iso.split('.')[0] + 'Z';
 };

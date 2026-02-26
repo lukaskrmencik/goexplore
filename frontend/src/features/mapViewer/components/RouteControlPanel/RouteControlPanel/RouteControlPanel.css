@@ -1,0 +1,270 @@
+.route-control-panel-desktop-wrapper {
+    display: none;
+    position: absolute;
+    top: var(--space-4);
+
+    left: var(--space-4);
+
+    z-index: 1000;
+    flex-direction: column;
+    gap: var(--space-3);
+
+    width: 16rem;
+
+    pointer-events: none;
+}
+
+@media (min-width: 768px) {
+    .route-control-panel-desktop-wrapper {
+        display: flex;
+
+    }
+}
+
+.route-control-panel-main-card {
+    background-color: var(--color-white);
+    border-radius: var(--radius-2xl);
+
+    box-shadow: var(--shadow-sm);
+
+    border: 1px solid var(--color-neutral-200);
+
+    padding: var(--space-2);
+
+    pointer-events: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+}
+
+.route-control-panel-tool-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+
+    padding: var(--space-3);
+
+    border-radius: var(--radius-xl);
+
+    background-color: var(--color-transparent);
+    border: none;
+    color: var(--color-neutral-600);
+
+    transition: color 0.15s, background-color 0.15s;
+    text-align: left;
+    cursor: pointer;
+}
+
+.route-control-panel-tool-btn:hover {
+    background-color: var(--color-neutral-50);
+
+    color: var(--color-neutral-900);
+
+}
+
+.route-control-panel-tool-icon {
+    color: var(--color-neutral-400);
+
+    transition: color 0.15s;
+}
+
+.route-control-panel-tool-btn:hover .route-control-panel-tool-icon {
+    color: var(--color-primary-600);
+
+}
+
+.route-control-panel-tool-label {
+    font-weight: 700;
+    font-size: 0.875rem;
+
+    margin: 0;
+}
+
+.route-control-panel-divider {
+    height: 1px;
+    background-color: var(--color-neutral-100);
+
+    margin: 0.25rem var(--space-2);
+
+}
+
+.route-control-panel-mobile-fab-wrapper {
+    position: absolute;
+    bottom: var(--space-6);
+
+    right: var(--space-4);
+
+    z-index: 1000;
+    pointer-events: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--space-3);
+
+}
+
+@media (min-width: 768px) {
+    .route-control-panel-mobile-fab-wrapper {
+        display: none;
+
+    }
+}
+
+.route-control-panel-mobile-fab {
+    width: 3.5rem;
+
+    height: 3.5rem;
+
+    border-radius: var(--radius-full);
+
+    background-color: var(--color-primary-600);
+
+    color: var(--color-white);
+    box-shadow: 0 20px 25px -5px rgba(6, 78, 59, 0.2), 0 10px 10px -5px rgba(6, 78, 59, 0.1);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.15s;
+    border: none;
+    cursor: pointer;
+}
+
+.route-control-panel-mobile-fab:hover {
+    transform: scale(1.05);
+
+}
+
+.route-control-panel-mobile-fab:active {
+    transform: scale(0.95);
+
+}
+
+.route-control-panel-mobile-sheet-wrapper {
+    position: fixed;
+    top: 3.5rem;
+
+    bottom: 60px;
+
+    left: 0;
+    right: 0;
+    z-index: 3000;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+@media (min-width: 768px) {
+    .route-control-panel-mobile-sheet-wrapper {
+        display: none;
+
+    }
+}
+
+.route-control-panel-mobile-backdrop {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    animation: route-control-panel-fade-in 0.2s ease-out forwards;
+}
+
+.route-control-panel-mobile-sheet-wrapper.route-control-panel-mobile-sheet-closing .route-control-panel-mobile-backdrop {
+    animation: route-control-panel-fade-out 0.2s ease-out forwards;
+}
+
+@keyframes route-control-panel-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes route-control-panel-fade-out {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+.route-control-panel-mobile-sheet-content {
+    position: relative;
+    background-color: var(--color-white);
+    width: 100%;
+    border-top-left-radius: var(--radius-3xl);
+    border-top-right-radius: var(--radius-3xl);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    padding: var(--space-4);
+    padding-top: 0.375rem;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    border-top: 1px solid var(--color-neutral-100);
+    max-height: 85vh;
+    overflow-y: auto;
+    animation: route-control-panel-slide-up 0.3s ease-out forwards;
+}
+
+.route-control-panel-mobile-sheet-content.route-control-panel-mobile-sheet-closing {
+    animation: route-control-panel-slide-down 0.25s ease-in forwards;
+}
+
+@keyframes route-control-panel-slide-up {
+    from {
+        transform: translateY(100%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+@keyframes route-control-panel-slide-down {
+    from {
+        transform: translateY(0);
+    }
+    to {
+        transform: translateY(100%);
+    }
+}
+
+.route-control-panel-mobile-close-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-bottom: var(--space-2);
+}
+
+.route-control-panel-mobile-close-btn {
+    padding: var(--space-2);
+    margin-right: -0.5rem;
+    margin-top: -0.5rem;
+    color: var(--color-neutral-400);
+
+    background-color: var(--color-transparent);
+    border-radius: var(--radius-full);
+
+    transition: color 0.15s, background-color 0.15s;
+    border: none;
+    cursor: pointer;
+}
+
+.route-control-panel-mobile-close-btn:hover {
+    color: var(--color-neutral-900);
+
+    background-color: var(--color-neutral-50);
+
+}
+
+.route-control-panel-mobile-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: var(--space-2);
+
+}
+
+.route-control-panel-mobile-regen-wrapper {
+    padding-top: var(--space-2);
+    padding-bottom: var(--space-6);
+}

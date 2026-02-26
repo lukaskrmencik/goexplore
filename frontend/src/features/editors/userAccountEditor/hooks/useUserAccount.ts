@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { fetchMyProfile, updateMyProfile, uploadProfilePicture, deleteMyAccount } from '../../../../services/userApiService';
+import { fetchMyUser, updateMyProfile, uploadProfilePicture, deleteMyAccount } from '../../../../services/usersApiService';
 import { logout } from '../../../../services/authApiService';
 import type { User } from '../../../../types/users';
 import { getErrorMessage } from '../../../../utils/apiError';
@@ -10,7 +10,7 @@ export interface AccountToastState {
     type: 'success' | 'error';
 }
 
-export const useUserAccount = (fileInputRef: React.RefObject<HTMLInputElement>) => {
+export const useUserAccount = (fileInputRef: React.RefObject<HTMLInputElement | null>) => {
     const [user, setUser] = useState<User | null>(null);
     const [name, setName] = useState('');
     const [isLoading, setIsLoading] = useState(true);
@@ -25,7 +25,7 @@ export const useUserAccount = (fileInputRef: React.RefObject<HTMLInputElement>) 
     };
 
     useEffect(() => {
-        fetchMyProfile()
+        fetchMyUser()
             .then(data => {
                 setUser(data);
                 setName(data.name);

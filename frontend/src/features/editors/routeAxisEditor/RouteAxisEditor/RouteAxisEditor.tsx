@@ -5,7 +5,7 @@ import { useRouteAxis } from "../hooks/useRouteAxis";
 import { useSwapAnimation } from "../hooks/useSwapAnimation";
 import { usePointDragAndDrop } from "../hooks/usePointDragAndDrop";
 import type { RouteAxisEditorHandle, RouteEditorProps } from "../../../../types/editor";
-import LeafletMap from "../../../leafletMap/components/LeafletMap/LeafletMap";
+import LeafletMap from "../../../../components/LeafletMap/LeafletMap";
 import EditorMarkers from "../components/EditorMarkers/EditorMarkers";
 import RoutePolyline from "../components/RoutePolyline/RoutePolyline";
 import MapClickHandler from "../components/MapClickHandler/MapClickHandler";
@@ -114,7 +114,7 @@ const RouteAxisEditor = forwardRef<RouteAxisEditorHandle, RouteEditorProps>(({ r
                                 </p>
                             </div>
                         </div>
-                        <button onClick={handleResetAll} className="route-axis-editor-reset-btn group">
+                        <button onClick={handleResetAll} className="route-axis-editor-reset-btn">
                             <span className="route-axis-editor-reset-text">Reset</span>
                             <Trash2 size={16} className="route-axis-editor-reset-icon" />
                         </button>

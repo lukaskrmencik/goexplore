@@ -72,6 +72,8 @@ Route::middleware('jwt')->group(function () {
         ->where('id', '[0-9]+');
     Route::delete('/routes/{id}/equipment', [RouteEquipmentController::class, 'removeEquipment'])
         ->where('id', '[0-9]+');
+    Route::post('/routes/{id}/equipment/available-my', [RouteEquipmentController::class, 'availableMyEquipment'])
+        ->where('id', '[0-9]+');
 
     //Route waypoints routes
     Route::post('/routes/{id}/waypoints', [WaypointController::class, 'createWaypoint'])
@@ -84,6 +86,7 @@ Route::middleware('jwt')->group(function () {
     //Route users routes
     Route::post('/routes/{id}/users/invite', [RouteUserController::class, 'inviteUser'])
         ->where('id', '[0-9]+');
+    Route::get('/routes/users/invite/{token}', [RouteUserController::class, 'getInviteDetails']);
     Route::post('/routes/users/accept-invite', [RouteUserController::class, 'acceptInvite']);
     Route::delete('/routes/{id}/users', [RouteUserController::class, 'removeUser'])
         ->where('id', '[0-9]+');

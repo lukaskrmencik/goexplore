@@ -1,8 +1,8 @@
 .badge {
     padding: 0.25rem 0.625rem;
     border-radius: var(--radius-lg);
-    font-size: var(--radius-xl);
-    line-height: var(--radius-2xl);
+    font-size: 0.75rem;
+    line-height: var(--space-4);
     font-weight: 700;
     display: inline-flex;
     align-items: center;

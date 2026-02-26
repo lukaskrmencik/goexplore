@@ -9,22 +9,39 @@ interface WizardStepperProps {
     onStepClick?: (stepId: number) => void;
 }
 
-const steps = [
+interface StepDefinition {
+    id: number;
+    label: string;
+}
+
+interface StepState {
+    isCompleted: boolean;
+    isCurrent: boolean;
+    isClickable: boolean;
+}
+
+const STEP_DEFINITIONS: StepDefinition[] = [
     { id: WizardStep.LOCATION, label: 'Mapa' },
-    { id: WizardStep.DATE, label: 'Kdy na datum' },
+    { id: WizardStep.DATE, label: 'Datum' },
     { id: WizardStep.USERS, label: 'Lidé' },
     { id: WizardStep.EQUIPMENT, label: 'Výbava' },
     { id: WizardStep.CONFIG, label: 'Nastavení' },
 ];
 
+function resolveStepState(stepId: number, currentStep: number, hasClickHandler: boolean): StepState {
+    const isCompleted = currentStep > stepId;
+    const isCurrent = currentStep === stepId;
+    const isClickable = isCompleted && hasClickHandler;
+    return { isCompleted, isCurrent, isClickable };
+}
+
 export const WizardStepper: React.FC<WizardStepperProps> = ({ currentStep, mode, onStepClick }) => {
-    const visibleSteps = steps.filter(step => {
+    const visibleSteps = STEP_DEFINITIONS.filter(step => {
         if (mode === 'simple' && step.id === WizardStep.CONFIG) return false;
         return true;
     });
 
     const handleStepClick = (stepId: number) => {
-        // Only allow clicking on completed (green) steps
         if (currentStep > stepId && onStepClick) {
             onStepClick(stepId);
         }
@@ -32,20 +49,17 @@ export const WizardStepper: React.FC<WizardStepperProps> = ({ currentStep, mode,
 
     return (
         <div className="stepper-container">
-            {/* Desktop Stepper */}
             <div className="stepper-desktop">
                 {visibleSteps.map((step, index) => {
-                    const isCompleted = currentStep > step.id;
-                    const isCurrent = currentStep === step.id;
-                    const clickable = isCompleted && !!onStepClick;
+                    const { isCompleted, isCurrent, isClickable } = resolveStepState(step.id, currentStep, !!onStepClick);
 
                     return (
                         <div key={step.id} className="stepper-item-wrapper">
                             <div
-                                className={`stepper-item ${isCurrent ? 'stepper-item-current' : isCompleted ? 'stepper-item-completed' : 'stepper-item-pending'} ${clickable ? 'stepper-item-clickable' : ''}`}
+                                className={`stepper-item ${isCurrent ? 'stepper-item-current' : isCompleted ? 'stepper-item-completed' : 'stepper-item-pending'} ${isClickable ? 'stepper-item-clickable' : ''}`}
                                 onClick={() => handleStepClick(step.id)}
-                                role={clickable ? 'button' : undefined}
-                                tabIndex={clickable ? 0 : undefined}
+                                role={isClickable ? 'button' : undefined}
+                                tabIndex={isClickable ? 0 : undefined}
                             >
                                 <div className={`stepper-circle ${isCompleted ? 'stepper-circle-completed' : isCurrent ? 'stepper-circle-current' : 'stepper-circle-pending'}`}>
                                     {isCompleted ? <Check size={12} strokeWidth={3} /> : (index + 1)}
@@ -63,21 +77,18 @@ export const WizardStepper: React.FC<WizardStepperProps> = ({ currentStep, mode,
                 })}
             </div>
 
-            {/* Mobile Stepper */}
             <div className="stepper-mobile">
                 <div className="stepper-mobile-flex">
                     {visibleSteps.map((step, index) => {
-                        const isCompleted = currentStep > step.id;
-                        const isCurrent = currentStep === step.id;
-                        const clickable = isCompleted && !!onStepClick;
+                        const { isCompleted, isCurrent, isClickable } = resolveStepState(step.id, currentStep, !!onStepClick);
 
                         return (
                             <div key={step.id} className="stepper-item-wrapper">
                                 <div
-                                    className={`stepper-mobile-item ${isCurrent ? 'stepper-item-current' : isCompleted ? 'stepper-item-completed' : 'stepper-item-pending'} ${clickable ? 'stepper-item-clickable' : ''}`}
+                                    className={`stepper-mobile-item ${isCurrent ? 'stepper-item-current' : isCompleted ? 'stepper-item-completed' : 'stepper-item-pending'} ${isClickable ? 'stepper-item-clickable' : ''}`}
                                     onClick={() => handleStepClick(step.id)}
-                                    role={clickable ? 'button' : undefined}
-                                    tabIndex={clickable ? 0 : undefined}
+                                    role={isClickable ? 'button' : undefined}
+                                    tabIndex={isClickable ? 0 : undefined}
                                 >
                                     <div className={`stepper-mobile-circle ${isCompleted ? 'stepper-circle-completed' : isCurrent ? 'stepper-circle-current' : 'stepper-circle-pending'}`}>
                                         {isCompleted ? <Check size={10} strokeWidth={3} /> : (index + 1)}

@@ -4,9 +4,9 @@ import type { RouteEditorProps } from "../../../../types/editor";
 import type { MyEquipment } from "../../../../types/equipment";
 import { useRouteEquipment } from ".././hooks/useRouteEquipment";
 import EquipmentCard from ".././components/EquipmentCard/EquipmentCard";
-import BackpackPanel from ".././components/BackpackPanel/BackpackPanel";
+import SelectedEquipmentPanel from ".././components/SelectedEquipmentPanel/SelectedEquipmentPanel";
 import EquipmentSearchTabs from ".././components/EquipmentSearchTabs/EquipmentSearchTabs";
-import CreateEquipmentModal from "../../equipmentEditor/CreateEquipmentModal/CreateEquipmentModal";
+import CreateEquipment from "../../equipmentEditor/CreateEquipment/CreateEquipment/CreateEquipment";
 import ConfirmDialog from "../../../../components/ui/ConfirmDialog/ConfirmDialog";
 import Toast from "../../../../components/ui/Toast/Toast";
 import Pagination from "../../../../components/ui/Pagination/Pagination";
@@ -16,7 +16,7 @@ const RouteEquipmentEditor: React.FC<RouteEditorProps> = ({ route, onUpdate }) =
     const {
         availableGeneral,
         availableMy,
-        resolvedBackpackItems,
+        resolvedSelectedEquipmentItems,
         isLoading,
         search,
         setSearch,
@@ -35,7 +35,7 @@ const RouteEquipmentEditor: React.FC<RouteEditorProps> = ({ route, onUpdate }) =
         clearError
     } = useRouteEquipment(route, onUpdate);
 
-    const [isBackpackPanelOpen, setIsBackpackPanelOpen] = React.useState(false);
+    const [isSelectedEquipmentPanelOpen, setIsSelectedEquipmentPanelOpen] = React.useState(false);
     const [isEquipmentModalOpen, setIsEquipmentModalOpen] = React.useState(false);
     const [equipmentBeingEdited, setEquipmentBeingEdited] = React.useState<MyEquipment | null>(null);
     const [equipmentIdPendingDeletion, setEquipmentIdPendingDeletion] = React.useState<number | null>(null);
@@ -53,18 +53,18 @@ const RouteEquipmentEditor: React.FC<RouteEditorProps> = ({ route, onUpdate }) =
     return (
         <div className="route-equipment-editor-container">
 
-            {isBackpackPanelOpen && (
+            {isSelectedEquipmentPanelOpen && (
                 <div
                     className="route-equipment-editor-backdrop"
-                    onClick={() => setIsBackpackPanelOpen(false)}
+                    onClick={() => setIsSelectedEquipmentPanelOpen(false)}
                 />
             )}
 
-            <BackpackPanel
-                isOpen={isBackpackPanelOpen}
-                onTogglePanel={() => setIsBackpackPanelOpen(!isBackpackPanelOpen)}
-                onClosePanel={() => setIsBackpackPanelOpen(false)}
-                resolvedBackpackItems={resolvedBackpackItems}
+            <SelectedEquipmentPanel
+                isOpen={isSelectedEquipmentPanelOpen}
+                onTogglePanel={() => setIsSelectedEquipmentPanelOpen(!isSelectedEquipmentPanelOpen)}
+                onClosePanel={() => setIsSelectedEquipmentPanelOpen(false)}
+                resolvedSelectedEquipmentItems={resolvedSelectedEquipmentItems}
                 processingId={processingId}
                 currentUser={currentUser}
                 onToggleEquipment={handleToggleItem}
@@ -158,7 +158,7 @@ const RouteEquipmentEditor: React.FC<RouteEditorProps> = ({ route, onUpdate }) =
                 {error && <Toast message={error} onClose={clearError} />}
             </div>
 
-            <CreateEquipmentModal
+            <CreateEquipment
                 isOpen={isEquipmentModalOpen}
                 onClose={() => setIsEquipmentModalOpen(false)}
                 initialData={equipmentBeingEdited}

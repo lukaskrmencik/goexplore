@@ -5,7 +5,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: var(--radius-2xl);
+    padding: var(--space-4);
 }
 
 .dialog-backdrop {
@@ -40,17 +40,17 @@
 }
 
 .dialog-body {
-    padding: var(--radius-3xl);
+    padding: var(--space-6);
 }
 
 .dialog-layout {
     display: flex;
     align-items: flex-start;
-    gap: var(--radius-2xl);
+    gap: var(--space-4);
 }
 
 .dialog-icon-wrapper {
-    padding: var(--radius-xl);
+    padding: var(--space-3);
     border-radius: var(--radius-full);
     flex-shrink: 0;
 }
@@ -72,10 +72,10 @@
 .dialog-title {
     font-family: var(--font-heading);
     font-weight: 700;
-    font-size: 1.var(--radius-3xl);
+    font-size: 1.var(--space-6);
     line-height: 1.75rem;
     color: var(--color-neutral-900);
-    margin-bottom: var(--radius-lg);
+    margin-bottom: var(--space-2);
 }
 
 .dialog-description {
@@ -87,15 +87,15 @@
 
 .dialog-footer {
     background-color: var(--color-neutral-50);
-    padding: var(--radius-2xl) var(--radius-3xl);
+    padding: var(--space-4) var(--space-6);
     display: flex;
-    gap: var(--radius-xl);
+    gap: var(--space-3);
     justify-content: flex-end;
     border-top: 1px solid var(--color-neutral-100);
 }
 
 .dialog-btn {
-    padding: var(--radius-lg) var(--radius-2xl);
+    padding: var(--space-2) var(--space-4);
     font-size: 0.875rem;
     line-height: 1.25rem;
     font-weight: 700;
@@ -103,7 +103,7 @@
     transition: all 0.15s;
     display: flex;
     align-items: center;
-    gap: var(--radius-lg);
+    gap: var(--space-2);
     border: none;
     cursor: pointer;
 }

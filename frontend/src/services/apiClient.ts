@@ -1,4 +1,5 @@
 import axios from "axios";
+import { AUTH_TOKEN_KEY } from "../utils/auth";
 
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -9,7 +10,7 @@ const apiClient = axios.create({
 });
 
 apiClient.interceptors.request.use(config => {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem(AUTH_TOKEN_KEY);
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -17,15 +18,11 @@ apiClient.interceptors.request.use(config => {
 });
 
 apiClient.interceptors.response.use(
-  (response) => {
-    return response;
-  },
+  (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      // Token is invalid/expired - force logout
-      localStorage.removeItem("token");
+      localStorage.removeItem(AUTH_TOKEN_KEY);
 
-      // Optionally preserve the route they were trying to access
       const redirectPath = window.location.pathname !== '/login'
         ? `?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`
         : '';

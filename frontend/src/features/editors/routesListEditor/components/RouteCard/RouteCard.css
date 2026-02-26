@@ -1,9 +1,7 @@
-/* RouteCard.css */
-
 .route-card-container {
     position: relative;
     background-color: var(--color-white);
-    /* bg-var(--color-white) */
+
     border-radius: var(--radius-2xl);
 
     border: 1px solid var(--color-neutral-200);
@@ -11,7 +9,7 @@
     box-shadow: var(--shadow-sm);
 
     transition: all 0.3s;
-    /* transition-all duration-300 */
+
     cursor: pointer;
     overflow: hidden;
     display: flex;
@@ -37,7 +35,6 @@
 
 }
 
-/* Image Placeholder */
 .route-card-image-placeholder {
     height: 7rem;
 
@@ -46,7 +43,7 @@
     position: relative;
     overflow: hidden;
     border-bottom: 1px solid var(--color-neutral-100);
-    /* border-b border-slate-100 */
+
     flex-shrink: 0;
 }
 
@@ -73,15 +70,13 @@
     height: 100%;
     z-index: 1;
     background-color: var(--color-neutral-100);
-    /* matches placeholder bg */
+
 }
 
-/* Ensure Leaflet controls are hidden even if explicitly declared, and kill the pointer events */
 .route-card-static-map .leaflet-control-container,
 .route-card-static-map .leaflet-pane {
     pointer-events: none !important;
 }
-
 
 .route-card-shared-inline-badge {
     display: flex;
@@ -108,18 +103,17 @@
     color: var(--color-neutral-400);
 }
 
-/* Status variants */
 .route-card-status-badge {
     position: absolute;
-    top: var(--radius-xl);
+    top: var(--space-3);
 
-    left: var(--radius-xl);
+    left: var(--space-3);
 
     padding: 0.25rem 0.625rem;
-    /* px-2.5 py-1 */
+
     border-radius: var(--radius-lg);
 
-    font-size: var(--radius-xl);
+    font-size: 0.75rem;
 
     font-weight: 700;
     box-shadow: var(--shadow-sm);
@@ -130,9 +124,6 @@
     z-index: 10;
 }
 
-
-
-/* Status variants */
 .route-card-status-active {
     background-color: var(--color-primary-100);
 
@@ -180,9 +171,8 @@
 
 }
 
-
 .route-card-body {
-    padding: var(--radius-xl);
+    padding: var(--space-3);
 
     display: flex;
     flex-direction: column;
@@ -201,7 +191,7 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    gap: var(--radius-lg);
+    gap: var(--space-2);
 
     margin-bottom: 0.25rem;
 
@@ -211,7 +201,7 @@
     font-family: var(--font-heading);
 
     font-weight: 700;
-    font-size: 1.var(--radius-3xl);
+    font-size: 1.var(--space-6);
 
     line-height: 1.25;
 
@@ -240,14 +230,13 @@
 
 }
 
-/* Footer (Normal Content) */
 .route-card-footer {
     margin-top: auto;
 
-    padding-top: var(--radius-xl);
+    padding-top: var(--space-3);
 
     border-top: 1px solid var(--color-neutral-50);
-    /* border-t border-slate-50 */
+
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -256,16 +245,14 @@
 .route-card-length-wrapper {
     display: flex;
     align-items: center;
-    gap: var(--radius-lg);
+    gap: var(--space-2);
 
-    font-size: var(--radius-xl);
+    font-size: 0.75rem;
 
     font-weight: 500;
     color: var(--color-neutral-500);
 
 }
-
-
 
 .route-card-length-text {
     color: var(--color-neutral-600);
@@ -275,23 +262,23 @@
 .route-card-participants-wrapper {
     display: flex;
     align-items: center;
-    gap: var(--radius-lg);
+    gap: var(--space-2);
 
 }
 
 .route-card-avatars-stack {
     display: flex;
     align-items: center;
-    margin-right: -var(--radius-lg);
-    /* -space-x-2 equivalent */
+    margin-right: -0.5rem;
+
     overflow: hidden;
     padding-left: 0.25rem;
 
 }
 
 .route-card-avatars-stack>* {
-    margin-left: -var(--radius-lg);
-    /* negative margin applied to children */
+    margin-left: -0.5rem;
+
 }
 
 .route-card-avatars-stack>*:first-child {
@@ -300,13 +287,13 @@
 
 .route-card-avatar {
     box-shadow: 0 0 0 2px var(--color-white);
-    /* ring-2 ring-var(--color-white) */
+
     width: 1.75rem;
 
     height: 1.75rem;
 
     font-size: 10px;
-    /* text-[10px] */
+
 }
 
 .route-card-avatar-overflow {
@@ -319,21 +306,18 @@
     background-color: var(--color-neutral-100);
 
     border: 2px solid var(--color-white);
-    /* border-2 border-var(--color-white) */
+
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 9px;
-    /* text-[9px] */
+
     font-weight: 700;
     color: var(--color-neutral-500);
 
     z-index: 10;
 }
 
-
-
-/* New Elements Styling */
 .route-card-info-text,
 .route-card-mode-text {
     font-size: 0.8125rem;
@@ -345,13 +329,13 @@
 
 .route-card-mode-text {
     margin-left: auto;
-    /* Push it to the right before share icon if needed */
+
 }
 
 .route-card-action-btn {
     position: absolute;
-    top: var(--radius-xl);
-    right: var(--radius-xl);
+    top: var(--space-3);
+    right: var(--space-3);
     background-color: var(--color-white);
     color: var(--color-error-500);
     border: 1px solid var(--color-neutral-200);
@@ -366,12 +350,12 @@
     transition: all 0.2s;
     z-index: 20;
     opacity: 0;
-    /* Hidden by default */
+
 }
 
 .route-card-container:hover .route-card-action-btn {
     opacity: 1;
-    /* Show on parent hover */
+
 }
 
 .route-card-action-btn:hover {
@@ -379,5 +363,3 @@
     color: var(--color-error-600);
     border-color: var(--color-error-200);
 }
-
-/* Adjust shared badge position if it collides with deletebtn on shared cards, but deletebtn is only for owned routes! So no collision */

@@ -1,4 +1,5 @@
 import { AlertTriangle } from "lucide-react";
+import './DurationPill.css';
 
 interface DurationInfo {
     isTooShort: boolean;

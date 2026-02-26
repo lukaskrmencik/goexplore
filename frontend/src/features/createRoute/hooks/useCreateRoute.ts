@@ -1,9 +1,9 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import type { Route, RouteMode } from "../../../types/routes";
-import { WizardStep } from "../../../types/wizard";
+import { WizardStep, type WizardStepType } from "../../../types/wizard";
 import { STEP_URLS, getStepFromUrl } from "../../../utils/wizardNav";
-import { getCompletedSteps, getFirstIncompleteStep } from "../../../utils/wizardCompletion";
+import { getFirstIncompleteStep } from "../../../utils/wizardCompletion";
 import {
     createRoute,
     fetchGetRoute,
@@ -27,13 +27,9 @@ export const useCreateRoute = () => {
     const [isCalculating, setIsCalculating] = useState(false);
     const [calculationProgress, setCalculationProgress] = useState(0);
     const [calculationStatus, setCalculationStatus] = useState("");
+    const [retryStage, setRetryStage] = useState(0);
 
     const currentStep = getStepFromUrl(step);
-
-    // Compute completed steps from route data
-    const completedSteps = useMemo(() => {
-        return getCompletedSteps(route, route?.mode);
-    }, [route]);
 
     useEffect(() => {
         if (routeId && (!route || route.id !== Number(routeId))) {
@@ -42,17 +38,12 @@ export const useCreateRoute = () => {
         }
     }, [routeId]);
 
-    // Resume: redirect to first incomplete step when route loads
     useEffect(() => {
         if (route && !hasRedirected && routeId) {
             const firstIncomplete = getFirstIncompleteStep(route, route.mode);
-            const currentUrl = step;
-            // @ts-ignore
-            const targetUrl = STEP_URLS[firstIncomplete];
+            const targetUrl = STEP_URLS[firstIncomplete as WizardStepType];
 
-            // Only redirect if we're on the LOCATION step (default entry) 
-            // and the first incomplete step is different
-            if (currentUrl === STEP_URLS[WizardStep.LOCATION] && targetUrl && targetUrl !== currentUrl) {
+            if (step === STEP_URLS[WizardStep.LOCATION] && targetUrl && targetUrl !== step) {
                 setHasRedirected(true);
                 navigate(`/routes/${route.id}/${targetUrl}`, { replace: true });
             } else {
@@ -69,7 +60,6 @@ export const useCreateRoute = () => {
             setRoute(newRoute);
             navigate(`/routes/${newRoute.id}/${STEP_URLS[WizardStep.LOCATION]}`);
         } catch (err) {
-            console.error(err);
             setError(getErrorMessage(err, "Nepodařilo se vytvořit trasu"));
         } finally {
             setIsLoading(false);
@@ -83,7 +73,6 @@ export const useCreateRoute = () => {
             const fetchedRoute = await fetchGetRoute(Number(id));
             setRoute(fetchedRoute);
         } catch (err) {
-            console.error(err);
             setError(getErrorMessage(err, "Nepodařilo se načíst trasu"));
         } finally {
             setIsLoading(false);
@@ -102,15 +91,12 @@ export const useCreateRoute = () => {
                 nextStepNum = WizardStep.FINISH;
             }
 
-            // @ts-ignore
-            if (STEP_URLS[nextStepNum]) {
-                // @ts-ignore
-                navigate(`/routes/${route.id}/${STEP_URLS[nextStepNum]}`);
+            const nextUrl = STEP_URLS[nextStepNum as WizardStepType];
+            if (nextUrl) {
+                navigate(`/routes/${route.id}/${nextUrl}`);
             }
-        } catch (err: any) {
-            console.error(err);
-            const msg = getErrorMessage(err, "Chyba při ukládání dat. Zkontrolujte prosím údaje.");
-            setError(msg);
+        } catch (err) {
+            setError(getErrorMessage(err, "Chyba při ukládání dat. Zkontrolujte prosím údaje."));
         } finally {
             setIsLoading(false);
         }
@@ -118,8 +104,7 @@ export const useCreateRoute = () => {
 
     const goToStep = (stepId: number) => {
         if (!route) return;
-        // @ts-ignore
-        const url = STEP_URLS[stepId];
+        const url = STEP_URLS[stepId as WizardStepType];
         if (url) {
             navigate(`/routes/${route.id}/${url}`);
         }
@@ -133,35 +118,25 @@ export const useCreateRoute = () => {
             prevStepNum = WizardStep.EQUIPMENT;
         }
 
-        // @ts-ignore
-        if (prevStepNum >= WizardStep.LOCATION && STEP_URLS[prevStepNum]) {
-            // @ts-ignore
-            navigate(`/routes/${route.id}/${STEP_URLS[prevStepNum]}`);
+        const prevUrl = STEP_URLS[prevStepNum as WizardStepType];
+        if (prevStepNum >= WizardStep.LOCATION && prevUrl) {
+            navigate(`/routes/${route.id}/${prevUrl}`);
         } else if (prevStepNum < WizardStep.LOCATION) {
-            // On step 1, going back deletes the route
-            handleDeleteAndGoBack();
+            deleteRouteAndNavigateBack();
         }
     };
 
-    const handleDeleteAndGoBack = async () => {
+    const deleteRouteAndNavigateBack = async () => {
         if (!route) return;
         setIsLoading(true);
         try {
             await deleteRoute(route.id);
-        } catch (err) {
-            console.error("Failed to delete route on back:", err);
-            // Don't block navigation even if delete fails
         } finally {
             setIsLoading(false);
             setRoute(null);
             navigate(`/routes/new`);
         }
     };
-
-    // Old pollCalculation removed to avoid duplication
-
-
-    const [retryStage, setRetryStage] = useState(0);
 
     const startCalculation = async (overrideBufferSize?: number) => {
         if (!route) return;
@@ -173,39 +148,23 @@ export const useCreateRoute = () => {
         try {
             let bufferToUse = route.buffer_size;
 
-            // SIMPLE MODE: Automatic buffer handling
             if (route.mode === 'simple') {
-                // Determine buffer size based on retry stage
                 const stageIndex = overrideBufferSize ? 0 : retryStage;
-                // If overrideBufferSize is presented (e.g. manual restart), reset stage. 
-                // Otherwise use current stage from config.
-
                 const stages = SIMPLE_MODE_CONFIG.BUFFER_RETRY_STAGES;
-                const nextBuffer = stages[stageIndex] || stages[stages.length - 1]; // Fallback to max
-
-                bufferToUse = nextBuffer;
+                bufferToUse = stages[stageIndex] ?? stages[stages.length - 1];
 
                 if (stageIndex > 0) {
-                    // Notify user about retry with larger buffer
-                    // Ideally use a toast here, but for now we set status
                     setCalculationStatus(`Zkouším rozšířený okruh (${bufferToUse} km)...`);
-                    // await new Promise(r => setTimeout(r, 1000)); // smooth transition
                 }
 
-                // Update route with new buffer
                 const updatedRoute = await updateRoute(route.id, {
                     buffer_size: bufferToUse,
-                    // Ensure other defaults are preserved or updated if needed
                     max_route_length_day: SIMPLE_MODE_CONFIG.MAX_ROUTE_LENGTH_DAY,
-                    poi_per_day: SIMPLE_MODE_CONFIG.POI_PER_DAY
+                    poi_per_day: SIMPLE_MODE_CONFIG.POI_PER_DAY,
                 });
                 setRoute(updatedRoute);
-            }
-            // MANUAL MODE: Check for override from UI
-            else if (overrideBufferSize && overrideBufferSize !== route.buffer_size) {
-                const updatedRoute = await updateRoute(route.id, {
-                    buffer_size: overrideBufferSize
-                });
+            } else if (overrideBufferSize && overrideBufferSize !== route.buffer_size) {
+                const updatedRoute = await updateRoute(route.id, { buffer_size: overrideBufferSize });
                 setRoute(updatedRoute);
                 bufferToUse = overrideBufferSize;
             }
@@ -213,15 +172,13 @@ export const useCreateRoute = () => {
             const jobId = await calculateRoute(route.id);
             pollCalculation(jobId, route.mode === 'simple' ? retryStage : -1);
         } catch (err) {
-            console.error(err);
             setIsCalculating(false);
             setError(getErrorMessage(err, "Nepodařilo se spustit výpočet."));
         }
     };
 
-    // Modified poll to handle simple mode retries
-    const pollCalculation = async (jobId: string, currentRetryStage: number) => {
-        const CALCULATION_POLLING_INTERVAL = Number(import.meta.env.VITE_CALCULATION_POLLING_INTERVAL ?? "2000");
+    const pollCalculation = (jobId: string, currentRetryStage: number) => {
+        const pollingInterval = Number(import.meta.env.VITE_CALCULATION_POLLING_INTERVAL ?? "2000");
 
         const interval = setInterval(async () => {
             try {
@@ -242,57 +199,44 @@ export const useCreateRoute = () => {
                 } else if (hasError) {
                     clearInterval(interval);
 
-                    // RETRY LOGIC FOR SIMPLE MODE
                     if (currentRetryStage !== -1 && currentRetryStage < SIMPLE_MODE_CONFIG.BUFFER_RETRY_STAGES.length - 1) {
-                        console.log(`Calculation failed at stage ${currentRetryStage}. Retrying with next stage...`);
                         setRetryStage(prev => prev + 1);
                         setTimeout(() => {
                             handleSimpleRetry(currentRetryStage + 1);
                         }, 100);
-
                     } else {
                         setIsCalculating(false);
                         setError(progressData.error || "Výpočet selhal.");
                     }
                 }
-            } catch (err: any) {
-                console.error(err);
-                const msg = getErrorMessage(err, "Nastala chyba při komunikaci se serverem.");
-                setError(msg);
+            } catch (err) {
+                setError(getErrorMessage(err, "Nastala chyba při komunikaci se serverem."));
                 setIsCalculating(false);
                 clearInterval(interval);
             }
-        }, CALCULATION_POLLING_INTERVAL);
+        }, pollingInterval);
     };
 
-    const handleSimpleRetry = (nextStage: number) => {
-        // Update state for UI consistency
+    const handleSimpleRetry = async (nextStage: number) => {
         setRetryStage(nextStage);
-
-        // Construct correct config update
-        const stages = SIMPLE_MODE_CONFIG.BUFFER_RETRY_STAGES;
-        const nextBuffer = stages[nextStage];
-
+        const nextBuffer = SIMPLE_MODE_CONFIG.BUFFER_RETRY_STAGES[nextStage];
         setCalculationStatus(`Nenalezeno. Zkouším rozšířit hledání na ${nextBuffer} km...`);
 
-        (async () => {
-            try {
-                if (!route) return;
+        if (!route) return;
 
-                const updatedRoute = await updateRoute(route.id, {
-                    buffer_size: nextBuffer,
-                    max_route_length_day: SIMPLE_MODE_CONFIG.MAX_ROUTE_LENGTH_DAY,
-                    poi_per_day: SIMPLE_MODE_CONFIG.POI_PER_DAY
-                });
-                setRoute(updatedRoute);
-
-                const jobId = await calculateRoute(route.id);
-                pollCalculation(jobId, nextStage);
-            } catch (e) {
-                setIsCalculating(false);
-                setError("Chyba při opakovaném výpočtu.");
-            }
-        })();
+        try {
+            const updatedRoute = await updateRoute(route.id, {
+                buffer_size: nextBuffer,
+                max_route_length_day: SIMPLE_MODE_CONFIG.MAX_ROUTE_LENGTH_DAY,
+                poi_per_day: SIMPLE_MODE_CONFIG.POI_PER_DAY,
+            });
+            setRoute(updatedRoute);
+            const jobId = await calculateRoute(route.id);
+            pollCalculation(jobId, nextStage);
+        } catch {
+            setIsCalculating(false);
+            setError("Chyba při opakovaném výpočtu.");
+        }
     };
 
     const clearError = () => setError(null);
@@ -304,15 +248,13 @@ export const useCreateRoute = () => {
         error,
         clearError,
         initializeRoute,
-        loadRoute,
         setRoute,
         nextStep,
         prevStep,
         goToStep,
-        completedSteps,
         startCalculation,
         isCalculating,
         calculationProgress,
-        calculationStatus
+        calculationStatus,
     };
 };

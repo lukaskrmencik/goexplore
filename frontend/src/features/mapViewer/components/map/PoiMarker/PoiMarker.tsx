@@ -3,7 +3,7 @@ import type { RoutePoi } from "../../../../../types/routes";
 import { geojsonPointToLatLng } from "../../../../../utils/geo";
 import 'leaflet.awesome-markers';
 import { MapPin } from 'lucide-react';
-import { createCustomIcon } from '../../../utils/mapIcons/mapIcons';
+import { createCustomIcon } from '../../../../../utils/mapIcons/mapIcons';
 
 interface PoiMarkerProps {
     poi: RoutePoi;

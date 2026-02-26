@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { Search, Plus, Package } from 'lucide-react';
+import { Package, Plus } from 'lucide-react';
 import { useEquipment } from '.././hooks/useEquipment';
-import EquipmentManagerCard from '.././components/EquipmentManagerCard/EquipmentManagerCard';
-import CreateEquipmentModal from '.././CreateEquipmentModal/CreateEquipmentModal';
+import EquipmentEditorCard from '.././components/EquipmentEditorCard/EquipmentEditorCard';
+import EquipmentEditorHeader from '.././components/EquipmentEditorHeader/EquipmentEditorHeader';
+import CreateEquipment from '.././CreateEquipment/CreateEquipment/CreateEquipment';
 import ConfirmDialog from '../../../../components/ui/ConfirmDialog/ConfirmDialog';
-import { Input } from '../../../../components/ui/Input/Input';
 import Pagination from '../../../../components/ui/Pagination/Pagination';
 import Toast from '../../../../components/ui/Toast/Toast';
+import type { MyEquipment } from '../../../../types/equipment';
 import './EquipmentEditor.css';
 
 const EquipmentEditor: React.FC = () => {
@@ -22,58 +23,38 @@ const EquipmentEditor: React.FC = () => {
         handleDeleteEquipment,
         processingId,
         error,
-        clearError
+        clearError,
     } = useEquipment();
 
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editingEquipment, setEditingEquipment] = useState<any | null>(null);
-    const [deletingId, setDeletingId] = useState<number | null>(null);
+    const [equipmentBeingEdited, setEquipmentBeingEdited] = useState<MyEquipment | null>(null);
+    const [equipmentIdPendingDeletion, setEquipmentIdPendingDeletion] = useState<number | null>(null);
 
     const handleCreateNew = () => {
-        setEditingEquipment(null);
+        setEquipmentBeingEdited(null);
         setIsModalOpen(true);
     };
 
-    const handleEdit = (item: any) => {
-        setEditingEquipment(item);
+    const handleEditEquipment = (item: MyEquipment) => {
+        setEquipmentBeingEdited(item);
         setIsModalOpen(true);
     };
 
     const confirmDelete = async () => {
-        if (deletingId) {
-            await handleDeleteEquipment(deletingId);
-            setDeletingId(null);
+        if (equipmentIdPendingDeletion) {
+            await handleDeleteEquipment(equipmentIdPendingDeletion);
+            setEquipmentIdPendingDeletion(null);
         }
     };
 
-
     return (
         <div className="equipment-editor-container">
-            {/* Page Header & Filters */}
-            <div className="equipment-editor-header-wrapper">
-                <h1 className="equipment-editor-title">Moje vybavení</h1>
+            <EquipmentEditorHeader
+                search={search}
+                onSearchChange={setSearch}
+                onCreateNew={handleCreateNew}
+            />
 
-                <div className="equipment-editor-search-wrapper">
-                    <Input
-                        icon={Search}
-                        placeholder="Hledat vybavení..."
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                    />
-                </div>
-
-                <div className="equipment-editor-actions-container">
-                    <button
-                        onClick={handleCreateNew}
-                        className="equipment-editor-create-btn"
-                    >
-                        <Plus size={20} />
-                        Přidat vybavení
-                    </button>
-                </div>
-            </div>
-
-            {/* Content Area */}
             {isLoading ? (
                 <div className="equipment-editor-loading">
                     <Package size={48} className="equipment-editor-loading-icon" />
@@ -82,12 +63,8 @@ const EquipmentEditor: React.FC = () => {
             ) : (
                 <div className="equipment-editor-content-wrapper">
                     <div className="equipment-editor-grid">
-                        {/* Create Card — always first, on page 1 */}
                         {page === 1 && (
-                            <div
-                                onClick={handleCreateNew}
-                                className="equipment-editor-create-card"
-                            >
+                            <div onClick={handleCreateNew} className="equipment-editor-create-card">
                                 <div className="equipment-editor-create-icon-wrapper">
                                     <Plus size={32} />
                                 </div>
@@ -96,16 +73,15 @@ const EquipmentEditor: React.FC = () => {
                         )}
 
                         {equipmentList.map(item => (
-                            <EquipmentManagerCard
+                            <EquipmentEditorCard
                                 key={item.id}
                                 item={item}
                                 isProcessing={processingId === item.id}
-                                onEdit={() => handleEdit(item)}
-                                onDelete={() => setDeletingId(item.id)}
+                                onEdit={() => handleEditEquipment(item)}
+                                onDelete={() => setEquipmentIdPendingDeletion(item.id)}
                             />
                         ))}
 
-                        {/* Search empty hint — only when filtering returns nothing */}
                         {search && equipmentList.length === 0 && (
                             <div className="equipment-editor-search-empty">
                                 <Package size={40} strokeWidth={1} className="equipment-editor-empty-icon" />
@@ -114,8 +90,7 @@ const EquipmentEditor: React.FC = () => {
                         )}
                     </div>
 
-                    {/* Pagination Controls */}
-                    {(totalPages > 1 && equipmentList.length > 0) && (
+                    {totalPages > 1 && equipmentList.length > 0 && (
                         <div className="equipment-editor-pagination-wrapper">
                             <Pagination
                                 currentPage={page}
@@ -127,30 +102,27 @@ const EquipmentEditor: React.FC = () => {
                 </div>
             )}
 
-            {/* Warning/Info Toast Placeholder */}
             {error && <Toast message={error} onClose={clearError} />}
 
-            {/* Create Modal */}
-            <CreateEquipmentModal
+            <CreateEquipment
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                initialData={editingEquipment}
+                initialData={equipmentBeingEdited}
                 onSubmit={() => {
                     handleEquipmentCreated();
                     setIsModalOpen(false);
                 }}
             />
 
-            {/* Confirm Delete Dialog */}
             <ConfirmDialog
-                isOpen={!!deletingId}
+                isOpen={!!equipmentIdPendingDeletion}
                 title="Smazat vybavení?"
                 description="Tato akce je nevratná. Vybavení bude odebráno ze všech tras a trvale smazáno ze systému."
                 confirmLabel="Smazat"
                 isDestructive={true}
                 onConfirm={confirmDelete}
-                onCancel={() => setDeletingId(null)}
-                isLoading={processingId === deletingId}
+                onCancel={() => setEquipmentIdPendingDeletion(null)}
+                isLoading={processingId === equipmentIdPendingDeletion}
             />
         </div>
     );

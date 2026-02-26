@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import './SimpleModePanel.css';
 import { GripVertical, Plus, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
 import type { EditorPoint } from '../../../../../types/editor';
 import LocationSearch from '../LocationSearch/LocationSearch';

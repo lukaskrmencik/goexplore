@@ -2,6 +2,10 @@ import React, { useState } from 'react';
 import { AlertCircle, RefreshCw, Settings2 } from "lucide-react";
 import './CalculationErrorHelper.css';
 
+const DEFAULT_BUFFER_KM = Number(import.meta.env.VITE_CONFIG_DEFAULT_BUFFER_KM ?? "10");
+const BUFFER_MIN_KM = Number(import.meta.env.VITE_CONFIG_BUFFER_MIN_KM ?? "1");
+const BUFFER_MAX_KM = Number(import.meta.env.VITE_CONFIG_BUFFER_MAX_KM ?? "50");
+
 interface CalculationErrorHelperProps {
     error: string;
     routeMode: 'simple' | 'manual';
@@ -13,9 +17,9 @@ interface CalculationErrorHelperProps {
 const CalculationErrorHelper: React.FC<CalculationErrorHelperProps> = ({
     error,
     routeMode,
-    currentBufferSize = 10,
+    currentBufferSize = DEFAULT_BUFFER_KM,
     onRetry,
-    onBack
+    onBack,
 }) => {
     const [bufferSize, setBufferSize] = useState<number>(currentBufferSize);
 
@@ -54,16 +58,16 @@ const CalculationErrorHelper: React.FC<CalculationErrorHelperProps> = ({
                                 </div>
                                 <input
                                     type="range"
-                                    min="1"
-                                    max="50"
+                                    min={BUFFER_MIN_KM}
+                                    max={BUFFER_MAX_KM}
                                     step="1"
                                     value={bufferSize}
                                     onChange={(e) => setBufferSize(parseInt(e.target.value))}
                                     className="error-helper-slider"
                                 />
                                 <div className="error-helper-slider-marks">
-                                    <span>1 km</span>
-                                    <span>50 km</span>
+                                    <span>{BUFFER_MIN_KM} km</span>
+                                    <span>{BUFFER_MAX_KM} km</span>
                                 </div>
                             </div>
                         </div>

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { fetchGetRoute } from "../../../services/routesApiService";
-import { fetchMyProfile } from "../../../services/userApiService";
+import { fetchMyUser } from "../../../services/usersApiService";
 import type { Route } from '../../../types/routes';
 import type { User } from '../../../types/users';
 import { usePois } from "./usePois";
@@ -18,7 +18,7 @@ export const useMapViewer = (routeId: number | null) => {
     const camps = route?.camps ?? [];
 
     useEffect(() => {
-        fetchMyProfile()
+        fetchMyUser()
             .then(setCurrentUser)
             .catch(() => {});
     }, []);

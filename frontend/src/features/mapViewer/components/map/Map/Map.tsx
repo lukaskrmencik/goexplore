@@ -1,6 +1,6 @@
 import React from 'react'
 import type { RoutePoi, RouteCluster, RouteCamp } from "../../../../../types/routes";
-import LeafletMap from '../../../../leafletMap/components/LeafletMap/LeafletMap'
+import LeafletMap from '../../../../../components/LeafletMap/LeafletMap'
 import PoiMarker from '.././PoiMarker/PoiMarker';
 import CampMarker from '.././CampMarker/CampMarker';
 import ClusterMarker from '.././ClusterMarker/ClusterMarker';
@@ -12,7 +12,7 @@ import type { RouteUser, User } from "../../../../../types/users";
 import { Marker } from "react-leaflet";
 import { geojsonPointToLatLng } from "../../../../../utils/geo";
 import { Play, Flag } from 'lucide-react';
-import { createCustomIcon } from '../../../utils/mapIcons/mapIcons';
+import { createCustomIcon } from '../../../../../utils/mapIcons/mapIcons';
 
 const startIcon = createCustomIcon(Play, {
     color: "#ffffff",

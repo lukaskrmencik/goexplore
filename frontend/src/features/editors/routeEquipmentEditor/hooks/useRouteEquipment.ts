@@ -19,14 +19,14 @@ import { getErrorMessage } from "../../../../utils/apiError";
 const PER_PAGE = Number(import.meta.env.VITE_EQUIPMENT_PER_PAGE ?? "12");
 const EQUIPMENT_SEARCH_DEBOUNCE = Number(import.meta.env.VITE_EQUIPMENT_SEARCH_DEBOUNCE ?? "300");
 
-export interface ResolvedBackpackItem {
+export interface ResolvedSelectedEquipmentItem {
     pivotId: number;
     displayItem: GeneralEquipment | MyEquipment;
     equipmentType: EquipmentType;
     equipmentId: number;
 }
 
-function resolveBackpackItemDisplay(
+function resolveSelectedEquipmentItemDisplay(
     item: NonNullable<Route['equipment']>[0],
     myList: MyEquipment[],
     generalList: GeneralEquipment[]
@@ -180,14 +180,14 @@ export const useRouteEquipment = (route: Route, onUpdate: (route: Route) => void
         );
     };
 
-    const resolvedBackpackItems: ResolvedBackpackItem[] = useMemo(() =>
+    const resolvedSelectedEquipmentItems: ResolvedSelectedEquipmentItem[] = useMemo(() =>
         (route.equipment || []).map(item => {
             const isMy = !!item.my_equipment_id;
             const equipmentType: EquipmentType = isMy ? 'my' : 'general';
             const equipmentId = isMy ? item.my_equipment_id! : item.general_equipment_id!;
             return {
                 pivotId: item.id,
-                displayItem: resolveBackpackItemDisplay(item, myList, generalList),
+                displayItem: resolveSelectedEquipmentItemDisplay(item, myList, generalList),
                 equipmentType,
                 equipmentId,
             };
@@ -202,7 +202,7 @@ export const useRouteEquipment = (route: Route, onUpdate: (route: Route) => void
     return {
         availableGeneral,
         availableMy,
-        resolvedBackpackItems,
+        resolvedSelectedEquipmentItems,
         isLoading,
         search,
         setSearch,

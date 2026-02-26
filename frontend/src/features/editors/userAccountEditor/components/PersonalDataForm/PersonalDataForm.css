@@ -1,0 +1,103 @@
+.account-editor-card {
+    background-color: var(--color-white);
+    border-radius: var(--radius-2xl);
+    border: 1px solid var(--color-neutral-200);
+    padding: 2.5rem 2rem;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+@media (min-width: 768px) {
+    .account-editor-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+}
+
+.account-editor-card h3 {
+    margin: 0 0 var(--space-6) 0;
+    font-size: 1.25rem;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    color: var(--color-neutral-900);
+}
+
+.account-editor-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    flex: 1;
+}
+
+.account-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.account-form-group label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-neutral-700);
+}
+
+.account-input {
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--color-neutral-200);
+    background-color: var(--color-white);
+    color: var(--color-neutral-900);
+    font-size: 1rem;
+    transition: all 0.2s ease;
+}
+
+.account-input:focus:not(:disabled) {
+    outline: none;
+    border-color: var(--color-primary-600);
+    box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.15);
+}
+
+.account-input:disabled,
+.account-input-disabled {
+    background-color: var(--color-neutral-50);
+    color: var(--color-neutral-500);
+    cursor: not-allowed;
+    border-color: var(--color-neutral-200);
+}
+
+.account-save-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    align-self: flex-start;
+    margin-top: auto;
+    padding: var(--space-3) var(--space-6);
+    background-color: var(--color-primary-600);
+    color: var(--color-white);
+    font-weight: 600;
+    border: none;
+    border-radius: var(--radius-xl);
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(var(--color-primary-rgb), 0.2);
+    transition: all 0.2s ease;
+}
+
+.account-save-btn:hover:not(:disabled) {
+    background-color: var(--color-primary-700);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(4, 120, 87, 0.3);
+}
+
+.account-save-btn:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.account-save-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    background-color: var(--color-neutral-400);
+    box-shadow: none;
+}

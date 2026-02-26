@@ -1,0 +1,243 @@
+.route-axis-editor-simple-mode {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.route-axis-editor-waypoints-list {
+    padding-left: var(--space-4);
+    margin-left: calc(var(--space-2) + 0.5rem);
+    border-left: 2px solid var(--color-neutral-200);
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+.route-axis-editor-gap,
+.route-axis-editor-gap-static {
+    position: relative;
+    height: 1rem;
+    margin: 0;
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+.route-axis-editor-gap::before,
+.route-axis-editor-gap-static::before {
+    content: '';
+    position: absolute;
+    left: calc(var(--space-3) * -1);
+    right: 0;
+    height: 3px;
+    background-color: var(--color-primary-500);
+    border-radius: var(--radius-full);
+    opacity: 0;
+    transform: scaleX(0.95);
+    transition: all var(--transition-fast);
+}
+
+.route-axis-editor-gap-button {
+    position: relative;
+    z-index: 2;
+    background-color: var(--color-white);
+    color: var(--color-primary-600);
+    border: 2px solid var(--color-primary-500);
+    border-radius: var(--radius-full);
+    width: 1.5rem;
+    height: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    cursor: pointer;
+    transform: scale(0.8);
+    transition: all var(--transition-fast);
+    box-shadow: 0 0 0 4px var(--color-white);
+}
+
+.route-axis-editor-gap:hover::before,
+.route-axis-editor-gap-drag-over::before,
+.route-axis-editor-gap-static.route-axis-editor-gap-drag-over::before {
+    opacity: 1;
+    transform: scaleX(1);
+}
+
+.route-axis-editor-gap:hover .route-axis-editor-gap-button,
+.route-axis-editor-gap-active .route-axis-editor-gap-button,
+.route-axis-editor-gap-drag-over .route-axis-editor-gap-button {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.route-axis-editor-gap:hover::before {
+    z-index: 1;
+}
+
+.route-axis-editor-gap-button:hover {
+    background-color: var(--color-primary-50);
+}
+
+.route-axis-editor-gap-input-container {
+    padding: 0.375rem 0;
+    animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.route-axis-editor-waypoint-item-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.route-axis-editor-waypoint-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    background-color: var(--color-white);
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--color-neutral-200);
+    transition: all 0.2s ease-in-out;
+    margin: 0;
+}
+
+.route-axis-editor-waypoint-item-dragging {
+    opacity: 0.5;
+    background-color: var(--color-neutral-50);
+}
+
+.route-axis-editor-waypoint-drag-handle {
+    cursor: grab;
+    color: var(--color-neutral-400);
+    display: flex;
+    align-items: center;
+}
+
+.route-axis-editor-waypoint-drag-handle:active {
+    cursor: grabbing;
+}
+
+.route-axis-editor-waypoint-item:hover {
+    border-color: var(--color-primary-200);
+    box-shadow: var(--shadow-sm);
+}
+
+.route-axis-editor-waypoint-info {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    overflow: hidden;
+    flex: 1;
+    justify-content: flex-start;
+}
+
+.route-axis-editor-waypoint-number {
+    display: none;
+}
+
+.route-axis-editor-waypoint-name {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-neutral-700);
+}
+
+.route-axis-editor-waypoint-remove {
+    color: var(--color-neutral-300);
+    transition: color 0.2s ease-in-out;
+    padding: 0.25rem;
+    border: none;
+    background-color: var(--color-transparent);
+    cursor: pointer;
+}
+
+.route-axis-editor-waypoint-remove:hover {
+    color: #ef4444;
+}
+
+.route-axis-editor-waypoint-add-wrapper {
+    position: relative;
+}
+
+.route-axis-editor-mobile-reorder {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex-shrink: 0;
+}
+
+@media (min-width: 768px) {
+    .route-axis-editor-mobile-reorder {
+        display: none;
+    }
+}
+
+.route-axis-editor-mobile-reorder-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border: 1px solid var(--color-neutral-200);
+    border-radius: var(--radius-md);
+    background-color: var(--color-white);
+    color: var(--color-neutral-500);
+    cursor: pointer;
+    padding: 0;
+    transition: all 0.15s ease;
+}
+
+.route-axis-editor-mobile-reorder-btn:active:not(:disabled) {
+    background-color: var(--color-primary-50);
+    border-color: var(--color-primary-300);
+    color: var(--color-primary-600);
+}
+
+.route-axis-editor-mobile-reorder-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+@keyframes swapMoveUp {
+    0% { transform: translateY(0); opacity: 1; }
+    30% { transform: translateY(-100%); opacity: 0.5; }
+    60% { transform: translateY(-100%); opacity: 0; }
+    61% { transform: translateY(50%); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes swapMoveDown {
+    0% { transform: translateY(0); opacity: 1; }
+    30% { transform: translateY(100%); opacity: 0.5; }
+    60% { transform: translateY(100%); opacity: 0; }
+    61% { transform: translateY(-50%); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+
+.route-axis-editor-swap-up {
+    animation: swapMoveUp 0.35s ease-out;
+}
+
+.route-axis-editor-swap-down {
+    animation: swapMoveDown 0.35s ease-out;
+}

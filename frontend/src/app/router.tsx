@@ -1,20 +1,20 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { isUserAuthenticated } from "../utils/auth";
 
-import MapViewerPage from "../pages/MapViewerPage/MapViewerPage";
-import CreateRoutePage from "../pages/CreateRoutePage/CreateRoutePage";
-import RoutesPage from "../pages/RoutesPage/RoutesPage";
-import EquipmentPage from "../pages/EquipmentPage/EquipmentPage";
-import UserAccountPage from "../pages/UserAccountPage/UserAccountPage";
-import LoginPage from "../pages/Auth/LoginPage/LoginPage";
-import SignupPage from "../pages/Auth/SignupPage/SignupPage";
-import JoinRoutePage from "../pages/JoinRoutePage/JoinRoutePage";
+import MapViewerPage from "../pages/MapViewerPage";
+import CreateRoutePage from "../pages/CreateRoutePage";
+import RoutesPage from "../pages/RoutesPage";
+import EquipmentPage from "../pages/EquipmentPage";
+import UserAccountPage from "../pages/UserAccountPage";
+import LoginPage from "../pages/LoginPage";
+import SignupPage from "../pages/SignupPage";
+import JoinRoutePage from "../pages/JoinRoutePage";
 
 import { MainLayout } from "../components/layout/MainLayout/MainLayout";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const token = localStorage.getItem('token');
-  if (!token) {
+  if (!isUserAuthenticated()) {
     return <Navigate to="/login" replace />;
   }
   return <MainLayout>{children}</MainLayout>;

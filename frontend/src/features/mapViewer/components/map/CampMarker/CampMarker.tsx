@@ -3,7 +3,7 @@ import type { RouteCamp } from "../../../../../types/routes";
 import { geojsonPointToLatLng } from "../../../../../utils/geo";
 import 'leaflet.awesome-markers';
 import { Tent } from 'lucide-react';
-import { createCustomIcon } from '../../../utils/mapIcons/mapIcons';
+import { createCustomIcon } from '../../../../../utils/mapIcons/mapIcons';
 
 interface CampMarkerProps {
     camp: RouteCamp;

@@ -1,0 +1,49 @@
+.location-permission-banner {
+    background-color: var(--color-primary-50);
+    border-bottom: 1px solid var(--color-primary-100);
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    position: sticky;
+    top: 3.5rem;
+    z-index: 40;
+}
+
+@media (min-width: 768px) {
+    .location-permission-banner {
+        top: 4rem;
+    }
+}
+
+.location-permission-content {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-primary-800);
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.location-permission-icon {
+    color: var(--color-primary-500);
+    flex-shrink: 0;
+}
+
+.location-permission-btn {
+    background-color: var(--color-primary-600);
+    color: var(--color-white);
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 0.375rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    white-space: nowrap;
+}
+
+.location-permission-btn:hover {
+    background-color: var(--color-primary-700);
+}

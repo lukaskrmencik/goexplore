@@ -25,7 +25,7 @@ export const createMarkerIcon = (type: 'start' | 'end' | 'waypoint' | 'default')
 
     return L.AwesomeMarkers.icon({
         icon: icon,
-        markerColor: color as string,
+        markerColor: color as "blue" | "cadetblue" | "darkgreen" | "darkred" | "green" | "orange" | "purple" | "red" | "darkpurple",
         prefix: 'fa', 
         iconColor: 'white'
     });
