@@ -26,17 +26,18 @@ export function getRouteStatusCssClass(status: RouteStatus): string {
     }
 }
 
-export function getRouteStatusLabel(status: Exclude<RouteStatus, 'future'>): string {
+export function getRouteStatusLabel(status: RouteStatus): string {
     switch (status) {
         case 'active': return 'Probíhá';
         case 'past': return 'Proběhlo';
+        case 'future': return 'Naplánováno';
         case 'draft': return 'Rozpracováno';
         default: return '';
     }
 }
 
 export function getRouteModeLabel(mode: string): string {
-    if (mode === 'simple') return 'Automatická';
-    if (mode === 'manual') return 'Manuální';
+    if (mode === 'simple') return 'Jednoduchý';
+    if (mode === 'manual') return 'Pokročilý';
     return 'Neznámý';
 }

@@ -4,7 +4,18 @@ import './index.css'
 import App from './app/App.tsx'
 import { registerSW } from 'virtual:pwa-register';
 
-registerSW({ immediate: true });
+if (import.meta.env.PROD) {
+  try {
+    registerSW({
+      immediate: true,
+      onRegisterError(err) {
+        console.warn('PWA: registrace service workeru selhala', err);
+      },
+    });
+  } catch (e) {
+    console.warn('PWA: registerSW vyhodil výjimku', e);
+  }
+}
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

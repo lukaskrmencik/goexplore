@@ -8,9 +8,9 @@ interface MobileBottomNavProps {
 }
 
 const MOBILE_NAV_ITEMS = [
-    { icon: Map, label: 'Moje cesty', path: '/', isCenter: false, isLogout: false },
+    { icon: Map, label: 'Trasy', path: '/', isCenter: false, isLogout: false },
     { icon: Package, label: 'Vybavení', path: '/equipment', isCenter: false, isLogout: false },
-    { icon: Plus, label: 'Nová cesta', path: '/routes/new', isCenter: true, isLogout: false },
+    { icon: Plus, label: 'Nová trasa', path: '/routes/new', isCenter: true, isLogout: false },
     { icon: UserIcon, label: 'Účet', path: '/account', isCenter: false, isLogout: false },
     { icon: LogOut, label: 'Odhlásit', path: '', isCenter: false, isLogout: true },
 ];

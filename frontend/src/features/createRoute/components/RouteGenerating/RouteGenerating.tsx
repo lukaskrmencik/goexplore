@@ -33,7 +33,7 @@ const RouteGenerating: React.FC<RouteGeneratingProps> = ({
             <CalculationErrorHelper
                 error={error}
                 routeMode={route.mode}
-                currentBufferSize={route.buffer_size || Number(import.meta.env.VITE_CONFIG_DEFAULT_BUFFER_KM ?? "10")}
+                currentBufferSize={route.buffer_size || Number(import.meta.env.VITE_CONFIG_DEFAULT_BUFFER_KM ?? "20")}
                 onRetry={onRetry!}
                 onBack={onBack!}
             />

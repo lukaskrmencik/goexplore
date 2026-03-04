@@ -9,11 +9,9 @@ import type {
 } from "../types/routes";
 import type {
   ApiResponse,
-  PaginatedResponse,
   PaginationMeta
 } from "../types/general";
 import type {
-  GeneralEquipment,
   MyEquipment,
   EquipmentType
 } from "../types/equipment";
@@ -105,22 +103,6 @@ export const fetchInviteDetails = async (token: string): Promise<InviteDetails> 
 export const acceptInviteToRoute = async (token: string): Promise<number> => {
   const response = await apiClient.post<ApiResponse<{ route_id: number }>>(`/routes/users/accept-invite`, { token });
   return response.data?.data?.route_id || 0;
-};
-
-export const fetchMyEquipmentList = async (search?: string, page = 1): Promise<PaginatedResponse<MyEquipment>> => {
-  const response = await apiClient.post<ApiResponse<PaginatedResponse<MyEquipment>>>("/my-equipment/list", {
-    search: search || undefined,
-    page
-  });
-  return response.data.data;
-};
-
-export const fetchGeneralEquipmentList = async (search?: string, page = 1): Promise<PaginatedResponse<GeneralEquipment>> => {
-  const response = await apiClient.post<ApiResponse<PaginatedResponse<GeneralEquipment>>>("/general-equipment/list", {
-    search: search || undefined,
-    page
-  });
-  return response.data.data;
 };
 
 export const addEquipmentToRoute = async (routeId: number, type: EquipmentType, equipmentId: number): Promise<void> => {

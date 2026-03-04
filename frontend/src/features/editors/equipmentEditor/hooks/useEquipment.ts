@@ -5,6 +5,7 @@ import { useDebounce } from '../../../../hooks/useDebounce';
 import { getErrorMessage } from '../../../../utils/apiError';
 
 const EQUIPMENT_SEARCH_DEBOUNCE_MS = Number(import.meta.env.VITE_EQUIPMENT_SEARCH_DEBOUNCE ?? "300");
+const EQUIPMENT_PER_PAGE = Number(import.meta.env.VITE_EQUIPMENT_PER_PAGE ?? "12");
 
 export const useEquipment = () => {
     const [equipmentList, setEquipmentList] = useState<MyEquipment[]>([]);
@@ -25,7 +26,7 @@ export const useEquipment = () => {
         setIsLoading(true);
         setError(null);
         try {
-            const { data, meta } = await fetchMyEquipment(page, debouncedSearch);
+            const { data, meta } = await fetchMyEquipment(page, debouncedSearch, EQUIPMENT_PER_PAGE);
             setEquipmentList(data || []);
             setTotalPages(meta?.total_pages || 1);
         } catch (err) {

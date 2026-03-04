@@ -19,7 +19,7 @@ const RoutesPageHeader: React.FC<RoutesPageHeaderProps> = ({
     ownedCount,
     sharedCount,
 }) => {
-    const title = activeTab === "shared" ? "Sdílené cesty" : "Moje cesty";
+    const title = activeTab === "shared" ? "Sdílené trasy" : "Moje trasy";
 
     return (
         <div className="routes-list-editor-header-wrapper">
@@ -28,7 +28,7 @@ const RoutesPageHeader: React.FC<RoutesPageHeaderProps> = ({
             <div className="routes-list-editor-search-wrapper">
                 <Input
                     icon={Search}
-                    placeholder={activeTab === "shared" ? "Hledat ve sdílených cestách..." : "Hledat v mých cestách..."}
+                    placeholder={activeTab === "shared" ? "Hledat ve sdílených trasách..." : "Hledat v mých trasách..."}
                     value={searchValue}
                     onChange={(e) => onSearchChange(e.target.value)}
                 />
@@ -40,7 +40,7 @@ const RoutesPageHeader: React.FC<RoutesPageHeaderProps> = ({
                     className={`routes-list-editor-tab-btn ${activeTab === "owned" ? "routes-list-editor-tab-active-owned" : "routes-list-editor-tab-inactive"}`}
                 >
                     <LayoutGrid size={16} />
-                    Moje cesty
+                    Moje trasy
                     <span className={`routes-list-editor-tab-badge ${activeTab === "owned" ? "routes-list-editor-tab-badge-owned-active" : "routes-list-editor-tab-badge-inactive"}`}>
                         {ownedCount}
                     </span>
@@ -51,7 +51,7 @@ const RoutesPageHeader: React.FC<RoutesPageHeaderProps> = ({
                     className={`routes-list-editor-tab-btn ${activeTab === "shared" ? "routes-list-editor-tab-active-shared" : "routes-list-editor-tab-inactive"}`}
                 >
                     <Share2 size={16} />
-                    Sdílené
+                    Sdílené trasy
                     <span className={`routes-list-editor-tab-badge ${activeTab === "shared" ? "routes-list-editor-tab-badge-shared-active" : "routes-list-editor-tab-badge-inactive"}`}>
                         {sharedCount}
                     </span>

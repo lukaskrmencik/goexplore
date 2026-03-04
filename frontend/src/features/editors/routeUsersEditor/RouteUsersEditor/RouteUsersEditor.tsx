@@ -33,7 +33,7 @@ const RouteUsersEditor: React.FC<RouteEditorProps> = ({ route, onUpdate }) => {
                     <div className="route-users-editor-header">
                         <h2 className="route-users-editor-title">Sdílení trasy</h2>
                         <p className="route-users-editor-subtitle">
-                            Sdílejte trasu se svými přáteli a plánujte společně.
+                            Pozvěte přátele do vaší trasy zasláním odkazu.
                         </p>
                     </div>
 

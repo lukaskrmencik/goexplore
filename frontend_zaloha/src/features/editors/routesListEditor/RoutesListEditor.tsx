@@ -69,7 +69,7 @@ const RoutesListEditor = () => {
                         `}
                     >
                         <Share2 size={16} />
-                        Sdílené
+                        Sdílené trasy
                         <span className={`ml-1 text-xs px-1.5 py-0.5 rounded-full ${activeTab === 'shared' ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-200 text-slate-500'}`}>
                             {sharedRoutes.length}
                         </span>
@@ -102,7 +102,7 @@ const RoutesListEditor = () => {
                                     <Plus size={32} />
                                 </div>
                                 <span className="font-heading font-bold text-slate-700 text-lg group-hover:text-emerald-700 transition-colors">
-                                    Naplánovat
+                                    Nová trasa
                                 </span>
                             </div>
                         )}

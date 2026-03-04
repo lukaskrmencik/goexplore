@@ -61,6 +61,10 @@ const MapViewer: React.FC = () => {
         markAsDirty();
     };
 
+    const handleRouteUpdateSilent = (updatedRoute: Route) => {
+        setRoute(updatedRoute);
+    };
+
     useEffect(() => {
         if (!route || activeEditor || isRegenerating) return;
 
@@ -133,6 +137,7 @@ const MapViewer: React.FC = () => {
                         editorRefs={editorRefs}
                         onSaveAndClose={handleSaveAndClose}
                         onRouteUpdate={handleRouteUpdate}
+                        onRouteUpdateSilent={handleRouteUpdateSilent}
                     />
                 )}
             </div>

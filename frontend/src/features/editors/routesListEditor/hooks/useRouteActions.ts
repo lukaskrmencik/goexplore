@@ -19,7 +19,7 @@ export const useRouteActions = (onSuccess: () => void) => {
             await deleteRoute(routeIdToDelete);
             onSuccess();
         } catch {
-            alert('Nepodařilo se smazat cestu. Zkuste to prosím znovu.');
+            alert('Nepodařilo se smazat trasu. Zkuste to prosím znovu.');
         } finally {
             setIsProcessing(false);
             setRouteIdToDelete(null);
@@ -36,7 +36,7 @@ export const useRouteActions = (onSuccess: () => void) => {
             await removeUserFromRoute(routeIdToUnjoin, currentUserId);
             onSuccess();
         } catch {
-            alert('Nepodařilo se odpojit z cesty. Zkuste to prosím znovu.');
+            alert('Nepodařilo se odpojit z trasy. Zkuste to prosím znovu.');
         } finally {
             setIsProcessing(false);
             setRouteIdToUnjoin(null);

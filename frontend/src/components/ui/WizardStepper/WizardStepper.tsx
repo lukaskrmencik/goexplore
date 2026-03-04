@@ -21,7 +21,7 @@ interface StepState {
 }
 
 const STEP_DEFINITIONS: StepDefinition[] = [
-    { id: WizardStep.LOCATION, label: 'Mapa' },
+    { id: WizardStep.LOCATION, label: 'Trasa' },
     { id: WizardStep.DATE, label: 'Datum' },
     { id: WizardStep.USERS, label: 'Lidé' },
     { id: WizardStep.EQUIPMENT, label: 'Výbava' },

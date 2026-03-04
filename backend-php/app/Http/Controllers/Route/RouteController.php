@@ -366,7 +366,9 @@ class RouteController extends Controller
             'id', 
             'name', 
             'mode', 
-            'start_date', 
+            'start_date',
+            'end_date',
+            'created_at',
             //route length in meters
             DB::raw('ST_Length(complete_route::geography) as length_meters'),
             DB::raw('ST_AsGeoJSON(ST_Simplify(COALESCE(complete_route, axis)::geometry, 0.005)) as simplified_geojson')

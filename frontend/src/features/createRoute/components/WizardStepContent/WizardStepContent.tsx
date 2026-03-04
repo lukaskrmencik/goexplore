@@ -5,6 +5,7 @@ import { WizardStep } from "../../../../types/wizard";
 import type { WizardStepType } from "../../../../types/wizard";
 import type { Route } from "../../../../types/routes";
 import type { RouteAxisEditorHandle, RouteDateEditorHandle, RouteConfigurationEditorHandle } from "../../../../types/editor";
+import { computeRouteEstimatedKm } from "../../../../utils/routeLengthEstimator";
 
 import RouteAxisEditor from "../../../../features/editors/routeAxisEditor/RouteAxisEditor/RouteAxisEditor";
 import RouteDateEditor from "../../../../features/editors/routeDateEditor/RouteDateEditor/RouteDateEditor";
@@ -19,7 +20,6 @@ interface WizardStepContentProps {
     axisEditorRef: RefObject<RouteAxisEditorHandle | null>;
     dateEditorRef: RefObject<RouteDateEditorHandle | null>;
     configEditorRef: RefObject<RouteConfigurationEditorHandle | null>;
-    estimatedRoadKm: number;
     calculationProgress: number;
     calculationStatus: string;
     calculationError: string | null;
@@ -35,7 +35,6 @@ const WizardStepContent: React.FC<WizardStepContentProps> = ({
     axisEditorRef,
     dateEditorRef,
     configEditorRef,
-    estimatedRoadKm,
     calculationProgress,
     calculationStatus,
     calculationError,
@@ -66,7 +65,7 @@ const WizardStepContent: React.FC<WizardStepContentProps> = ({
                     ref={dateEditorRef}
                     route={route}
                     onUpdate={onRouteUpdate}
-                    estimatedRoadKm={estimatedRoadKm}
+                    estimatedRoadKm={computeRouteEstimatedKm(route)}
                 />
             </div>
         );
@@ -95,6 +94,7 @@ const WizardStepContent: React.FC<WizardStepContentProps> = ({
                     ref={configEditorRef}
                     route={route}
                     onUpdate={onRouteUpdate}
+                    estimatedRoadKm={computeRouteEstimatedKm(route)}
                 />
             </div>
         );

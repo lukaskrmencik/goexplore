@@ -3,22 +3,30 @@
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
-    gap: var(--space-6);
+    gap: var(--space-3);
 }
 
 @media (min-width: 640px) {
     .equipment-editor-header-wrapper {
         flex-direction: row;
+        gap: var(--space-6);
     }
 }
 
 .equipment-editor-title {
-    font-size: 1.875rem;
-    line-height: 2.25rem;
+    font-size: 1.375rem;
+    line-height: 1.75rem;
     font-family: var(--font-heading);
     font-weight: 700;
     color: var(--color-neutral-900);
     margin: 0;
+}
+
+@media (min-width: 640px) {
+    .equipment-editor-title {
+        font-size: 1.875rem;
+        line-height: 2.25rem;
+    }
 }
 
 .equipment-editor-search-wrapper {
@@ -37,6 +45,12 @@
 .equipment-editor-actions-container {
     display: flex;
     align-items: center;
+}
+
+@media (max-width: 639px) {
+    .equipment-editor-actions-container {
+        width: 100%;
+    }
 }
 
 .equipment-editor-create-btn {
@@ -61,4 +75,58 @@
 
 .equipment-editor-create-btn:hover {
     background-color: var(--color-primary-700);
+}
+
+.equipment-editor-create-btn-icon-wrapper {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.equipment-editor-create-btn-icon-wrapper svg {
+    width: 20px;
+    height: 20px;
+}
+
+@media (max-width: 639px) {
+    .equipment-editor-create-btn {
+        width: 100%;
+        height: 193px;
+        min-height: 193px;
+        padding-left: var(--space-4);
+        padding-right: var(--space-4);
+        padding-top: 0;
+        padding-bottom: 0;
+        border-radius: var(--radius-2xl);
+        background-color: var(--color-white);
+        color: var(--color-neutral-700);
+        border: 1px solid var(--color-neutral-200);
+        box-shadow: var(--shadow-sm);
+        justify-content: center;
+        gap: var(--space-3);
+        flex-direction: column;
+    }
+    .equipment-editor-create-btn:hover {
+        background-color: var(--color-white);
+        box-shadow: var(--shadow-md);
+        border-color: var(--color-neutral-200);
+    }
+    .equipment-editor-create-btn-icon-wrapper {
+        width: 3.5rem;
+        height: 3.5rem;
+        border-radius: var(--radius-full);
+        background-color: var(--color-primary-50);
+        color: var(--color-primary-600);
+    }
+    .equipment-editor-create-btn-icon-wrapper svg {
+        width: 32px;
+        height: 32px;
+        color: var(--color-primary-600);
+    }
+    .equipment-editor-create-btn-text {
+        font-family: var(--font-heading);
+        font-weight: 700;
+        color: var(--color-neutral-700);
+        font-size: 1.125rem;
+    }
 }

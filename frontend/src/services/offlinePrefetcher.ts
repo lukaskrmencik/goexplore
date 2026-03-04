@@ -10,7 +10,8 @@ async function fetchAllPages<T>(url: string, baseParams: object = {}) {
         page: 1
         });
 
-        const { total_pages } = firstRes.data.data;
+        const paginated = firstRes?.data?.data;
+        const total_pages = paginated?.total_pages ?? 0;
 
         if (total_pages > 1) {
             const remainingRequests = [];

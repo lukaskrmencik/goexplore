@@ -4,6 +4,7 @@ import './EditorModal.css';
 import type { Route } from '../../../../types/routes';
 import type { EditorType } from '../../../../types/editor';
 import type { EditorRefs } from '../../hooks/useEditorState';
+import { computeRouteEstimatedKm } from '../../../../utils/routeLengthEstimator';
 import RouteAxisEditor from '../../../editors/routeAxisEditor/RouteAxisEditor/RouteAxisEditor';
 import RouteDateEditor from '../../../editors/routeDateEditor/RouteDateEditor/RouteDateEditor';
 import RouteUsersEditor from '../../../editors/routeUsersEditor/RouteUsersEditor/RouteUsersEditor';
@@ -18,6 +19,7 @@ interface EditorModalProps {
     editorRefs: EditorRefs;
     onSaveAndClose: () => void;
     onRouteUpdate: (updatedRoute: Route) => void;
+    onRouteUpdateSilent: (updatedRoute: Route) => void;
 }
 
 const EditorModal: React.FC<EditorModalProps> = ({
@@ -28,6 +30,7 @@ const EditorModal: React.FC<EditorModalProps> = ({
     editorRefs,
     onSaveAndClose,
     onRouteUpdate,
+    onRouteUpdateSilent,
 }) => (
     <div className="map-viewer-editor-overlay">
         <div className="map-viewer-modal-container">
@@ -58,7 +61,7 @@ const EditorModal: React.FC<EditorModalProps> = ({
                 )}
                 {activeEditor === 'users' && (
                     <div className="map-viewer-editor-container-scrollable">
-                        <RouteUsersEditor route={route} onUpdate={onRouteUpdate} />
+                        <RouteUsersEditor route={route} onUpdate={onRouteUpdateSilent} />
                     </div>
                 )}
                 {activeEditor === 'equipment' && (
@@ -68,7 +71,12 @@ const EditorModal: React.FC<EditorModalProps> = ({
                 )}
                 {activeEditor === 'config' && (
                     <div className="map-viewer-editor-container-scrollable">
-                        <RouteConfigurationEditor ref={editorRefs.configEditorRef} route={route} onUpdate={onRouteUpdate} />
+                        <RouteConfigurationEditor
+                            ref={editorRefs.configEditorRef}
+                            route={route}
+                            onUpdate={onRouteUpdate}
+                            estimatedRoadKm={computeRouteEstimatedKm(route)}
+                        />
                     </div>
                 )}
             </div>

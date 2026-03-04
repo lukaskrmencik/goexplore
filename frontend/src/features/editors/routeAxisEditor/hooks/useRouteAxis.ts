@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { v4 as uuidv4 } from 'uuid';
 import { LatLng } from "leaflet";
 import type { Route } from "../../../../types/routes";
@@ -37,6 +37,7 @@ function reassignPointTypes(pts: EditorPoint[]): EditorPoint[] {
 
 export const useRouteAxis = (route: Route | null, onUpdateRoute: (route: Route) => void) => {
     const [points, setPoints] = useState<EditorPoint[]>([]);
+    const hasUserChanges = useRef(false);
 
     const estimatedRoadKm = useMemo(() => computeEstimatedLength(points).roadKm, [points]);
 
@@ -117,6 +118,7 @@ export const useRouteAxis = (route: Route | null, onUpdateRoute: (route: Route) 
     }, [points, route]);
 
     const setStartPoint = (lat: number, lng: number, name: string) => {
+        hasUserChanges.current = true;
         setPoints(prev => {
             const filtered = prev.filter(p => p.type !== 'start');
             return [{ id: 'start', lat, lng, type: 'start', name, order: 0 }, ...filtered];
@@ -124,6 +126,7 @@ export const useRouteAxis = (route: Route | null, onUpdateRoute: (route: Route) 
     };
 
     const setEndPoint = (lat: number, lng: number, name: string) => {
+        hasUserChanges.current = true;
         setPoints(prev => {
             const filtered = prev.filter(p => p.type !== 'end');
             return [...filtered, { id: 'end', lat, lng, type: 'end', name, order: 9999 }];
@@ -131,6 +134,7 @@ export const useRouteAxis = (route: Route | null, onUpdateRoute: (route: Route) 
     };
 
     const insertSimpleWaypoint = (lat: number, lng: number, name: string, insertIndex: number) => {
+        hasUserChanges.current = true;
         setPoints(prev => {
             const newWaypoint: EditorPoint = { id: uuidv4(), lat, lng, type: 'waypoint', name, order: 0 };
             const newPoints = [...prev];
@@ -146,6 +150,7 @@ export const useRouteAxis = (route: Route | null, onUpdateRoute: (route: Route) 
     };
 
     const movePoint = (dragIndex: number, hoverIndex: number) => {
+        hasUserChanges.current = true;
         setPoints(prev => {
             if (dragIndex < 0 || dragIndex >= prev.length || hoverIndex < 0 || hoverIndex >= prev.length) return prev;
             if (prev[dragIndex].type !== 'waypoint') return prev;
@@ -175,13 +180,14 @@ export const useRouteAxis = (route: Route | null, onUpdateRoute: (route: Route) 
     };
 
     const removePoint = (id: string) => {
+        hasUserChanges.current = true;
         setPoints(prev => prev.filter(p => p.id !== id));
     };
 
     const handleMapClick = (lat: number, lng: number) => {
         if (route?.mode !== 'manual') return;
         if (!isInsideCzechRepublic(lat, lng)) return;
-
+        hasUserChanges.current = true;
         setPoints(prev => {
             const newPoint: EditorPoint = {
                 id: uuidv4(),
@@ -197,7 +203,7 @@ export const useRouteAxis = (route: Route | null, onUpdateRoute: (route: Route) 
 
     const insertPointOnSegment = useCallback((segmentIndex: number, lat: number, lng: number) => {
         if (!isInsideCzechRepublic(lat, lng)) return;
-
+        hasUserChanges.current = true;
         setPoints(prev => {
             const insertAt = segmentIndex + 1;
             const newPoint: EditorPoint = {
@@ -215,6 +221,7 @@ export const useRouteAxis = (route: Route | null, onUpdateRoute: (route: Route) 
     }, []);
 
     const updatePointPosition = useCallback((id: string, lat: number, lng: number) => {
+        hasUserChanges.current = true;
         if (!isInsideCzechRepublic(lat, lng)) {
             setPoints(prev => [...prev]);
             return;
@@ -225,10 +232,12 @@ export const useRouteAxis = (route: Route | null, onUpdateRoute: (route: Route) 
     }, []);
 
     const removeManualPoint = useCallback((id: string) => {
+        hasUserChanges.current = true;
         setPoints(prev => reassignPointTypes(prev.filter(p => p.id !== id)));
     }, []);
 
     const moveManualPoint = useCallback((dragIndex: number, hoverIndex: number) => {
+        hasUserChanges.current = true;
         setPoints(prev => {
             if (dragIndex < 0 || dragIndex >= prev.length || hoverIndex < 0 || hoverIndex >= prev.length) return prev;
             const newPoints = [...prev];
@@ -244,6 +253,7 @@ export const useRouteAxis = (route: Route | null, onUpdateRoute: (route: Route) 
 
     const saveChanges = async () => {
         if (!route) return;
+        if (!hasUserChanges.current) return;
 
         const start = points.find(p => p.type === 'start');
         const end = points.find(p => p.type === 'end');

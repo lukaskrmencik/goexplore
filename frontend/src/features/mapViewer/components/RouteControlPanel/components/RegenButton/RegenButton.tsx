@@ -9,6 +9,22 @@ interface RegenButtonProps {
     onRegenerate: () => void;
 }
 
+interface ContentProps {
+    isRegenerating: boolean;
+    regenProgress: number;
+    isDirty: boolean;
+}
+
+const RegenButtonContent: React.FC<ContentProps> = ({ isRegenerating, regenProgress, isDirty }) => (
+    <>
+        <RefreshCw size={18} className={isRegenerating ? 'animate-spin' : ''} />
+        <span className="route-control-panel-regen-label">
+            {isRegenerating ? `Přepočítávám ${Math.round(regenProgress)}%` : 'Přegenerovat trasu'}
+        </span>
+        {isDirty && !isRegenerating && <AlertTriangle size={16} className="animate-pulse" />}
+    </>
+);
+
 const RegenButton: React.FC<RegenButtonProps> = ({ isRegenerating, regenProgress, isDirty, onRegenerate }) => (
     <button
         onClick={onRegenerate}
@@ -16,17 +32,34 @@ const RegenButton: React.FC<RegenButtonProps> = ({ isRegenerating, regenProgress
         className={`route-control-panel-regen-btn ${!isRegenerating && isDirty ? 'route-control-panel-regen-dirty' : 'route-control-panel-regen-clean'}`}
     >
         <div className={`route-control-panel-regen-bg ${isRegenerating ? 'route-control-panel-regen-bg-running' : isDirty ? 'route-control-panel-regen-bg-dirty' : 'route-control-panel-regen-bg-clean'}`} />
-        <div
-            className="route-control-panel-regen-progress"
-            style={{ transform: `scaleX(${isRegenerating ? regenProgress / 100 : 0})`, opacity: isRegenerating ? 1 : 0 }}
-        />
-        <div className={`route-control-panel-regen-content ${isRegenerating && regenProgress < 50 ? 'route-control-panel-regen-text-dark' : 'route-control-panel-regen-text-light'}`}>
-            <RefreshCw size={18} className={isRegenerating ? "animate-spin" : ""} />
-            <span style={{ fontWeight: 700, fontSize: "0.875rem" }}>
-                {isRegenerating ? `Přepočítávám ${Math.round(regenProgress)}%` : "Přegenerovat trasu"}
-            </span>
-            {isDirty && !isRegenerating && <AlertTriangle size={16} className="animate-pulse" />}
-        </div>
+
+        {isRegenerating && (
+            <div
+                className="route-control-panel-regen-progress"
+                style={{ transform: `scaleX(${regenProgress / 100})` }}
+            />
+        )}
+
+        {isRegenerating ? (
+            <>
+                <div
+                    className="route-control-panel-regen-content route-control-panel-regen-text-unfilled"
+                    style={{ opacity: 1 - regenProgress / 100 }}
+                >
+                    <RegenButtonContent isRegenerating={isRegenerating} regenProgress={regenProgress} isDirty={isDirty} />
+                </div>
+                <div
+                    className="route-control-panel-regen-content route-control-panel-regen-text-filled"
+                    style={{ opacity: regenProgress / 100 }}
+                >
+                    <RegenButtonContent isRegenerating={isRegenerating} regenProgress={regenProgress} isDirty={isDirty} />
+                </div>
+            </>
+        ) : (
+            <div className="route-control-panel-regen-content route-control-panel-regen-text-light">
+                <RegenButtonContent isRegenerating={isRegenerating} regenProgress={regenProgress} isDirty={isDirty} />
+            </div>
+        )}
     </button>
 );
 

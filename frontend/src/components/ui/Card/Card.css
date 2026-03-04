@@ -12,6 +12,6 @@
 }
 
 .card-interactive:hover {
-    box-shadow: var(--shadow-xl);
+    box-shadow: var(--shadow-md);
     transform: translateY(-0.25rem);
 }

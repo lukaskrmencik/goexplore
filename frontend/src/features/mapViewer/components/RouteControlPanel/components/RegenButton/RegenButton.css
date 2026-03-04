@@ -56,7 +56,7 @@
     inset: 0;
     background-color: var(--color-primary-600);
     transform-origin: left;
-    transition: transform 0.6s ease-out, opacity 0.3s ease;
+    transition: transform 0.6s ease-out;
 }
 
 .route-control-panel-regen-content {
@@ -67,10 +67,22 @@
     justify-content: center;
     gap: var(--space-2);
     z-index: 10;
+    pointer-events: none;
 }
 
-.route-control-panel-regen-text-dark {
+.route-control-panel-regen-label {
+    font-weight: 700;
+    font-size: 0.875rem;
+}
+
+.route-control-panel-regen-text-filled {
+    color: var(--color-white);
+    transition: opacity 0.4s ease-out;
+}
+
+.route-control-panel-regen-text-unfilled {
     color: var(--color-primary-700);
+    transition: opacity 0.4s ease-out;
 }
 
 .route-control-panel-regen-text-light {

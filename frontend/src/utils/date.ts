@@ -1,5 +1,21 @@
 export const formatShortDate = (dateString: string): string => {
-    return new Date(dateString).toLocaleDateString('cs-CZ', { day: 'numeric', month: 'short' });
+    return new Date(dateString).toLocaleDateString('cs-CZ', { day: 'numeric', month: 'numeric' });
+};
+
+export const formatShortDateTime = (dateString: string): string => {
+    return new Date(dateString).toLocaleString('cs-CZ', {
+        day: 'numeric',
+        month: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+    });
+};
+
+export const formatShortTime = (dateString: string): string => {
+    return new Date(dateString).toLocaleTimeString('cs-CZ', {
+        hour: '2-digit',
+        minute: '2-digit',
+    });
 };
 
 export const toInputDateTimeString = (dateString?: string | null): string => {

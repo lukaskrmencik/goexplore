@@ -72,8 +72,8 @@ const RoutesListEditor = () => {
 
             <ConfirmDialog
                 isOpen={routeActions.routeIdToDelete !== null}
-                title="Smazat cestu"
-                description="Opravdu chcete smazat tuto cestu? Tato akce je nevratná."
+                title="Smazat trasu"
+                description="Opravdu chcete smazat tuto trasu? Tato akce je nevratná."
                 confirmLabel="Smazat"
                 cancelLabel="Zrušit"
                 onConfirm={routeActions.confirmDelete}

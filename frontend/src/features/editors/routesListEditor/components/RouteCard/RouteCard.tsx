@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { MapContainer, GeoJSON, TileLayer } from "react-leaflet";
 import UserAvatar from "../../../../../components/ui/UserAvatar/UserAvatar";
 import { parseGeoJsonLineStringBounds } from "../../../../../utils/geo";
-import { formatShortDate } from "../../../../../utils/date";
+import { formatShortDate, formatShortTime } from "../../../../../utils/date";
 import { getRouteStatus, getRouteStatusCssClass, getRouteStatusLabel, getRouteModeLabel } from "../../../../../utils/routeStatus";
 import { formatRouteLength } from "../../../../../utils/format";
 import "./RouteCard.css";
@@ -39,13 +39,7 @@ const RouteCard: React.FC<RouteCardProps> = ({ route, isShared, onDelete, onUnjo
         onUnjoin?.(route.id);
     };
 
-    const getStatusBadgeText = () => {
-        if (status === "future") {
-            const startLabel = route.start_date ? formatShortDate(route.start_date) : "";
-            return route.end_date ? `${startLabel} - ${formatShortDate(route.end_date)}` : startLabel;
-        }
-        return getRouteStatusLabel(status as Exclude<typeof status, "future">);
-    };
+    const getStatusBadgeText = () => getRouteStatusLabel(status);
 
     return (
         <div
@@ -87,7 +81,7 @@ const RouteCard: React.FC<RouteCardProps> = ({ route, isShared, onDelete, onUnjo
             <div className="route-card-body">
                 <div className="route-card-title-row">
                     <h3 className={`route-card-title ${isPast ? "route-card-title-past" : "route-card-title-active"}`}>
-                        {route.name || "Cesta bez názvu"}
+                        {route.name || "Trasa bez názvu"}
                     </h3>
 
                     {isShared && route.user && (
@@ -105,11 +99,20 @@ const RouteCard: React.FC<RouteCardProps> = ({ route, isShared, onDelete, onUnjo
 
                 <div className="route-card-meta-row">
                     {route.start_date ? (
-                        <span className="route-card-info-text">
-                            {route.end_date
-                                ? `Od ${formatShortDate(route.start_date)} do ${formatShortDate(route.end_date)}`
-                                : `Datum: ${formatShortDate(route.start_date)}`}
-                        </span>
+                        <div className="route-card-dates">
+                            <div className="route-card-date-block">
+                                <span className="route-card-date-label">od</span>
+                                <span className="route-card-date-value">{formatShortDate(route.start_date)}</span>
+                                <span className="route-card-time-value">{formatShortTime(route.start_date)}</span>
+                            </div>
+                            {route.end_date && (
+                                <div className="route-card-date-block">
+                                    <span className="route-card-date-label">do</span>
+                                    <span className="route-card-date-value">{formatShortDate(route.end_date)}</span>
+                                    <span className="route-card-time-value">{formatShortTime(route.end_date)}</span>
+                                </div>
+                            )}
+                        </div>
                     ) : (
                         <span className="route-card-info-text">Datum zatím není nastaveno</span>
                     )}
@@ -165,7 +168,7 @@ const RouteCard: React.FC<RouteCardProps> = ({ route, isShared, onDelete, onUnjo
                 <button
                     className="route-card-delete-btn route-card-action-btn"
                     onClick={handleDelete}
-                    title="Smazat cestu"
+                    title="Smazat trasu"
                 >
                     <Trash2 size={16} />
                 </button>

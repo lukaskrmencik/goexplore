@@ -14,6 +14,7 @@ import {
 } from "../../../services/routesApiService";
 import { getErrorMessage } from "../../../utils/apiError";
 import { SIMPLE_MODE_CONFIG } from "../../../config/simpleMode";
+import { computeRouteEstimatedKm, computeDailyLimitFromRoute } from "../../../utils/routeLengthEstimator";
 
 export const useCreateRoute = () => {
     const navigate = useNavigate();
@@ -157,9 +158,13 @@ export const useCreateRoute = () => {
                     setCalculationStatus(`Zkouším rozšířený okruh (${bufferToUse} km)...`);
                 }
 
+                const estimatedRoadKm = computeRouteEstimatedKm(route);
+                const computedDailyLimit = computeDailyLimitFromRoute(route, estimatedRoadKm);
+                const dailyLimit = computedDailyLimit ?? SIMPLE_MODE_CONFIG.MAX_ROUTE_LENGTH_DAY;
+
                 const updatedRoute = await updateRoute(route.id, {
                     buffer_size: bufferToUse,
-                    max_route_length_day: SIMPLE_MODE_CONFIG.MAX_ROUTE_LENGTH_DAY,
+                    max_route_length_day: dailyLimit,
                     poi_per_day: SIMPLE_MODE_CONFIG.POI_PER_DAY,
                 });
                 setRoute(updatedRoute);
@@ -224,10 +229,14 @@ export const useCreateRoute = () => {
 
         if (!route) return;
 
+        const estimatedRoadKm = computeRouteEstimatedKm(route);
+        const computedDailyLimit = computeDailyLimitFromRoute(route, estimatedRoadKm);
+        const dailyLimit = computedDailyLimit ?? SIMPLE_MODE_CONFIG.MAX_ROUTE_LENGTH_DAY;
+
         try {
             const updatedRoute = await updateRoute(route.id, {
                 buffer_size: nextBuffer,
-                max_route_length_day: SIMPLE_MODE_CONFIG.MAX_ROUTE_LENGTH_DAY,
+                max_route_length_day: dailyLimit,
                 poi_per_day: SIMPLE_MODE_CONFIG.POI_PER_DAY,
             });
             setRoute(updatedRoute);

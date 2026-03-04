@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { format, setHours, setMinutes, startOfDay } from "date-fns";
 import type { Route, PaceInfo } from "../../../../types/routes";
 import { updateRoute } from "../../../../services/routesApiService";
@@ -9,6 +9,7 @@ const TIME_SLOT_INTERVAL_MINUTES = 15;
 
 export const useRouteDate = (route: Route | null, onUpdateRoute: (route: Route) => void, estimatedRoadKm = 0) => {
     const [startDate, setStartDate] = useState("");
+    const hasUserChanges = useRef(false);
     const [endDate, setEndDate] = useState("");
     const [activeField, setActiveField] = useState<'start' | 'end'>('start');
 
@@ -34,6 +35,7 @@ export const useRouteDate = (route: Route | null, onUpdateRoute: (route: Route) 
 
     const handleDateSelect = useCallback((date: Date | null) => {
         if (!date) return;
+        hasUserChanges.current = true;
         const currentActiveDateObj = activeField === 'start'
             ? (startDate ? new Date(startDate) : null)
             : (endDate ? new Date(endDate) : null);
@@ -51,12 +53,15 @@ export const useRouteDate = (route: Route | null, onUpdateRoute: (route: Route) 
     }, [activeField, startDate, endDate, applyActiveFieldDate]);
 
     const handleTimeSelect = useCallback((timeStr: string) => {
+        hasUserChanges.current = true;
         const [hours, minutes] = timeStr.split(':').map(Number);
         const currentActiveDateObj = activeField === 'start'
             ? (startDate ? new Date(startDate) : null)
             : (endDate ? new Date(endDate) : null);
 
-        let newDate = currentActiveDateObj ? new Date(currentActiveDateObj) : new Date();
+        if (!currentActiveDateObj) return;
+
+        let newDate = new Date(currentActiveDateObj);
         newDate = setHours(newDate, hours);
         newDate = setMinutes(newDate, minutes);
         applyActiveFieldDate(newDate);
@@ -78,27 +83,29 @@ export const useRouteDate = (route: Route | null, onUpdateRoute: (route: Route) 
             throw new Error("Musíte vyplnit oba datumy.");
         }
 
+        if (!hasUserChanges.current) return;
+
         const diffMs = new Date(endDate).getTime() - new Date(startDate).getTime();
         const minDurationHours = Number(import.meta.env.VITE_ROUTE_MIN_DURATION_HOURS ?? "3");
 
         if (diffMs < minDurationHours * 60 * 60 * 1000) {
-            throw new Error(`Konec cesty musí být alespoň ${minDurationHours} hodiny po začátku.`);
+            throw new Error(`Konec trasy musí být alespoň ${minDurationHours} hodiny po začátku.`);
         }
 
         const { minKmPerDay, maxKmPerDay, minDays } = getRouteLengthConstraints();
         const tripDays = diffMs / (1000 * 60 * 60 * 24);
 
         if (tripDays < minDays) {
-            throw new Error(`Cesta musí trvat alespoň ${minDays} ${minDays === 1 ? 'den' : 'dny'} (vybráno: ${tripDays.toFixed(1)} dní).`);
+            throw new Error(`Trasa musí trvat alespoň ${minDays} ${minDays === 1 ? 'den' : 'dny'} (vybráno: ${tripDays.toFixed(1)} dní).`);
         }
 
         if (estimatedRoadKm > 0) {
             const kmPerDay = estimatedRoadKm / tripDays;
             if (kmPerDay < minKmPerDay) {
-                throw new Error(`Příliš pomalé tempo: ${Math.round(kmPerDay)} km/den (minimum je ${minKmPerDay} km/den). Zkraťte dobu cesty.`);
+                throw new Error(`Příliš pomalé tempo: ${Math.round(kmPerDay)} km/den (minimum je ${minKmPerDay} km/den). Zkraťte dobu trasy.`);
             }
             if (kmPerDay > maxKmPerDay) {
-                throw new Error(`Příliš rychlé tempo: ${Math.round(kmPerDay)} km/den (maximum je ${maxKmPerDay} km/den). Produžťe dobu cesty.`);
+                throw new Error(`Příliš rychlé tempo: ${Math.round(kmPerDay)} km/den (maximum je ${maxKmPerDay} km/den). Prodlužte dobu trasy.`);
             }
         }
 

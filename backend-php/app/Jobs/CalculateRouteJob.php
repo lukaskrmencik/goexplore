@@ -121,11 +121,13 @@ class CalculateRouteJob implements ShouldQueue
                 }, '=', count($accomondationTypesNeeded))
                 ->get();
 
+            //load scoring config and capm seazon config
             $campScores = config('scoringConfig.camps');
             $DEFAULT_CAMP_SEASON = config('defaultCampSeason');
 
             JobHelper::setJobProgress($this->jobId, 1, "running");
 
+            //call python api endpoint to select camps
             $response = Http::post(env("PYTHON_API_URL").'/select-camps', [
                 "camps" => $camps,
                 "days" => $days,
@@ -134,19 +136,17 @@ class CalculateRouteJob implements ShouldQueue
                 "DEFAULT_CAMP_SEASON" => $DEFAULT_CAMP_SEASON,
             ]);
 
+            //if successful store result to variable
             if ($response->successful()) {
                 $calculateCampsApiResult = $response->json();
             } else {
+                //if not successful store status and error message
                 $status = $response->status();
                 $errorBody = $response->json();
                 $errorMessage = $errorBody['detail'] ?? json_encode($errorBody);
 
+                //set job progress to error with message
                 JobHelper::setJobProgress($this->jobId, null, "Error", $errorMessage);
-
-                Log::error("Python API /select-camps failed", [
-                    'status' => $status,
-                    'error' => $errorBody
-                ]);
 
                 return;
             }
@@ -155,6 +155,7 @@ class CalculateRouteJob implements ShouldQueue
 
             $segmentsPoi = [];
 
+            //loop throught axis segments
             foreach($calculateCampsApiResult['axis_segments'] as $i => $axisSegment){
 
                 //make magellan linestring
@@ -186,15 +187,20 @@ class CalculateRouteJob implements ShouldQueue
                         true
                     )->get();
 
+                //get segment start camp
                 $segmentStart = $calculateCampsApiResult["selected_camps"][$i-1]["geom"] ?? null;
+                //get segment end camp
                 $segmentEnd = $calculateCampsApiResult["selected_camps"][$i]["geom"] ?? null;
                 
+                //if first segment start is route start
                 if($i === 0){
                     $segmentStart = $route->start;
+                    //if last segment end is route end
                 }else if($i === count($calculateCampsApiResult['axis_segments']) - 1){
                     $segmentEnd = $route->end;
                 }
                 
+                //add segment start end and pois to array
                 $segmentsPoi[] = [
                     "start" => $segmentStart,
                     "end" => $segmentEnd,
@@ -204,12 +210,14 @@ class CalculateRouteJob implements ShouldQueue
 
             JobHelper::setJobProgress($this->jobId, 8, "running");
 
+            //get poi scoring config and or tools config
             $poiScores = config('scoringConfig.poi');
             $orToolsConfig = config('ORToolsConfig');
 
+            //make json from segmentsPoi array
             $json = json_encode($segmentsPoi);
-            $size = count($segmentsPoi[0]["poi"]);
 
+            //get redis config
             $redis_config = [
                 "host" => env("REDIS_HOST"),
                 "port" => intval(env("REDIS_PORT")),
@@ -217,6 +225,7 @@ class CalculateRouteJob implements ShouldQueue
                 "job_expires" => intval(env("REDIS_JOB_EXPIRES"))
             ];
             
+            //call python api endpoint to select poi and calculate route
             $response = Http::post(env("PYTHON_API_URL").'/select-poi', [
                 "segments_poi" => $segmentsPoi,
                 "days" => $days,
@@ -236,13 +245,16 @@ class CalculateRouteJob implements ShouldQueue
                 "job_id" => $this->jobId
             ]);
 
+            //if successful store result to variable
             if ($response->successful()) {
                 $calculatePoiApiResult = $response->json();
             } else {
+                //if not successful store status and error message
                 $status = $response->status();
                 $errorBody = $response->json();
                 $errorMessage = $errorBody['detail'] ?? json_encode($errorBody);
 
+                //set job progress to error with message
                 JobHelper::setJobProgress($this->jobId, null, "Error", $errorMessage);
 
                 return;
@@ -250,25 +262,34 @@ class CalculateRouteJob implements ShouldQueue
 
             JobHelper::setJobProgress($this->jobId, 98, "running");
 
-
+            //delete old route pois camps and clusters
             RoutePoi::where('routes_id', $route->id)->delete();
             RouteCamp::where('routes_id', $route->id)->delete();
             RouteCluster::where('routes_id', $route->id)->delete();
 
+            //get selected poi ids from api result
             $segmenstsSelectedPoiIds = $calculatePoiApiResult["segments_selected_poi_ids"];
 
             $poiOrderCounter = 0;
+
+            //loop throught segments
             foreach($segmenstsSelectedPoiIds as $selectedPoiIds){
+                //loop throught selected poi ids
                 foreach($selectedPoiIds as $poi){
+
+                    //if poi is cluster
                     if($poi["type"] == "cluster"){
 
+                        //generate cluster name
                         $clusterName = "cluster ".$poiOrderCounter;
 
+                        //make magellan point
                         $geom = Point::makeGeodetic(
                             $poi["geom"]['coordinates'][1],
                             $poi["geom"]['coordinates'][0]
                         );
 
+                        //create cluster in database
                         $cluster = RouteCluster::create([
                             'name' => $clusterName,
                             'geom' => $geom,
@@ -276,8 +297,10 @@ class CalculateRouteJob implements ShouldQueue
                             'routes_id' => $route->id,
                         ]);
 
+                        //loop throught poi ids in cluster
                         foreach($poi["poi_ids"] as $poiId){
 
+                            //male relation between route and poi with cluster id
                             $route->poi()->attach($poiId, [
                                 'order' => $poiOrderCounter,
                                 'routes_clusters_id' => $cluster->id
@@ -285,6 +308,7 @@ class CalculateRouteJob implements ShouldQueue
                         }
 
                     }else{
+                        //if poi is not cluster make relation between route and poi
                         $route->poi()->attach($poi["poi_id"], [
                             'order' => $poiOrderCounter,
                             'routes_clusters_id' => null
@@ -295,35 +319,38 @@ class CalculateRouteJob implements ShouldQueue
                 }
             }
 
+            //get selected camp ids from api result
             $selectedCampsIds = $calculateCampsApiResult["selected_camps_ids"];
 
             $CampOrderCounter = 0;
+            //loop throught selected camp ids
             foreach($selectedCampsIds as $campId){
+                //make relation between route and camp
                 $route->camps()->attach($campId, [
                     'order' => $CampOrderCounter
                 ]);
                 $CampOrderCounter++;
             }
 
+            //get full route coordinates from api result
             $fullRouteCoords = $calculatePoiApiResult["full_route"]["coordinates"];
 
+            //make magellan linestring
             $routeLineString = LineString::make(
                 array_map(fn($coord) => Point::makeGeodetic($coord[1], $coord[0]), $fullRouteCoords)
             );
 
+            //set complete route
             $route->complete_route = $routeLineString;
+
+            //save changes to database
             $route->save();
 
             JobHelper::setJobProgress($this->jobId, 100, "done");
 
-
         } catch (Throwable $e) {
-
+            //if any error set job progress to error with message
             JobHelper::setJobProgress($this->jobId, null, "Error", $e->getMessage());
-
-            Log::error("Job {$this->jobId} failed: ".$e->getMessage(), [
-                'trace' => $e->getTraceAsString()
-            ]);
 
             throw $e;
         }

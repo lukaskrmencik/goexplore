@@ -255,7 +255,7 @@ export const useCreateEquipment = ({
     };
 
     const modalTitle = step === 'select'
-        ? 'Katalog vybavení'
+        ? 'Vyberte šablonu vybavení z katalogu'
         : (initialData ? 'Upravit vybavení' : 'Detaily vybavení');
 
     return {

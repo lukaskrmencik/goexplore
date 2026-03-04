@@ -41,7 +41,7 @@ const UserAccountEditor: React.FC = () => {
     return (
         <div className="account-page-container">
             <div className="account-page-header-wrapper">
-                <h1 className="account-page-title">Můj Profil</h1>
+                <h1 className="account-page-title">Účet</h1>
             </div>
         <div className="account-editor-container">
             <ProfileAvatarCard

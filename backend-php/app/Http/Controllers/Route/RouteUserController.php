@@ -150,35 +150,28 @@ class RouteUserController extends Controller
     //get details about the invite token
     public function getInviteDetails(Request $request, $token)
     {
-        //auth user
         $userId = auth()->id();
 
-        //find record with token
         $routeUser = RouteUser::with(['route', 'route.user'])
             ->where('invite_token', $token)
             ->first();
 
-        //token not found or used
         if (!$routeUser) {
             return response()->error('Tato pozvánka je neplatná nebo již byla použita.', 404);
         }
 
-        //set current date
         $now = Carbon::now();
 
-        //check if token expired
         if ($routeUser->expires_at->lt($now)) {
             return response()->error('Tato pozvánka již vypršela.', 410);
         }
 
-        $inviterName = $routeUser->route && $routeUser->route->user ? $routeUser->route->user->name : 'Neznámý uživatel';
-        $routeName = $routeUser->route && $routeUser->route->name ? $routeUser->route->name : 'Nepojmenovaná trasa';
+        $inviterName = $routeUser->route->user->name ?? 'Neznámý uživatel';
+        $routeName = $routeUser->route->name ?? 'Nepojmenovaná trasa';
         $routeId = $routeUser->routes_id;
 
-        // Check ownership
         $isOwner = $routeUser->route && ($routeUser->route->users_id === $userId);
 
-        // Check if already a member
         $isMember = false;
         if (!$isOwner) {
             $memberExists = RouteUser::where('users_id', $userId)
@@ -187,7 +180,6 @@ class RouteUserController extends Controller
             $isMember = $memberExists;
         }
 
-        //response
         return response()->success([
             'inviter_name' => $inviterName,
             'route_name' => $routeName,

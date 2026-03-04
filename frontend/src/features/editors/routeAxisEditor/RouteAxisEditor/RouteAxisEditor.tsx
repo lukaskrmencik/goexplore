@@ -120,6 +120,10 @@ const RouteAxisEditor = forwardRef<RouteAxisEditorHandle, RouteEditorProps>(({ r
                         </button>
                     </div>
 
+                    <p className="route-axis-editor-hint">
+                        Toto je pouze přibližný náčrt trasy na mapě, trasa nemusí přesně protínat průjezdní body.
+                    </p>
+
                     <div className="route-axis-editor-content custom-scrollbar">
                         {isManualMode ? (
                             <ManualModePanel

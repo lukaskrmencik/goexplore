@@ -30,7 +30,7 @@ const PatternCatalog: React.FC<PatternCatalogProps> = ({
         <div className="create-equipment-search-wrapper">
             <input
                 type="text"
-                placeholder="Hledat šablony (např. Stan, Vařič)..."
+                placeholder="Hledat šablony (např. Stan, Automobil)..."
                 className="create-equipment-search-input"
                 value={searchTerm}
                 onChange={(e) => onSearchChange(e.target.value)}

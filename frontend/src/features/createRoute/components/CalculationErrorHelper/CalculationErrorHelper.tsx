@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { AlertCircle, RefreshCw, Settings2 } from "lucide-react";
 import './CalculationErrorHelper.css';
 
-const DEFAULT_BUFFER_KM = Number(import.meta.env.VITE_CONFIG_DEFAULT_BUFFER_KM ?? "10");
+const DEFAULT_BUFFER_KM = Number(import.meta.env.VITE_CONFIG_DEFAULT_BUFFER_KM ?? "20");
 const BUFFER_MIN_KM = Number(import.meta.env.VITE_CONFIG_BUFFER_MIN_KM ?? "1");
 const BUFFER_MAX_KM = Number(import.meta.env.VITE_CONFIG_BUFFER_MAX_KM ?? "50");
 

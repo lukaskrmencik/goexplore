@@ -15,7 +15,8 @@
 }
 
 .route-equipment-editor-selected-equipment-open {
-    height: 75vh;
+    height: 80vh;
+    max-height: calc(100% - 2rem);
     transform: translateY(0);
 }
 

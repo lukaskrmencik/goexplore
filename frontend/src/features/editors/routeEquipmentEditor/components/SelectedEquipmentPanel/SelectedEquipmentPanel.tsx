@@ -55,7 +55,7 @@ const SelectedEquipmentPanel: React.FC<SelectedEquipmentPanelProps> = ({
             <div className="route-equipment-editor-selected-equipment-list">
                 {resolvedSelectedEquipmentItems.length === 0 ? (
                     <div className="route-equipment-editor-selected-equipment-empty">
-                        <p className="route-equipment-editor-selected-equipment-empty-text">Zatím nemáte vybrané vybavení.</p>
+                        <p className="route-equipment-editor-selected-equipment-empty-text">Zatím nemáte vybrané žádné vybavení.</p>
                         <button
                             onClick={onClosePanel}
                             className="route-equipment-editor-selected-equipment-add-btn"

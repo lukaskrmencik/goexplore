@@ -21,10 +21,12 @@ export const fetchGeneralEquipment = async (
 
 export const fetchMyEquipment = async (
     page: number = 1,
-    search: string = ""
+    search: string = "",
+    perPage: number = DEFAULT_EQUIPMENT_PER_PAGE
 ): Promise<{ data: MyEquipment[], meta: PaginationMeta }> => {
     const response = await apiClient.post('/my-equipment/list', {
         page,
+        per_page: perPage,
         search: search || undefined
     });
     return { data: response.data.data.items, meta: response.data.data };

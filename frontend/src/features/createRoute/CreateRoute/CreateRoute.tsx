@@ -1,9 +1,8 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { useCreateRoute } from "../hooks/useCreateRoute";
 import { getErrorMessage } from "../../../utils/apiError";
 import { WizardStep } from "../../../types/wizard";
 import type { RouteAxisEditorHandle, RouteDateEditorHandle, RouteConfigurationEditorHandle } from "../../../types/editor";
-import { computeRouteEstimatedKm } from "../../../utils/routeLengthEstimator";
 import type { RouteMode } from "../../../types/routes";
 
 import RouteInitStep from "../components/RouteInitStep/RouteInitStep";
@@ -37,12 +36,6 @@ const CreateRoute = () => {
 
     const [formError, setFormError] = useState<string | null>(null);
     const [isStepSaving, setIsStepSaving] = useState(false);
-    const [estimatedRoadKm, setEstimatedRoadKm] = useState(0);
-
-    useEffect(() => {
-        if (!route || estimatedRoadKm > 0) return;
-        setEstimatedRoadKm(computeRouteEstimatedKm(route));
-    }, [route]);
 
     const displayError = formError || (currentStep !== WizardStep.FINISH ? hookError : null);
 
@@ -146,12 +139,11 @@ const CreateRoute = () => {
                             axisEditorRef={axisEditorRef}
                             dateEditorRef={dateEditorRef}
                             configEditorRef={configEditorRef}
-                            estimatedRoadKm={estimatedRoadKm}
                             calculationProgress={calculationProgress}
                             calculationStatus={calculationStatus}
                             calculationError={hookError}
                             onRouteUpdate={setRoute}
-                            onEstimatedKmChange={setEstimatedRoadKm}
+                            onEstimatedKmChange={() => {}}
                             onRetry={startCalculation}
                             onBack={prevStep}
                         />

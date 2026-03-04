@@ -4,10 +4,10 @@ import type { EditorType, RouteAxisEditorHandle, RouteDateEditorHandle, RouteCon
 import { getErrorMessage } from "../../../utils/apiError";
 
 const EDITOR_TITLES: Record<EditorType, string> = {
-    axis: "Upravit trasu",
-    date: "Vybrat termín",
-    users: "Spravovat posádku",
-    equipment: "Spravovat výbavu",
+    axis: "Trasa",
+    date: "Datum trasy",
+    users: "Lidé",
+    equipment: "Výbava",
     config: "Nastavení trasy",
 };
 

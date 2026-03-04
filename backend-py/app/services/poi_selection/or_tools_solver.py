@@ -70,7 +70,7 @@ def or_tools_choose_pois(or_data):
 
 
 
-        # Now let's try to prevent the solver from creating uneven spacing between points.
+        # prevent the solver from creating uneven spacing between points.
 
         # Load the number of points to be on the route.
         pois_count = int(or_data.target_pois_count)

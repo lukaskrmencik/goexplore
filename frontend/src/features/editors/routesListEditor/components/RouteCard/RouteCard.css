@@ -145,11 +145,11 @@
 }
 
 .route-card-status-future {
-    background-color: #eff6ff;
+    background-color: var(--color-primary-50);
 
-    color: #1d4ed8;
+    color: var(--color-primary-700);
 
-    border-color: #dbeafe;
+    border-color: var(--color-primary-200);
 
 }
 
@@ -262,7 +262,7 @@
 .route-card-participants-wrapper {
     display: flex;
     align-items: center;
-    gap: var(--space-2);
+    gap: var(--space-4);
 
 }
 
@@ -327,6 +327,38 @@
     gap: 0.25rem;
 }
 
+.route-card-dates {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.route-card-date-block {
+    display: flex;
+    align-items: baseline;
+    gap: 0.25rem;
+}
+
+.route-card-date-label {
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: var(--color-neutral-400);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.route-card-date-value {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--color-primary-700);
+}
+
+.route-card-time-value {
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: var(--color-neutral-400);
+}
+
 .route-card-mode-text {
     margin-left: auto;
 
@@ -349,7 +381,7 @@
     box-shadow: var(--shadow-sm);
     transition: all 0.2s;
     z-index: 20;
-    opacity: 0;
+    opacity: 1;
 
 }
 

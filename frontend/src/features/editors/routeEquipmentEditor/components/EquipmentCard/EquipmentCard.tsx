@@ -247,7 +247,7 @@ const EquipmentCard: React.FC<EquipmentCardProps> = ({
                         <>
                             <Plus size={20} className="eq-card-btn-icon-mobile" />
                             <Plus size={18} className="eq-card-btn-icon-desktop" />
-                            <span className="eq-card-btn-text-desktop">Do batohu</span>
+                            <span className="eq-card-btn-text-desktop">Přidat k trase</span>
                         </>
                     )}
                 </button>

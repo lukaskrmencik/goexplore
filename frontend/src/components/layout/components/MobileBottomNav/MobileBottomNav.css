@@ -19,7 +19,7 @@
 .mobile-bottom-nav-grid {
     display: grid;
     grid-template-columns: repeat(5, minmax(0, 1fr));
-    align-items: flex-end;
+    align-items: center;
     justify-items: center;
     height: 100%;
     width: 100%;

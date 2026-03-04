@@ -61,7 +61,7 @@ const CalculationOverlay: React.FC<CalculationOverlayProps> = ({
                                 <h3 className="calc-overlay-loading-title">Přepočítávám...</h3>
                                 <span className="calc-overlay-loading-percent">{Math.round(progress)}%</span>
                             </div>
-                            <p className="calc-overlay-loading-desc">{status || "Hledám cesty..."}</p>
+                            <p className="calc-overlay-loading-desc">{status || "Hledám trasy..."}</p>
                         </div>
                     </div>
                 )}

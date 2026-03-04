@@ -46,12 +46,11 @@ const ManualModePanel: React.FC<ManualModePanelProps> = ({
     return (
         <div className="route-axis-editor-manual-mode">
             <p className="route-axis-editor-manual-instruction">
-                Klikáním do mapy přidávej body. Klikni na čáru pro vložení bodu. Body můžeš přetahovat.
+                Kliknutím na čáru přidáte bod, body můžete přetahovat.
             </p>
 
             {points.length === 0 ? (
                 <div className="route-axis-editor-manual-empty">
-                    <MapPin size={24} className="route-axis-editor-manual-empty-icon" />
                     <p>Klikni na mapu pro přidání prvního bodu</p>
                 </div>
             ) : (

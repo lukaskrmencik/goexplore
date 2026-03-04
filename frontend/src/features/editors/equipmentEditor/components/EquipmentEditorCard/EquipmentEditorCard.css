@@ -20,12 +20,8 @@
 }
 
 .equipment-editor-card:hover {
-    border-color: var(--color-primary-300);
-
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(16, 185, 129, 0.05);
-
+    box-shadow: var(--shadow-md);
     transform: translateY(-0.25rem);
-
 }
 
 .equipment-editor-card-image-wrapper {

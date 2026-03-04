@@ -5,23 +5,25 @@ import { Settings, Maximize, Navigation, Map } from "lucide-react";
 import ConfigSliderCard from "../components/ConfigSliderCard/ConfigSliderCard";
 import "./RouteConfigurationEditor.css";
 
-const BUFFER_MIN = Number(import.meta.env.VITE_CONFIG_BUFFER_MIN_KM ?? "1");
+const BUFFER_MIN = Number(import.meta.env.VITE_CONFIG_BUFFER_MIN_KM ?? "10");
 const BUFFER_MAX = Number(import.meta.env.VITE_CONFIG_BUFFER_MAX_KM ?? "50");
 const ROUTE_LENGTH_MIN = Number(import.meta.env.VITE_CONFIG_ROUTE_LENGTH_MIN_KM ?? "50");
 const ROUTE_LENGTH_MAX = Number(import.meta.env.VITE_CONFIG_ROUTE_LENGTH_MAX_KM ?? "1000");
 const POI_MIN = Number(import.meta.env.VITE_CONFIG_POI_PER_DAY_MIN ?? "1");
-const POI_MAX = Number(import.meta.env.VITE_CONFIG_POI_PER_DAY_MAX ?? "15");
-
-const RouteConfigurationEditor = forwardRef<RouteConfigurationEditorHandle, RouteEditorProps>(({ route, onUpdate, onChange }, ref) => {
+const POI_MAX = Number(import.meta.env.VITE_CONFIG_POI_PER_DAY_MAX ?? "6");
+const RouteConfigurationEditor = forwardRef<RouteConfigurationEditorHandle, RouteEditorProps>(({ route, onUpdate, onChange, estimatedRoadKm = 0 }, ref) => {
     const {
         bufferSize,
-        setBufferSize,
         maxRouteLength,
-        setMaxRouteLength,
         poiPerDay,
-        setPoiPerDay,
+        computedDailyLimit,
+        handleBufferSizeChange,
+        handleMaxRouteLengthChange,
+        handlePoiPerDayChange,
         handleSave,
-    } = useRouteConfiguration(route, onUpdate);
+    } = useRouteConfiguration(route, onUpdate, estimatedRoadKm);
+
+    const isSimpleMode = route.mode === 'simple';
 
     useEffect(() => {
         onChange?.();
@@ -39,7 +41,7 @@ const RouteConfigurationEditor = forwardRef<RouteConfigurationEditorHandle, Rout
                 <div className="route-config-editor-header">
                     <h2 className="route-config-editor-title">
                         <Settings className="route-config-editor-title-icon" size={28} />
-                        Konfigurace trasy
+                        Nastavení trasy
                     </h2>
                     <p className="route-config-editor-subtitle">
                         Upravte parametry pro výpočet ideální trasy.
@@ -56,19 +58,23 @@ const RouteConfigurationEditor = forwardRef<RouteConfigurationEditorHandle, Rout
                         max={BUFFER_MAX}
                         step={1}
                         unit="km"
-                        onChange={setBufferSize}
+                        onChange={handleBufferSizeChange}
                     />
 
                     <ConfigSliderCard
                         icon={<Navigation size={20} />}
                         title="Denní limit"
-                        description="Maximální délka trasy na jeden den."
+                        description={
+                            isSimpleMode && computedDailyLimit !== null
+                                ? `Výchozí z délky trasy: ${computedDailyLimit} km/den (lze upravit)`
+                                : "Maximální délka trasy na jeden den."
+                        }
                         value={maxRouteLength}
                         min={ROUTE_LENGTH_MIN}
                         max={ROUTE_LENGTH_MAX}
                         step={50}
                         unit="km"
-                        onChange={setMaxRouteLength}
+                        onChange={handleMaxRouteLengthChange}
                     />
 
                     <ConfigSliderCard
@@ -79,7 +85,7 @@ const RouteConfigurationEditor = forwardRef<RouteConfigurationEditorHandle, Rout
                         min={POI_MIN}
                         max={POI_MAX}
                         step={1}
-                        onChange={setPoiPerDay}
+                        onChange={handlePoiPerDayChange}
                     />
                 </div>
             </div>

@@ -4,13 +4,14 @@ import './ConfigSliderCard.css';
 interface ConfigSliderCardProps {
     icon: React.ReactNode;
     title: string;
-    description: string;
+    description: React.ReactNode;
     value: number;
     min: number;
     max: number;
     step: number;
     unit?: string;
-    onChange: (value: number) => void;
+    onChange?: (value: number) => void;
+    disabled?: boolean;
 }
 
 const ConfigSliderCard: React.FC<ConfigSliderCardProps> = ({
@@ -23,9 +24,10 @@ const ConfigSliderCard: React.FC<ConfigSliderCardProps> = ({
     step,
     unit,
     onChange,
+    disabled = false,
 }) => {
     return (
-        <div className="route-config-editor-card">
+        <div className={`route-config-editor-card${disabled ? ' route-config-editor-card-disabled' : ''}`}>
             <div className="route-config-editor-card-header">
                 <div className="route-config-editor-card-title-group">
                     <div className="route-config-editor-card-icon-wrapper">{icon}</div>
@@ -46,7 +48,8 @@ const ConfigSliderCard: React.FC<ConfigSliderCardProps> = ({
                     max={max}
                     step={step}
                     value={value}
-                    onChange={(e) => onChange(Number(e.target.value))}
+                    disabled={disabled}
+                    onChange={(e) => onChange?.(Number(e.target.value))}
                     className="route-config-editor-range-input"
                 />
                 <div className="route-config-editor-range-labels">

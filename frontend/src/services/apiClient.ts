@@ -21,13 +21,16 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      localStorage.removeItem(AUTH_TOKEN_KEY);
+      const isLoginRequest = error.config?.url === '/login' || error.config?.url?.endsWith('/login');
+      if (!isLoginRequest) {
+        localStorage.removeItem(AUTH_TOKEN_KEY);
 
-      const redirectPath = window.location.pathname !== '/login'
-        ? `?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`
-        : '';
+        const redirectPath = window.location.pathname !== '/login'
+          ? `?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`
+          : '';
 
-      window.location.href = `/login${redirectPath}`;
+        window.location.href = `/login${redirectPath}`;
+      }
     }
     return Promise.reject(error);
   }

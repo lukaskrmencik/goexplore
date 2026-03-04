@@ -28,7 +28,7 @@ interface MapyCzResponse {
 export const searchPlace = async (query: string): Promise<SearchResult[]> => {
     if (!query || query.length < 2) return [];
 
-    const apiKey = import.meta.env.VITE_MAPY_CZ_API_KEY;
+    const apiKey = import.meta.env.VITE_MAPY_COM_API_KEY;
     if (!apiKey) {
         console.error("Mapy.cz API key is missing");
         return [];

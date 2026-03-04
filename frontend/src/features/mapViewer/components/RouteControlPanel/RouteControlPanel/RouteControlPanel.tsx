@@ -60,9 +60,9 @@ const RouteControlPanel: React.FC<RouteControlPanelProps> = ({
             <div className="route-control-panel-desktop-wrapper">
                 <div className="route-control-panel-main-card">
                     <RouteNameEditor route={route} onRouteUpdate={onRouteUpdate} onError={onError} />
-                    <ToolButton icon={<Map size={20} strokeWidth={1.5} />} label="Trasa a body" onClick={() => onOpenEditor('axis')} />
-                    <ToolButton icon={<Calendar size={20} strokeWidth={1.5} />} label="Termín" onClick={() => onOpenEditor('date')} />
-                    <ToolButton icon={<Users size={20} strokeWidth={1.5} />} label="Posádka" onClick={() => onOpenEditor('users')} />
+                    <ToolButton icon={<Map size={20} strokeWidth={1.5} />} label="Trasa" onClick={() => onOpenEditor('axis')} />
+                    <ToolButton icon={<Calendar size={20} strokeWidth={1.5} />} label="Datum" onClick={() => onOpenEditor('date')} />
+                    <ToolButton icon={<Users size={20} strokeWidth={1.5} />} label="Lidé" onClick={() => onOpenEditor('users')} />
                     <ToolButton icon={<Briefcase size={20} strokeWidth={1.5} />} label="Výbava" onClick={() => onOpenEditor('equipment')} />
                     <div className="route-control-panel-divider"></div>
                     <ToolButton icon={<Settings size={20} strokeWidth={1.5} />} label="Nastavení" onClick={() => onOpenEditor('config')} />
@@ -82,16 +82,17 @@ const RouteControlPanel: React.FC<RouteControlPanelProps> = ({
                 <div className={`route-control-panel-mobile-sheet-wrapper ${isClosing ? 'route-control-panel-mobile-sheet-closing' : ''}`}>
                     <div className="route-control-panel-mobile-backdrop" onClick={handleCloseSheet} />
                     <div className={`route-control-panel-mobile-sheet-content ${isClosing ? 'route-control-panel-mobile-sheet-closing' : ''}`}>
-                        <div className="route-control-panel-mobile-close-wrapper">
+                        <div className="route-control-panel-mobile-handle-row">
+                            <div className="route-control-panel-mobile-handle-bar" />
                             <button onClick={handleCloseSheet} className="route-control-panel-mobile-close-btn">
-                                <X size={26} />
+                                <X size={20} />
                             </button>
                         </div>
                         <RouteNameEditor route={route} onRouteUpdate={onRouteUpdate} onError={onError} />
                         <div className="route-control-panel-mobile-grid">
                             <ToolButton icon={<Map size={20} />} label="Trasa" onClick={() => { onOpenEditor('axis'); setIsMobileOpen(false); }} />
-                            <ToolButton icon={<Calendar size={20} />} label="Termín" onClick={() => { onOpenEditor('date'); setIsMobileOpen(false); }} />
-                            <ToolButton icon={<Users size={20} />} label="Posádka" onClick={() => { onOpenEditor('users'); setIsMobileOpen(false); }} />
+                            <ToolButton icon={<Calendar size={20} />} label="Datum" onClick={() => { onOpenEditor('date'); setIsMobileOpen(false); }} />
+                            <ToolButton icon={<Users size={20} />} label="Lidé" onClick={() => { onOpenEditor('users'); setIsMobileOpen(false); }} />
                             <ToolButton icon={<Briefcase size={20} />} label="Výbava" onClick={() => { onOpenEditor('equipment'); setIsMobileOpen(false); }} />
                         </div>
                         <ToolButton icon={<Settings size={20} />} label="Nastavení trasy" onClick={() => { onOpenEditor('config'); setIsMobileOpen(false); }} />

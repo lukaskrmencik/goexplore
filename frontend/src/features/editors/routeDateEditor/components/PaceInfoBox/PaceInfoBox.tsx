@@ -22,12 +22,12 @@ const PaceInfoBox: React.FC<PaceInfoBoxProps> = ({ paceInfo }) => {
                     </div>
                     {paceInfo.isUnderMin && (
                         <p className="route-date-pace-info-hint">
-                            Minimum je {paceInfo.minKmPerDay} km/den — zkraťte dobu cesty.
+                            Minimum je {paceInfo.minKmPerDay} km/den — zkraťte dobu trasy.
                         </p>
                     )}
                     {paceInfo.isOverMax && (
                         <p className="route-date-pace-info-hint">
-                            Maximum je {paceInfo.maxKmPerDay} km/den — prodlužte dobu cesty.
+                            Maximum je {paceInfo.maxKmPerDay} km/den — prodlužte dobu trasy.
                         </p>
                     )}
                 </>

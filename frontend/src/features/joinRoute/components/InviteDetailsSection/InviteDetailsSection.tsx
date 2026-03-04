@@ -24,7 +24,7 @@ const InviteDetailsSection: React.FC<InviteDetailsSectionProps> = ({ isFetchingD
             <div className="join-route-detail-item">
                 <User size={18} className="join-route-detail-icon" />
                 <div className="join-route-detail-text">
-                    <span className="join-route-detail-label">Pozval vás:</span>
+                    <span className="join-route-detail-label">Organizátor trasy:</span>
                     <span className="join-route-detail-value">{inviteDetails.inviter_name}</span>
                 </div>
             </div>

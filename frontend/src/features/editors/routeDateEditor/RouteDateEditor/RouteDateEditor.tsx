@@ -79,7 +79,7 @@ const RouteDateEditor = forwardRef<RouteDateEditorHandle, RouteEditorProps>(({ r
                 <div className="route-date-editor-content-wrapper">
 
                     <div className="route-date-editor-header">
-                        <h2 className="route-date-editor-title">Datum cesty</h2>
+                        <h2 className="route-date-editor-title">Datum trasy</h2>
                         <button
                             className="route-date-editor-reset-btn"
                             onClick={handleReset}

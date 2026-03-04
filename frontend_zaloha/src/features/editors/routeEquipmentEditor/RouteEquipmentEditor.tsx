@@ -29,15 +29,9 @@ const RouteEquipmentEditor: React.FC<RouteEditorProps> = ({ route, onUpdate }) =
     const [editingEquipment, setEditingEquipment] = React.useState<any | null>(null);
     const [deletingId, setDeletingId] = React.useState<number | null>(null);
 
-    // Mobile Bottom Sheet State
     const [isBackpackOpen, setIsBackpackOpen] = React.useState(false);
 
-    // Filter Logic
-    // 1. Available Items (Warehouse)
     const availableGeneral = useMemo(() => {
-        // Filter out items that are already in the route? 
-        // Design decision: Keep them visible but marked as added, or hide them?
-        // Let's keep them visible so you can remove them from here too.
         return generalList.filter(item =>
             item.name.toLowerCase().includes(search.toLowerCase())
         );
@@ -49,13 +43,11 @@ const RouteEquipmentEditor: React.FC<RouteEditorProps> = ({ route, onUpdate }) =
         );
     }, [myList, search]);
 
-    // 2. Route Items (Backpack)
     const routeEquipment = useMemo(() => {
         return route.equipment || [];
     }, [route.equipment]);
 
 
-    // Helper to check if item is in route
     const isItemInRoute = (type: 'general' | 'my', id: number) => {
         return routeEquipment.some(e =>
             (type === 'general' && Number(e.general_equipment_id) === Number(id)) ||

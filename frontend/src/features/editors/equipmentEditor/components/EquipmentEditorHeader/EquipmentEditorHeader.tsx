@@ -19,15 +19,17 @@ const EquipmentEditorHeader: React.FC<EquipmentEditorHeaderProps> = ({
         <div className="equipment-editor-search-wrapper">
             <Input
                 icon={Search}
-                placeholder="Hledat vybavení..."
+                placeholder="Hledat moje vybavení..."
                 value={search}
                 onChange={(e) => onSearchChange(e.target.value)}
             />
         </div>
         <div className="equipment-editor-actions-container">
             <button onClick={onCreateNew} className="equipment-editor-create-btn">
-                <Plus size={20} />
-                Přidat vybavení
+                <span className="equipment-editor-create-btn-icon-wrapper">
+                    <Plus size={32} />
+                </span>
+                <span className="equipment-editor-create-btn-text">Přidat vybavení</span>
             </button>
         </div>
     </div>

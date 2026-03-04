@@ -10,7 +10,7 @@ const GEOCODING_MIN_QUERY_LENGTH = Number(import.meta.env.VITE_GEOCODING_MIN_QUE
 export const searchPlace = async (query: string): Promise<SearchResult[]> => {
     if (!query || query.length < GEOCODING_MIN_QUERY_LENGTH) return [];
 
-    const apiKey = import.meta.env.VITE_MAPY_CZ_API_KEY;
+    const apiKey = import.meta.env.VITE_MAPY_COM_API_KEY;
     if (!apiKey) return [];
 
     try {

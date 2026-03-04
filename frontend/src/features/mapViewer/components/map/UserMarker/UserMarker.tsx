@@ -57,7 +57,10 @@ const UserMarker: React.FC<UserMarkerProps> = ({ user }) => {
                 className="user-marker-avatar-img"
                 showBorder={true}
             />
-            <div className="user-marker-badge">{timeAgo}</div>
+            <div className="user-marker-badge">
+                <span className="user-marker-name">{user.name}</span>
+                <span className="user-marker-time">{timeAgo}</span>
+            </div>
         </div>
     );
 

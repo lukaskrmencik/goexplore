@@ -16,7 +16,7 @@ const RouteInitStep: React.FC<RouteInitStepProps> = ({ onInitialize }) => {
             <div className="route-init-content">
                 <div className="route-init-header">
                     <h1 className="route-init-title">
-                        Nová cesta
+                        Nová trasa
                     </h1>
                 </div>
 
@@ -26,7 +26,7 @@ const RouteInitStep: React.FC<RouteInitStepProps> = ({ onInitialize }) => {
                         <input
                             id="routeName"
                             type="text"
-                            placeholder="Např. Víkend na Šumavě"
+                            placeholder="Zvolte název pro vaši trasu"
                             value={routeName}
                             onChange={(e) => setRouteName(e.target.value)}
                             className="route-init-input"
@@ -43,11 +43,11 @@ const RouteInitStep: React.FC<RouteInitStepProps> = ({ onInitialize }) => {
                             className="route-mode-btn route-mode-btn-simple"
                         >
                             <div className="route-mode-header">
-                                <h3 className="route-mode-title">Chytrý návrh</h3>
-                                <Badge variant="primary" className="route-mode-badge-simple">Doporučeno</Badge>
+                                <h3 className="route-mode-title">Jednoduchý</h3>
+                                <Badge variant="primary" className="route-mode-badge-simple">Pro začátečníky</Badge>
                             </div>
                             <p className="route-mode-desc">
-                                Umělá inteligence navrhne optimální trasu na základě vašich preferencí a dostupných dat.
+                                Zadáte pouze start, cíl a volitelně průjezdní body. Nastavení trasy je automatické.
                             </p>
                             <div className="route-mode-footer">
                                 <ArrowRight className="route-mode-arrow route-mode-arrow-simple" size={20} />
@@ -59,11 +59,11 @@ const RouteInitStep: React.FC<RouteInitStepProps> = ({ onInitialize }) => {
                             className="route-mode-btn route-mode-btn-manual"
                         >
                             <div className="route-mode-header">
-                                <h3 className="route-mode-title">Vlastní trasa</h3>
-                                <Badge variant="neutral" className="route-mode-badge-manual">Pokročilé</Badge>
+                                <h3 className="route-mode-title">Pokročilý</h3>
+                                <Badge variant="neutral" className="route-mode-badge-manual">Pro pokročilé</Badge>
                             </div>
                             <p className="route-mode-desc">
-                                Plnou kontrolu nad každým bodem a detailem cesty máte ve svých rukou.
+                                Celou trasu si bod po bodu nakreslíte na mapě. Nastavení trasy je na vás.
                             </p>
                             <div className="route-mode-footer">
                                 <ArrowRight className="route-mode-arrow route-mode-arrow-manual" size={20} />

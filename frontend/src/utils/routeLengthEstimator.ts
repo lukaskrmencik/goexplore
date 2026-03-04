@@ -4,6 +4,23 @@ import { geojsonPointToLatLng } from "./geo";
 
 export type { RouteLengthConstraints, SeasonConstraints };
 
+const DAILY_LIMIT_COEFFICIENT = Number(import.meta.env.VITE_CONFIG_DAILY_LIMIT_COEFFICIENT ?? "1.2");
+
+/**
+ * Vypočítá maximální délku trasy na den (km/den) z odhadované celkové délky a počtu dní.
+ * Vzorec: (odhadovaná délka / počet dní) * koeficient
+ */
+export function computeDailyLimitFromRoute(route: Route, estimatedRoadKm: number): number | null {
+    if (!route.start_date || !route.end_date || estimatedRoadKm <= 0) return null;
+    const start = new Date(route.start_date).getTime();
+    const end = new Date(route.end_date).getTime();
+    const diffMs = end - start;
+    const numberOfDays = diffMs / (1000 * 60 * 60 * 24);
+    if (numberOfDays <= 0) return null;
+    const kmPerDay = estimatedRoadKm / numberOfDays;
+    return Math.round(kmPerDay * DAILY_LIMIT_COEFFICIENT);
+}
+
 export function computeRouteEstimatedKm(route: Route): number {
     const points: EditorPoint[] = [];
 

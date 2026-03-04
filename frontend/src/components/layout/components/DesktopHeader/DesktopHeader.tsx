@@ -10,8 +10,8 @@ interface DesktopHeaderProps {
 }
 
 const DESKTOP_NAV_ITEMS = [
-    { icon: Map, label: 'Moje cesty', path: '/' },
-    { icon: Package, label: 'Vybavení', path: '/equipment' },
+    { icon: Map, label: 'Trasy', path: '/' },
+    { icon: Package, label: 'Moje vybavení', path: '/equipment' },
     { icon: UserIcon, label: 'Účet', path: '/account' },
 ];
 
@@ -43,7 +43,7 @@ const DesktopHeader: React.FC<DesktopHeaderProps> = ({ currentUser }) => {
                 <div className="desktop-actions">
                     <button onClick={() => navigate('/routes/new')} className="new-route-btn">
                         <PlusCircle size={16} />
-                        Nová cesta
+                        Nová trasa
                     </button>
 
                     <div className="user-avatar-wrapper" onClick={() => navigate('/account')}>

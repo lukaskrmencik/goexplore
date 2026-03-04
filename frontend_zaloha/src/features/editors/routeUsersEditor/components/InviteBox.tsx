@@ -134,7 +134,7 @@ const InviteBox: React.FC<InviteBoxProps> = ({ link, isGenerating }) => {
             )}
 
             <p className="text-center text-xs font-medium text-slate-400">
-                Odkaz je platný 48 hodin
+                Odkaz je platný 3 dny
             </p>
         </div>
     );

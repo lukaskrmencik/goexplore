@@ -55,7 +55,7 @@ const RoutesGrid: React.FC<RoutesGridProps> = ({
                         <div className="routes-list-editor-create-icon-wrapper">
                             <Plus size={32} />
                         </div>
-                        <span className="routes-list-editor-create-text">Naplánovat</span>
+                        <span className="routes-list-editor-create-text">Nová trasa</span>
                     </div>
                 )}
 
@@ -76,8 +76,8 @@ const RoutesGrid: React.FC<RoutesGridProps> = ({
                                 <Share2 size={32} />
                             </div>
                             <div className="routes-list-editor-empty-text-wrapper">
-                                <h3 className="routes-list-editor-empty-title">Žádné sdílené cesty</h3>
-                                <p className="routes-list-editor-empty-desc">Cesty, které s vámi někdo sdílel, se objeví zde.</p>
+                                <h3 className="routes-list-editor-empty-title">Žádné sdílené trasy</h3>
+                                <p className="routes-list-editor-empty-desc">Trasy, které s vámi někdo sdílel, se objeví zde.</p>
                             </div>
                         </div>
                     )
