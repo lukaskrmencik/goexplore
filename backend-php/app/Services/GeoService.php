@@ -11,11 +11,11 @@ class GeoService
         $lastAxisPoint = $axis[count($axis) - 1];
 
         if ($firstAxisPoint !== $startPoint) {
-            return 'First coordinate of axis must match start coordinates.';
+            return 'První souřadnice osy musí odpovídat počátečním souřadnicím.';
         }
 
         if ($lastAxisPoint !== $endPoint) {
-            return 'Last coordinate of axis must match end coordinates.';
+            return 'Poslední souřadnice osy musí odpovídat koncovým souřadnicím.';
         }
 
         return null;

@@ -53,7 +53,7 @@ class RouteEquipmentController extends Controller
 
             //error if duplicate
             if ($exists) {
-                return response()->error("This equipment is already assigned to the route.", 422);
+                return response()->error("Toto vybavení je již přiřazeno k trase.", 422);
             }
 
             //else define
@@ -69,7 +69,7 @@ class RouteEquipmentController extends Controller
 
             //error if duplicate
             if ($exists) {
-                return response()->error("This equipment is already assigned to the route.", 422);
+                return response()->error("Toto vybavení je již přiřazeno k trase.", 422);
             }
 
             //else define
@@ -77,7 +77,7 @@ class RouteEquipmentController extends Controller
 
             //equipment must be owned by the route owner or a user assigned to the route
             if($myEquipment->users_id !== $route->users_id && !$route->users->pluck('id')->contains($myEquipment->users_id)){
-                return response()->error("You can only add equipment that you or your friends own.", 403);
+                return response()->error("Můžete přidat pouze vybavení, které vlastníte vy nebo vaši přátelé.", 403);
             }
         }
 

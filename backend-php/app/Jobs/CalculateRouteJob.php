@@ -146,7 +146,7 @@ class CalculateRouteJob implements ShouldQueue
                 $errorMessage = $errorBody['detail'] ?? json_encode($errorBody);
 
                 //set job progress to error with message
-                JobHelper::setJobProgress($this->jobId, null, "Error", $errorMessage);
+                JobHelper::setJobProgress($this->jobId, null, "Chyba", $errorMessage);
 
                 return;
             }
@@ -255,7 +255,7 @@ class CalculateRouteJob implements ShouldQueue
                 $errorMessage = $errorBody['detail'] ?? json_encode($errorBody);
 
                 //set job progress to error with message
-                JobHelper::setJobProgress($this->jobId, null, "Error", $errorMessage);
+                JobHelper::setJobProgress($this->jobId, null, "Chyba", $errorMessage);
 
                 return;
             }
@@ -350,7 +350,7 @@ class CalculateRouteJob implements ShouldQueue
 
         } catch (Throwable $e) {
             //if any error set job progress to error with message
-            JobHelper::setJobProgress($this->jobId, null, "Error", $e->getMessage());
+            JobHelper::setJobProgress($this->jobId, null, "Chyba", $e->getMessage());
 
             throw $e;
         }

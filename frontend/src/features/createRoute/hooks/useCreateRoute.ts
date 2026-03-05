@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import type { Route, RouteMode } from "../../../types/routes";
 import { WizardStep, type WizardStepType } from "../../../types/wizard";
@@ -31,6 +31,7 @@ export const useCreateRoute = () => {
     const [retryStage, setRetryStage] = useState(0);
 
     const currentStep = getStepFromUrl(step);
+    const prevStepRef = useRef<number | null>(null);
 
     useEffect(() => {
         if (routeId && (!route || route.id !== Number(routeId))) {
@@ -38,6 +39,18 @@ export const useCreateRoute = () => {
             loadRoute(routeId);
         }
     }, [routeId]);
+
+    useEffect(() => {
+        if (currentStep === WizardStep.LOCATION && routeId && route) {
+            const prev = prevStepRef.current;
+            prevStepRef.current = currentStep;
+            if (prev !== null && prev !== WizardStep.LOCATION) {
+                fetchGetRoute(Number(routeId)).then(setRoute).catch(() => {});
+            }
+        } else {
+            prevStepRef.current = currentStep;
+        }
+    }, [currentStep, routeId, route]);
 
     useEffect(() => {
         if (route && !hasRedirected && routeId) {

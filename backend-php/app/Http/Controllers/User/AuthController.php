@@ -53,7 +53,7 @@ class AuthController extends Controller
 
         //check token
         if (!$token = JWTAuth::attempt($credentials)) {
-            return response()->error('Invalid credentials', 401);
+            return response()->error('Neplatné přihlašovací údaje', 401);
         }
 
         //if correct response

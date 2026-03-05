@@ -74,7 +74,7 @@ class RouteUserController extends Controller
             ->first();
 
         if ($routeUserExists) {
-            return response()->error('User is already assigned to this route', 422);
+            return response()->error('Uživatel je již přiřazen k této trase', 422);
         }
 
         //authorize
@@ -85,7 +85,7 @@ class RouteUserController extends Controller
 
         //check if token expired - error
         if ($routeUser->expires_at->lt($now)) {
-            return response()->error("error expired", 401);
+            return response()->error("Pozvánka vypršela", 401);
         }
 
         //save user to db but keep the invite token reusable

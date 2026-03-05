@@ -8,70 +8,73 @@ const EQUIPMENT_SEARCH_DEBOUNCE_MS = Number(import.meta.env.VITE_EQUIPMENT_SEARC
 const EQUIPMENT_PER_PAGE = Number(import.meta.env.VITE_EQUIPMENT_PER_PAGE ?? "12");
 
 export const useEquipment = () => {
-    const [equipmentList, setEquipmentList] = useState<MyEquipment[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [search, setSearch] = useState('');
-    const [page, setPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
-    const [processingId, setProcessingId] = useState<number | null>(null);
-    const [error, setError] = useState<string | null>(null);
+  const [equipmentList, setEquipmentList] = useState<MyEquipment[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [processingId, setProcessingId] = useState<number | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-    const debouncedSearch = useDebounce(search, EQUIPMENT_SEARCH_DEBOUNCE_MS);
+  const debouncedSearch = useDebounce(search, EQUIPMENT_SEARCH_DEBOUNCE_MS);
 
-    useEffect(() => {
-        setPage(1);
-    }, [debouncedSearch]);
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch]);
 
-    const loadEquipment = useCallback(async () => {
-        setIsLoading(true);
-        setError(null);
-        try {
-            const { data, meta } = await fetchMyEquipment(page, debouncedSearch, EQUIPMENT_PER_PAGE);
-            setEquipmentList(data || []);
-            setTotalPages(meta?.total_pages || 1);
-        } catch (err) {
-            setError(getErrorMessage(err, "Nepodařilo se načíst vybavení."));
-        } finally {
-            setIsLoading(false);
-        }
-    }, [page, debouncedSearch]);
+  const loadEquipment = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
 
-    useEffect(() => {
-        loadEquipment();
-    }, [loadEquipment]);
+    try {
+      const { data, meta } = await fetchMyEquipment(page, debouncedSearch, EQUIPMENT_PER_PAGE);
+      setEquipmentList(data || []);
+      setTotalPages(meta?.total_pages || 1);
+    } catch (err) {
+      setError(getErrorMessage(err, "Nepodařilo se načíst vybavení."));
+    } finally {
+      setIsLoading(false);
+    }
+  }, [page, debouncedSearch]);
 
-    const handleEquipmentCreated = () => {
-        loadEquipment();
-    };
+  useEffect(() => {
+    loadEquipment();
+  }, [loadEquipment]);
 
-    const handleDeleteEquipment = async (id: number) => {
-        setProcessingId(id);
-        setError(null);
-        try {
-            await deleteMyEquipment(id);
-            setEquipmentList(prev => prev.filter(item => item.id !== id));
-            if (equipmentList.length === 1 && page > 1) {
-                setPage(p => p - 1);
-            }
-        } catch (err) {
-            setError(getErrorMessage(err, "Nepodařilo se smazat vybavení."));
-        } finally {
-            setProcessingId(null);
-        }
-    };
+  const handleEquipmentCreated = () => {
+    loadEquipment();
+  };
 
-    return {
-        equipmentList,
-        isLoading,
-        search,
-        setSearch,
-        page,
-        setPage,
-        totalPages,
-        handleEquipmentCreated,
-        handleDeleteEquipment,
-        processingId,
-        error,
-        clearError: () => setError(null),
-    };
+  const handleDeleteEquipment = async (id: number) => {
+    setProcessingId(id);
+    setError(null);
+
+    try {
+      await deleteMyEquipment(id);
+      setEquipmentList(prev => prev.filter(item => item.id !== id));
+
+      if (equipmentList.length === 1 && page > 1) {
+        setPage(p => p - 1);
+      }
+    } catch (err) {
+      setError(getErrorMessage(err, "Nepodařilo se smazat vybavení."));
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
+  return {
+    equipmentList,
+    isLoading,
+    search,
+    setSearch,
+    page,
+    setPage,
+    totalPages,
+    handleEquipmentCreated,
+    handleDeleteEquipment,
+    processingId,
+    error,
+    clearError: () => setError(null),
+  };
 };

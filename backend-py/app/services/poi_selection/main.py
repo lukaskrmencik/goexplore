@@ -60,7 +60,7 @@ async def select_poi_service(request: SelectPoiRequest):
         else:
             raise HTTPException(
                 status_code=404,
-                detail="Route not found"
+                detail="Trasa nebyla nalezena"
             )
         
     set_job_progress(job_id, 95, "running", REDIS_CONFIG)

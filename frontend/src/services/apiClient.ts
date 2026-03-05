@@ -11,9 +11,11 @@ const apiClient = axios.create({
 
 apiClient.interceptors.request.use(config => {
   const token = localStorage.getItem(AUTH_TOKEN_KEY);
+
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+
   return config;
 });
 
@@ -22,6 +24,7 @@ apiClient.interceptors.response.use(
   (error) => {
     if (error.response && error.response.status === 401) {
       const isLoginRequest = error.config?.url === '/login' || error.config?.url?.endsWith('/login');
+
       if (!isLoginRequest) {
         localStorage.removeItem(AUTH_TOKEN_KEY);
 
@@ -32,6 +35,7 @@ apiClient.interceptors.response.use(
         window.location.href = `/login${redirectPath}`;
       }
     }
+
     return Promise.reject(error);
   }
 );

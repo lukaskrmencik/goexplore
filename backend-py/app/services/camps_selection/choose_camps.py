@@ -108,8 +108,8 @@ def camp_groups_by_ideal_camp(camps, ideal_camps,days, DEFAULT_CAMP_SEASON):
     # If any group has no camps, we raise an error
     for camp_group in camp_groups:
         if not camp_group["camps"]:
-            raise HTTPException(status_code=404, 
-                detail="Unable to calculate route, there are no camps in the area"
+            raise HTTPException(status_code=404,
+                detail="Nelze vypočítat trasu, v oblasti nejsou žádné kempy"
             )
 
     return camp_groups

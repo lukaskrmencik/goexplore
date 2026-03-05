@@ -184,7 +184,7 @@ class MyEquipmentController extends Controller
             return response()->success(['path' => $path], 200);
         }
 
-        return response()->success(['message' => 'No image uploaded'], 200);
+        return response()->success(['message' => 'Nebyl nahrán žádný obrázek'], 200);
     }
 
     //delete my equipment
@@ -220,7 +220,7 @@ class MyEquipmentController extends Controller
 
             //if missing some specification
             if (!isset($specs[$key])) {
-                return 'Missing required specification '.$key;
+                return 'Chybějící požadovaná specifikace '.$key;
                 continue;
             }
 
@@ -231,26 +231,26 @@ class MyEquipmentController extends Controller
             switch ($type) {
                 case 'integer':
                     if (!is_int($value)) {
-                        return 'Invalid specifications '.$key.' must be integer';
+                        return 'Neplatné specifikace '.$key.' musí být celé číslo';
                     }
                     break;
                 case 'numeric':
                     if (!is_numeric($value)) {
-                        return 'Invalid specifications '.$key.' must be numeric';
+                        return 'Neplatné specifikace '.$key.' musí být číselné';
                     }
                     break;
                 case 'string':
                     if (!is_string($value)) {
-                        return 'Invalid specifications '.$key.' must be string';
+                        return 'Neplatné specifikace '.$key.' musí být řetězec';
                     }
                     break;
                 case 'boolean':
                     if (!is_bool($value)) {
-                        return 'Invalid specifications '.$key.' must be boolean';
+                        return 'Neplatné specifikace '.$key.' musí být boolean';
                     }
                     break;
                 default:
-                    return 'Invalid specifications  unknown data type';
+                    return 'Neplatné specifikace neznámý datový typ';
             }
         }
 
@@ -258,7 +258,7 @@ class MyEquipmentController extends Controller
         $unknownKeys = array_diff(array_keys($specs), array_keys($specificationsKeys));
         if (!empty($unknownKeys)) {
             foreach ($unknownKeys as $key) {
-                return 'Invalid specification unknown key '.$key;
+                return 'Neplatná specifikace neznámý klíč '.$key;
             }
         }
 

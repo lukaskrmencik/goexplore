@@ -105,9 +105,9 @@ const RouteAxisEditor = forwardRef<RouteAxisEditorHandle, RouteEditorProps>(({ r
                     <div className="route-axis-editor-header">
                         <div className="route-axis-editor-header-left" onClick={() => setIsMobileExpanded(true)}>
                             <div className="route-axis-editor-header-text-container">
-                                <h3 className="route-axis-editor-header-title">Plánovač trasy</h3>
+                                <h3 className="route-axis-editor-header-title">Náčrt trasy</h3>
                                 <p className="route-axis-editor-header-subtitle-desktop">
-                                    {isManualMode ? 'Kreslení na mapě' : 'na mapě'}
+                                    {isManualMode ? 'Pokročilý' : 'Jednoduchý'}
                                 </p>
                                 <p className="route-axis-editor-header-subtitle-mobile">
                                     {points.length} bodů • {isMobileExpanded ? 'Klepnutím sbalit' : 'Klepnutím upravit'}

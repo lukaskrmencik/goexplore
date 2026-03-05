@@ -21,6 +21,7 @@ export const createRoute = async (mode: RouteMode, name?: string): Promise<Route
     mode,
     name: name && name.trim() !== "" ? name : undefined
   };
+
   const response = await apiClient.post<ApiResponse<{ route: Route }>>("/routes", payload);
   return response.data.data.route;
 };
@@ -47,6 +48,7 @@ export const fetchAllRoutes = async (page = 1, search = ""): Promise<RoutesListR
     per_page: ROUTES_PER_PAGE,
     search: search || undefined
   });
+
   return response.data.data;
 };
 
@@ -56,6 +58,7 @@ export const fetchSharedRoutes = async (page = 1, search = ""): Promise<RoutesLi
     per_page: ROUTES_PER_PAGE,
     search: search || undefined
   });
+
   return response.data.data;
 };
 
@@ -76,6 +79,7 @@ export const createWaypoint = async (routeId: number, order: number, lat: number
       coordinates: [lng, lat]
     }
   };
+
   const response = await apiClient.post<ApiResponse<{ waypoint: RouteWaypoint }>>(`/routes/${routeId}/waypoints`, payload);
   return response.data.data.waypoint;
 };

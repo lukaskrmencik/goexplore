@@ -4,17 +4,16 @@ import type { SearchResult, MapyCzResponse } from "../types/geocoding";
 
 export type { SearchResult };
 
-const GEOCODING_RESULT_LIMIT = Number(import.meta.env.VITE_GEOCODING_RESULT_LIMIT ?? "15");
-const GEOCODING_MIN_QUERY_LENGTH = Number(import.meta.env.VITE_GEOCODING_MIN_QUERY_LENGTH ?? "2");
+const GEOCODING_RESULT_LIMIT = Number(import.meta.env.VITE_GEOCODING_RESULT_LIMIT);
+const GEOCODING_MIN_QUERY_LENGTH = Number(import.meta.env.VITE_GEOCODING_MIN_QUERY_LENGTH);
 
 export const searchPlace = async (query: string): Promise<SearchResult[]> => {
     if (!query || query.length < GEOCODING_MIN_QUERY_LENGTH) return [];
 
     const apiKey = import.meta.env.VITE_MAPY_COM_API_KEY;
-    if (!apiKey) return [];
 
     try {
-        const response = await axios.get<MapyCzResponse>(`https://api.mapy.cz/v1/geocode`, {
+        const response = await axios.get<MapyCzResponse>(import.meta.env.VITE_GEOCODING_API_URL, {
             params: {
                 apikey: apiKey,
                 query: query,

@@ -55,7 +55,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 return response()->json([
                     'status' => 'error',
                     'status_code' => $statusCode,
-                    'error_message' => $e->getMessage() ?: 'Bad Request',
+                    'error_message' => $e->getMessage() ?: 'Špatný požadavek',
                     'errors' => $errors,
                 ], $statusCode);
             }

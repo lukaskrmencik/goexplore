@@ -157,7 +157,7 @@ class RouteController extends Controller
             $endDate = Carbon::parse($request['end_date']);
 
             if ($startDate->diffInHours($endDate) < 3) {
-                return response()->error("End_date must be at least 3 hours after the start_date.", 422);
+                return response()->error("End_date musí být alespoň 3 hodiny po start_date.", 422);
             }
         }
 
@@ -203,7 +203,7 @@ class RouteController extends Controller
 
             }else{
                 return response()->error(
-                    "if you want to define an axis you must first define the start and end of the route", 422
+                    "Pokud chcete definovat osu, musíte nejprve definovat začátek a konec trasy.", 422
                 );
             }
         }
