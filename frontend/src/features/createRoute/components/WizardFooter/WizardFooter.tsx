@@ -24,21 +24,12 @@ const WizardFooter: React.FC<WizardFooterProps> = ({
     onNextStep,
     onGenerate,
 }) => {
-    const rightButtonLabel = isStepSaving
-        ? "Ukládám..."
-        : isLastStep
-            ? "Generovat"
-            : currentStep === WizardStep.CONFIG
-                ? "Dokončit"
-                : "Pokračovat";
+    const rightButtonLabel = isStepSaving ? "Ukládám..." : isLastStep ? "Generovat" : currentStep === WizardStep.CONFIG ? "Dokončit" : "Pokračovat";
 
-    const rightButtonIcon = isStepSaving
-        ? undefined
-        : isLastStep
-            ? Play
-            : currentStep === WizardStep.CONFIG
-                ? Save
-                : ChevronRight;
+    const rightButtonIcon = isStepSaving ? undefined : isLastStep ? Play : currentStep === WizardStep.CONFIG ? Save : ChevronRight;
+
+    {/* --- START: AI-GENERATED UI (Gemini 3.1 Pro) --- */}
+    {/* Layout and structure generated from design. Data binding and variables added manually. */}
 
     return (
         <div className="create-route-footer">
@@ -66,6 +57,8 @@ const WizardFooter: React.FC<WizardFooterProps> = ({
             </div>
         </div>
     );
+
+    {/* --- END: AI-GENERATED UI --- */}
 };
 
 export default WizardFooter;

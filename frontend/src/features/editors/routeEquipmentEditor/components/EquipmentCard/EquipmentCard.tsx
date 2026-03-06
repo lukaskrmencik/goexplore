@@ -55,6 +55,7 @@ const EquipmentCard: React.FC<EquipmentCardProps> = ({
     onEdit,
     variant = 'standard',
     currentUser
+
 }) => {
     const imageUrl = getImageUrl(item.img);
     const typeName = resolveItemTypeName(item);
@@ -62,6 +63,9 @@ const EquipmentCard: React.FC<EquipmentCardProps> = ({
 
     const isOwnedByCurrentUser = 'users_id' in item && currentUser && item.users_id === currentUser.id;
     const itemOwnerUser = 'user' in item ? item.user : null;
+
+    {/* --- START: AI-GENERATED UI (Gemini 3.1 Pro) --- */}
+    {/* Layout and structure generated from design. Data binding and variables added manually. */}
 
     const OwnerBadgeContent: React.FC = () => {
         if (isOwnedByCurrentUser) {
@@ -254,6 +258,8 @@ const EquipmentCard: React.FC<EquipmentCardProps> = ({
             </div>
         </div>
     );
+
+    {/* --- END: AI-GENERATED UI --- */}
 };
 
 export default EquipmentCard;

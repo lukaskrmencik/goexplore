@@ -50,6 +50,9 @@ const RouteEquipmentEditor: React.FC<RouteEditorProps> = ({ route, onUpdate }) =
         setIsEquipmentModalOpen(true);
     };
 
+    {/* --- START: AI-GENERATED UI (Gemini 3.1 Pro) --- */}
+    {/* Layout and structure generated from design. Data binding and variables added manually. */}
+
     return (
         <div className="route-equipment-editor-container">
 
@@ -186,6 +189,8 @@ const RouteEquipmentEditor: React.FC<RouteEditorProps> = ({ route, onUpdate }) =
 
         </div>
     );
+
+    {/* --- END: AI-GENERATED UI --- */}
 };
 
 export default RouteEquipmentEditor;

@@ -17,13 +17,16 @@ export const useMapViewer = (routeId: number | null) => {
     const { pois, clusters } = usePois(route);
     const camps = route?.camps ?? [];
 
+
     useEffect(() => {
         fetchMyUser()
             .then(setCurrentUser)
             .catch(() => {});
     }, []);
 
+
     const fetchRoute = useCallback(async () => {
+
         if (routeId === null) {
             setError("Id trasy nebylo poskytnuto");
             return;
@@ -32,6 +35,7 @@ export const useMapViewer = (routeId: number | null) => {
             setError("Neplatné ID trasy");
             return;
         }
+
 
         setLoading(true);
         try {
@@ -43,12 +47,15 @@ export const useMapViewer = (routeId: number | null) => {
         } finally {
             setLoading(false);
         }
+
     }, [routeId]);
+
 
     useEffect(() => {
         fetchRoute();
     }, [fetchRoute]);
 
+    
     const visibleCrewMembers = route?.users?.filter(u => u.id !== currentUser?.id) ?? [];
     const visibleOwner = route?.user?.id === currentUser?.id ? undefined : route?.user;
 

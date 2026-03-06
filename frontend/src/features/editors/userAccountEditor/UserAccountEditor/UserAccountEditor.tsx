@@ -29,6 +29,10 @@ const UserAccountEditor: React.FC = () => {
         handleDeleteAccount,
     } = useUserAccount(fileInputRef);
 
+
+    {/* --- START: AI-GENERATED UI (Gemini 3.1 Pro) --- */}
+    {/* Layout and structure generated from design. Data binding and variables added manually. */}
+
     if (isLoading) {
         return (
             <div className="account-editor-loading">
@@ -86,6 +90,8 @@ const UserAccountEditor: React.FC = () => {
         </div>
         </div>
     );
+
+    {/* --- END: AI-GENERATED UI --- */}
 };
 
 export default UserAccountEditor;

@@ -6,6 +6,9 @@ interface CampInfoSectionProps {
     data: CampDetail;
 }
 
+{/* --- START: AI-GENERATED UI (Claude 3.7 Sonnet Thinking) --- */}
+{/* Layout and structure generated from design. Data binding and variables added manually. */}
+
 const CampInfoSection: React.FC<CampInfoSectionProps> = ({ data }) => (
     <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
         {(data.operating_time_month_from || data.accept_cards !== undefined) && (
@@ -57,5 +60,7 @@ const CampInfoSection: React.FC<CampInfoSectionProps> = ({ data }) => (
         )}
     </div>
 );
+
+{/* --- END: AI-GENERATED UI --- */}
 
 export default CampInfoSection;

@@ -43,6 +43,10 @@ const ManualModePanel: React.FC<ManualModePanelProps> = ({
     getSwapCssClass,
     triggerSwap,
 }) => {
+
+    {/* --- START: AI-GENERATED UI (Gemini 3.1 Pro) --- */}
+    {/* Layout and structure generated from design. Data binding and variables added manually. */}
+
     return (
         <div className="route-axis-editor-manual-mode">
             <p className="route-axis-editor-manual-instruction">
@@ -127,6 +131,8 @@ const ManualModePanel: React.FC<ManualModePanelProps> = ({
             )}
         </div>
     );
+
+    {/* --- END: AI-GENERATED UI --- */}
 };
 
 export default ManualModePanel;

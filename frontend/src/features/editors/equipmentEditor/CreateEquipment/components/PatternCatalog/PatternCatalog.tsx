@@ -16,6 +16,9 @@ interface PatternCatalogProps {
     onPageChange: (page: number) => void;
 }
 
+{/* --- START: AI-GENERATED UI (Gemini 3.1 Pro) --- */}
+{/* Layout and structure generated from design. Data binding and variables added manually. */}
+
 const PatternCatalog: React.FC<PatternCatalogProps> = ({
     generalEquipment,
     isLoadingPatterns,
@@ -120,5 +123,7 @@ const PatternCatalog: React.FC<PatternCatalogProps> = ({
         )}
     </div>
 );
+
+{/* --- END: AI-GENERATED UI --- */}
 
 export default PatternCatalog;

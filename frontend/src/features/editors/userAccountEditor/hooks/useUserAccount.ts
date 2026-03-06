@@ -36,21 +36,26 @@ export const useUserAccount = (fileInputRef: React.RefObject<HTMLInputElement | 
             .finally(() => setIsLoading(false));
     }, []);
 
+
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSaving(true);
+
         try {
             await updateMyProfile({ name });
             setUser(prev => prev ? { ...prev, name } : null);
             showToast("Profil byl úspěšně aktualizován.", "success");
+
         } catch (err) {
             showToast(getErrorMessage(err, "Aktualizace selhala."), "error");
+
         } finally {
             setIsSaving(false);
         }
     };
 
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+
         const file = e.target.files?.[0];
         if (!file) return;
 
@@ -59,30 +64,38 @@ export const useUserAccount = (fileInputRef: React.RefObject<HTMLInputElement | 
             const newProfilePicturePath = await uploadProfilePicture(file);
             setUser(prev => prev ? { ...prev, profile_picture: newProfilePicturePath } : null);
             showToast("Profilový obrázek byl úspěšně nahrán.", "success");
+
         } catch {
             showToast("Nepodařilo se nahrát obrázek.", "error");
+
         } finally {
             setIsUploading(false);
             if (fileInputRef.current) fileInputRef.current.value = '';
+
         }
     };
 
     const handleLogout = async () => {
+
         try {
             await logout();
         } catch {
+
         } finally {
             localStorage.removeItem(AUTH_TOKEN_KEY);
             window.location.href = "/login";
         }
+
     };
 
     const handleDeleteAccount = async () => {
         setIsDeleting(true);
+
         try {
             await deleteMyAccount();
             localStorage.removeItem(AUTH_TOKEN_KEY);
             window.location.href = "/signup";
+            
         } catch {
             showToast("Nepodařilo se smazat účet.", "error");
             setIsDeleting(false);

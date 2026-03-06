@@ -1,11 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import type { GeneralEquipment, MyEquipment } from '../../../../../types/equipment';
-import {
-    fetchGeneralEquipment,
-    createMyEquipment,
-    updateMyEquipment,
-    uploadEquipmentImage,
-} from '../../../../../services/equipmentApiService';
+import { fetchGeneralEquipment, createMyEquipment, updateMyEquipment, uploadEquipmentImage } from '../../../../../services/equipmentApiService';
 import { getImageUrl } from '../../../../../utils/imageUrl';
 
 const EQUIPMENT_SEARCH_DEBOUNCE_MS = Number(import.meta.env.VITE_EQUIPMENT_SEARCH_DEBOUNCE ?? "300");
@@ -32,6 +27,7 @@ function buildInitialSpecs(
     if (!pattern.specifications_keys) return specs;
 
     for (const [key, type] of Object.entries(pattern.specifications_keys)) {
+
         if (pattern.general_specifications?.[key] != null) {
             specs[key] = pattern.general_specifications[key];
         } else if (type === 'integer' || type === 'numeric') {
@@ -55,25 +51,34 @@ function buildInitialSpecs(
 function castSpecsToCorrectTypes(
     specs: Record<string, unknown>,
     specsKeys: Record<string, string>
+
 ): Record<string, unknown> {
+
     const prepared = { ...specs };
+
     for (const [key, type] of Object.entries(specsKeys)) {
         if (type === 'integer') prepared[key] = parseInt(String(prepared[key])) || 0;
         else if (type === 'numeric') prepared[key] = parseFloat(String(prepared[key])) || 0;
     }
+
     return prepared;
 }
 
 function extractSubmitErrorMessage(err: unknown, fallback: string): string {
+
     if (!err || typeof err !== 'object') return fallback;
+
     const axiosErr = err as Record<string, any>;
     const data = axiosErr.response?.data;
+
     if (!data) return fallback;
 
     if (data.errors) {
+
         const firstError = Object.values(data.errors)[0];
         if (Array.isArray(firstError) && firstError[0]) return String(firstError[0]);
         if (typeof firstError === 'string') return firstError;
+
     }
 
     return data.message || data.error_message || fallback;
@@ -85,6 +90,7 @@ export const useCreateEquipment = ({
     onSubmit,
     initialData,
 }: UseCreateEquipmentParams) => {
+
     const [step, setStep] = useState<'select' | 'details'>('select');
     const [selectedPattern, setSelectedPattern] = useState<GeneralEquipment | null>(null);
     const [generalEquipment, setGeneralEquipment] = useState<GeneralEquipment[]>([]);
@@ -105,6 +111,7 @@ export const useCreateEquipment = ({
         resetForm();
         setSearchTerm('');
         setPatternPage(1);
+
     }, [isOpen]);
 
     useEffect(() => {
@@ -118,9 +125,7 @@ export const useCreateEquipment = ({
         const pattern = generalEquipment.find(g => g.id === initialData.general_equipment_id);
         if (!pattern) return;
 
-        const rawSpecs: Record<string, unknown> = Array.isArray(initialData.specifications)
-            ? {}
-            : (initialData.specifications ?? {});
+        const rawSpecs: Record<string, unknown> = Array.isArray(initialData.specifications) ? {} : (initialData.specifications ?? {});
 
         setStep('details');
         setSelectedPattern(pattern);
@@ -130,14 +135,17 @@ export const useCreateEquipment = ({
     }, [isOpen, initialData, generalEquipment]);
 
     const loadPatterns = async (pageToLoad: number, searchQuery: string) => {
+
         setIsLoadingPatterns(true);
         try {
             const response = await fetchGeneralEquipment(pageToLoad, searchQuery);
             setGeneralEquipment(response.data || []);
             setPatternPage(response.meta?.page || 1);
             setPatternTotalPages(response.meta?.total_pages || 1);
+
         } catch {
             setToast({ message: "Nepodařilo se načíst seznam vybavení.", type: "error" });
+
         } finally {
             setIsLoadingPatterns(false);
         }
@@ -168,6 +176,7 @@ export const useCreateEquipment = ({
     };
 
     const validateForm = (): string | null => {
+
         if (!name.trim()) return "Zadejte název vybavení.";
         if (!selectedPattern) return "Vyberte typ vybavení.";
 
@@ -184,26 +193,29 @@ export const useCreateEquipment = ({
     };
 
     const handleSubmit = async () => {
+
         const validationError = validateForm();
         if (validationError) {
             setToast({ message: validationError, type: 'error' });
             return;
         }
+
         if (!selectedPattern) return;
 
         setIsSubmitting(true);
         try {
-            const preparedSpecs = selectedPattern.specifications_keys
-                ? castSpecsToCorrectTypes(specs, selectedPattern.specifications_keys)
-                : specs;
+            const preparedSpecs = selectedPattern.specifications_keys ? castSpecsToCorrectTypes(specs, selectedPattern.specifications_keys) : specs;
 
             let savedEquipment: MyEquipment;
+
             if (initialData) {
                 savedEquipment = await updateMyEquipment(initialData.id, {
                     name,
                     specifications: preparedSpecs,
                 });
+
             } else {
+
                 savedEquipment = await createMyEquipment({
                     name,
                     general_equipment_id: selectedPattern.id,
@@ -215,7 +227,9 @@ export const useCreateEquipment = ({
 
             onSubmit(savedEquipment);
             onClose();
+
         } catch (err) {
+
             const axiosError = err as { response?: { data?: { error_message?: string } } };
             const isImageUploadFailure =
                 axiosError?.response?.data?.error_message === 'The image failed to upload.';
@@ -225,18 +239,21 @@ export const useCreateEquipment = ({
                     message: "Obrázek je pravděpodobně příliš velký (limit serveru). Zkuste menší soubor.",
                     type: "error",
                 });
+
             } else {
                 setToast({
                     message: extractSubmitErrorMessage(err, "Nepodařilo se uložit vybavení."),
                     type: "error",
                 });
             }
+
         } finally {
             setIsSubmitting(false);
         }
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+
         const file = e.target.files?.[0];
         if (!file) return;
 
@@ -254,9 +271,7 @@ export const useCreateEquipment = ({
         setPreviewUrl(URL.createObjectURL(file));
     };
 
-    const modalTitle = step === 'select'
-        ? 'Vyberte šablonu vybavení z katalogu'
-        : (initialData ? 'Upravit vybavení' : 'Detaily vybavení');
+    const modalTitle = step === 'select' ? 'Vyberte šablonu vybavení z katalogu' : (initialData ? 'Upravit vybavení' : 'Detaily vybavení');
 
     return {
         step,

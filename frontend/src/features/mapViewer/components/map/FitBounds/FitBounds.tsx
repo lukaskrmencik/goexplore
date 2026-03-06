@@ -11,6 +11,7 @@ interface FitBoundsProps {
 }
 
 const FitBounds: React.FC<FitBoundsProps> = ({ lineString, start, end }) => {
+
     const map = useMap();
     const hasFitRef = React.useRef<{ startEnd: boolean; line: boolean }>({
         startEnd: false,
@@ -18,6 +19,7 @@ const FitBounds: React.FC<FitBoundsProps> = ({ lineString, start, end }) => {
     });
 
     useEffect(() => {
+
         if (hasFitRef.current.line) return;
         if (!lineString && !start && !end) return;
 
@@ -34,6 +36,7 @@ const FitBounds: React.FC<FitBoundsProps> = ({ lineString, start, end }) => {
         if (start) bounds.extend(geojsonPointToLatLng(start));
         if (end) bounds.extend(geojsonPointToLatLng(end));
 
+        
         if (!bounds.isValid()) return;
 
         if (!isLinePresent && hasFitRef.current.startEnd) return;

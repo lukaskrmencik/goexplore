@@ -17,25 +17,32 @@ import {
 import { computeEstimatedLength } from "../../../../utils/routeLengthEstimator";
 import { isInsideCzechRepublic } from "../../../../utils/czechBoundary";
 
+
+
 function reassignPointTypes(pts: EditorPoint[]): EditorPoint[] {
     return pts.map((p, i) => {
         let type: 'start' | 'end' | 'waypoint' = 'waypoint';
         let order = i;
+
         if (i === 0) {
             type = 'start';
             order = 0;
+
         } else if (i === pts.length - 1 && pts.length >= 2) {
             type = 'end';
             order = 9999;
         }
+
         if (p.type !== type || p.order !== order) {
             return { ...p, type, order };
         }
+
         return p;
     });
 }
 
 export const useRouteAxis = (route: Route | null, onUpdateRoute: (route: Route) => void) => {
+
     const [points, setPoints] = useState<EditorPoint[]>([]);
     const hasUserChanges = useRef(false);
 
@@ -117,6 +124,7 @@ export const useRouteAxis = (route: Route | null, onUpdateRoute: (route: Route) 
         localStorage.setItem(cacheKey, JSON.stringify(cache));
     }, [points, route]);
 
+
     const setStartPoint = (lat: number, lng: number, name: string) => {
         hasUserChanges.current = true;
         setPoints(prev => {
@@ -125,6 +133,7 @@ export const useRouteAxis = (route: Route | null, onUpdateRoute: (route: Route) 
         });
     };
 
+
     const setEndPoint = (lat: number, lng: number, name: string) => {
         hasUserChanges.current = true;
         setPoints(prev => {
@@ -132,6 +141,7 @@ export const useRouteAxis = (route: Route | null, onUpdateRoute: (route: Route) 
             return [...filtered, { id: 'end', lat, lng, type: 'end', name, order: 9999 }];
         });
     };
+
 
     const insertSimpleWaypoint = (lat: number, lng: number, name: string, insertIndex: number) => {
         hasUserChanges.current = true;
@@ -150,16 +160,19 @@ export const useRouteAxis = (route: Route | null, onUpdateRoute: (route: Route) 
     };
 
     const movePoint = (dragIndex: number, hoverIndex: number) => {
+
         hasUserChanges.current = true;
+
         setPoints(prev => {
+
             if (dragIndex < 0 || dragIndex >= prev.length || hoverIndex < 0 || hoverIndex >= prev.length) return prev;
             if (prev[dragIndex].type !== 'waypoint') return prev;
 
             const newPoints = [...prev];
             const [draggedItem] = newPoints.splice(dragIndex, 1);
             newPoints.splice(hoverIndex, 0, draggedItem);
-
             let currentOrder = 1;
+
             const reorderedPoints = newPoints.map(p => {
                 if (p.type === 'start') return { ...p, order: 0 };
                 if (p.type === 'end') return { ...p, order: 9999 };
@@ -172,6 +185,7 @@ export const useRouteAxis = (route: Route | null, onUpdateRoute: (route: Route) 
 
             const sorted: EditorPoint[] = [];
             if (startPoint) sorted.push(startPoint);
+
             sorted.push(...waypoints);
             if (endPoint) sorted.push(endPoint);
 
@@ -188,6 +202,7 @@ export const useRouteAxis = (route: Route | null, onUpdateRoute: (route: Route) 
         if (route?.mode !== 'manual') return;
         if (!isInsideCzechRepublic(lat, lng)) return;
         hasUserChanges.current = true;
+
         setPoints(prev => {
             const newPoint: EditorPoint = {
                 id: uuidv4(),
@@ -197,13 +212,16 @@ export const useRouteAxis = (route: Route | null, onUpdateRoute: (route: Route) 
                 name: prev.length === 0 ? 'Start' : `Bod ${prev.length + 1}`,
                 order: prev.length
             };
+
             return reassignPointTypes([...prev, newPoint]);
         });
     };
 
     const insertPointOnSegment = useCallback((segmentIndex: number, lat: number, lng: number) => {
+
         if (!isInsideCzechRepublic(lat, lng)) return;
         hasUserChanges.current = true;
+
         setPoints(prev => {
             const insertAt = segmentIndex + 1;
             const newPoint: EditorPoint = {
@@ -220,24 +238,30 @@ export const useRouteAxis = (route: Route | null, onUpdateRoute: (route: Route) 
         });
     }, []);
 
+
     const updatePointPosition = useCallback((id: string, lat: number, lng: number) => {
         hasUserChanges.current = true;
+
         if (!isInsideCzechRepublic(lat, lng)) {
             setPoints(prev => [...prev]);
             return;
         }
+
         setPoints(prev =>
             prev.map(p => p.id === id ? { ...p, lat, lng } : p)
         );
     }, []);
+
 
     const removeManualPoint = useCallback((id: string) => {
         hasUserChanges.current = true;
         setPoints(prev => reassignPointTypes(prev.filter(p => p.id !== id)));
     }, []);
 
+
     const moveManualPoint = useCallback((dragIndex: number, hoverIndex: number) => {
         hasUserChanges.current = true;
+
         setPoints(prev => {
             if (dragIndex < 0 || dragIndex >= prev.length || hoverIndex < 0 || hoverIndex >= prev.length) return prev;
             const newPoints = [...prev];
@@ -247,9 +271,11 @@ export const useRouteAxis = (route: Route | null, onUpdateRoute: (route: Route) 
         });
     }, []);
 
+
     const handleReset = useCallback(() => {
         setPoints([]);
     }, []);
+    
 
     const saveChanges = async () => {
         if (!route) return;

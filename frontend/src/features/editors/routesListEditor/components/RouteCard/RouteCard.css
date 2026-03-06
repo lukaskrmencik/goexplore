@@ -1,15 +1,16 @@
+/* * ==========================================================================
+ * AI-GENERATED FILE (Gemini 3.1 Pro)
+ * The styling in this file was fully generated based on the UI design mockups.
+ * ==========================================================================
+ */
+
 .route-card-container {
     position: relative;
     background-color: var(--color-white);
-
     border-radius: var(--radius-2xl);
-
     border: 1px solid var(--color-neutral-200);
-
     box-shadow: var(--shadow-sm);
-
     transition: all 0.3s;
-
     cursor: pointer;
     overflow: hidden;
     display: flex;
@@ -20,7 +21,6 @@
 
 .route-card-container:hover {
     box-shadow: var(--shadow-md);
-
     transform: translateY(-0.25rem);
 
 }
@@ -37,13 +37,10 @@
 
 .route-card-image-placeholder {
     height: 7rem;
-
     background-color: var(--color-neutral-100);
-
     position: relative;
     overflow: hidden;
     border-bottom: 1px solid var(--color-neutral-100);
-
     flex-shrink: 0;
 }
 

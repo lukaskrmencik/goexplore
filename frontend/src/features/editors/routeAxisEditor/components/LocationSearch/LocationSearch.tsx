@@ -61,10 +61,12 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
                 .finally(() => {
                     setIsLoading(false);
                 });
+
         } else {
             setResults([]);
             setIsOpen(false);
         }
+        
     }, [debouncedQuery]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -92,6 +94,10 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
     }, []);
 
     if (isCompact) {
+
+        {/* --- START: AI-GENERATED UI (Gemini 3.1 Pro) --- */}
+        {/* Layout and structure generated from design. Data binding and variables added manually. */}
+
         return (
             <div className="location-search-wrapper" ref={wrapperRef}>
                 <div className="location-search-input-container">
@@ -178,6 +184,8 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
             )}
         </div>
     );
+
+    {/* --- END: AI-GENERATED UI --- */}
 };
 
 export default LocationSearch;

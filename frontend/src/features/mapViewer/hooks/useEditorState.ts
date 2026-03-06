@@ -26,6 +26,7 @@ export const useEditorState = (refetch: () => void, onSaveError: (message: strin
     const dateEditorRef = useRef<RouteDateEditorHandle>(null);
     const configEditorRef = useRef<RouteConfigurationEditorHandle>(null);
 
+
     const handleCloseEditor = () => {
         setActiveEditor(null);
         refetch();
@@ -35,6 +36,7 @@ export const useEditorState = (refetch: () => void, onSaveError: (message: strin
         }
     };
 
+    
     const handleOpenEditor = (editor: EditorType) => {
         if (isMobileMenuOpen) {
             setWasMobileMenuOpen(true);

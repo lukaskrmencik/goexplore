@@ -47,6 +47,9 @@ const CreateEquipment: React.FC<CreateEquipmentProps> = ({
 
     if (!isOpen) return null;
 
+    {/* --- START: AI-GENERATED UI (Gemini 3.1 Pro) --- */}
+    {/* Layout and structure generated from design. Data binding and variables added manually. */}
+
     return (
         <div className="create-equipment-backdrop">
             <div className="create-equipment-content">
@@ -117,6 +120,8 @@ const CreateEquipment: React.FC<CreateEquipmentProps> = ({
             )}
         </div>
     );
+
+    {/* --- END: AI-GENERATED UI --- */}
 };
 
 export default CreateEquipment;

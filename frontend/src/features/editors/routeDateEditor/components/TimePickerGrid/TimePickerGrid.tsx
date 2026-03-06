@@ -9,6 +9,10 @@ interface TimePickerGridProps {
 }
 
 const TimePickerGrid: React.FC<TimePickerGridProps> = ({ timeSlots, activeDateObj, activeField, onTimeSelect }) => {
+
+    {/* --- START: AI-GENERATED UI (Claude 3.7 Sonnet Thinking) --- */}
+    {/* Layout and structure generated from design. Data binding and variables added manually. */}
+
     return (
         <div className="route-date-editor-timepicker-grid-container">
             <div className="route-date-editor-timepicker-grid">
@@ -36,6 +40,8 @@ const TimePickerGrid: React.FC<TimePickerGridProps> = ({ timeSlots, activeDateOb
             </div>
         </div>
     );
+
+    {/* --- END: AI-GENERATED UI --- */}
 };
 
 export default TimePickerGrid;

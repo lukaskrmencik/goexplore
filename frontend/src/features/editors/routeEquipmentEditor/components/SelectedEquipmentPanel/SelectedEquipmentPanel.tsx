@@ -24,6 +24,10 @@ const SelectedEquipmentPanel: React.FC<SelectedEquipmentPanelProps> = ({
     currentUser,
     onToggleEquipment,
 }) => {
+
+    {/* --- START: AI-GENERATED UI (Gemini 3.1 Pro) --- */}
+    {/* Layout and structure generated from design. Data binding and variables added manually. */}  
+
     return (
         <div className={`route-equipment-editor-selected-equipment-panel ${isOpen ? 'route-equipment-editor-selected-equipment-open' : 'route-equipment-editor-selected-equipment-closed'}`}>
             <div
@@ -80,6 +84,8 @@ const SelectedEquipmentPanel: React.FC<SelectedEquipmentPanelProps> = ({
             </div>
         </div>
     );
+
+    {/* --- END: AI-GENERATED UI --- */}
 };
 
 export default SelectedEquipmentPanel;

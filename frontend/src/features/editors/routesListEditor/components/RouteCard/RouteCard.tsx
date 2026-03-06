@@ -41,6 +41,9 @@ const RouteCard: React.FC<RouteCardProps> = ({ route, isShared, onDelete, onUnjo
 
     const getStatusBadgeText = () => getRouteStatusLabel(status);
 
+    {/* --- START: AI-GENERATED UI (Gemini 3.1 Pro) --- */}
+    {/* Layout and structure generated from design. Data binding and variables added manually. */}
+
     return (
         <div
             onClick={handleClick}
@@ -183,6 +186,8 @@ const RouteCard: React.FC<RouteCardProps> = ({ route, isShared, onDelete, onUnjo
             )}
         </div>
     );
+
+    {/* --- END: AI-GENERATED UI --- */}
 };
 
 export default RouteCard;

@@ -25,6 +25,9 @@ const JoinRoute: React.FC = () => {
     ? "Již máte přístup k této trase. Můžete rovnou přejít na prohlížení mapy."
     : "Přijměte pozvánku, abyste mohli společně s ostatními členy prohlížet a plánovat tuto trasu";
 
+  {/* --- START: AI-GENERATED UI (Claude 3.7 Sonnet Thinking) --- */}
+  {/* Layout and structure generated from design. Data binding and variables added manually. */}
+
   return (
     <div className="join-route-container">
       <div className="join-route-card">
@@ -63,6 +66,8 @@ const JoinRoute: React.FC = () => {
       </div>
     </div>
   );
+
+  {/* --- END: AI-GENERATED UI --- */}
 };
 
 export default JoinRoute;

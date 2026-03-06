@@ -13,13 +13,10 @@ use App\Http\Controllers\Route\RouteUserController;
 use App\Http\Controllers\Camp\CampController;
 use App\Http\Controllers\Poi\PoiController;
 
-Route::get('/user', function (Request $request) {
-    return "ahojky";
-});
+
 
 Route::post('/signup', [AuthController::class, 'signup']);
 
-//Route::post('/signup', [AuthController::class, 'signup']);
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::middleware('jwt')->group(function () {

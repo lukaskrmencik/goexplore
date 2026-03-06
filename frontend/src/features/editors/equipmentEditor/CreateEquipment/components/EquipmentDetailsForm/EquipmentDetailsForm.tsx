@@ -14,6 +14,10 @@ interface EquipmentDetailsFormProps {
     onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
+
+{/* --- START: AI-GENERATED UI (Gemini 3.1 Pro) --- */}
+{/* Layout and structure generated from design. Data binding and variables added manually. */}
+
 const EquipmentDetailsForm: React.FC<EquipmentDetailsFormProps> = ({
     selectedPattern,
     name,
@@ -121,5 +125,7 @@ const EquipmentDetailsForm: React.FC<EquipmentDetailsFormProps> = ({
         </div>
     </div>
 );
+
+{/* --- END: AI-GENERATED UI --- */}
 
 export default EquipmentDetailsForm;

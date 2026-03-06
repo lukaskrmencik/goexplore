@@ -12,6 +12,10 @@ interface UserListProps {
 }
 
 const UserList: React.FC<UserListProps> = ({ users, currentUserId, ownerId, onRemove, isRemovingId }) => {
+
+    {/* --- START: AI-GENERATED UI (Claude 3.7 Sonnet Thinking) --- */}
+    {/* Layout and structure generated from design. Data binding and variables added manually. */}
+
     return (
         <div className="user-list-container">
             {users.map((user) => {
@@ -67,6 +71,8 @@ const UserList: React.FC<UserListProps> = ({ users, currentUserId, ownerId, onRe
             })}
         </div>
     );
+
+    {/* --- END: AI-GENERATED UI --- */}
 };
 
 export default UserList;

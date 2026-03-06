@@ -23,6 +23,9 @@ const JoinRouteActions: React.FC<JoinRouteActionsProps> = ({
 }) => {
     const isAlreadyMemberOrOwner = inviteDetails?.is_owner || inviteDetails?.is_member;
 
+    {/* --- START: AI-GENERATED UI (Claude 3.7 Sonnet Thinking) --- */}
+    {/* Layout and structure generated from design. Data binding and variables added manually. */}
+
     return (
         <div className="join-route-actions">
             {isAlreadyMemberOrOwner ? (
@@ -63,6 +66,8 @@ const JoinRouteActions: React.FC<JoinRouteActionsProps> = ({
             </button>
         </div>
     );
+
+    {/* --- END: AI-GENERATED UI --- */}
 };
 
 export default JoinRouteActions;

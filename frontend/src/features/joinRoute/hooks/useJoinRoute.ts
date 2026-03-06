@@ -6,6 +6,7 @@ import { getErrorMessage } from "../../../utils/apiError";
 import { AUTH_TOKEN_KEY } from "../../../utils/auth";
 
 export const useJoinRoute = () => {
+
     const { token } = useParams<{ token: string }>();
     const navigate = useNavigate();
     const location = useLocation();
@@ -16,7 +17,9 @@ export const useJoinRoute = () => {
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
+
         const authToken = localStorage.getItem(AUTH_TOKEN_KEY);
+
         if (!authToken) {
             const redirectUrl = encodeURIComponent(location.pathname + location.search);
             navigate(`/login?redirect=${redirectUrl}`);
@@ -35,9 +38,11 @@ export const useJoinRoute = () => {
                 setError(getErrorMessage(err, "Tuto pozvánku se nepodařilo načíst."));
             })
             .finally(() => setIsFetchingDetails(false));
+
     }, [navigate, location, token]);
 
     const handleAcceptInvite = async () => {
+
         if (!token) {
             setError("Neplatný nebo chybějící token pozvánky.");
             return;
@@ -54,6 +59,7 @@ export const useJoinRoute = () => {
         } finally {
             setIsAcceptingInvite(false);
         }
+        
     };
 
     const navigateToRouteMap = (routeId: number) => navigate(`/map-viewer?id=${routeId}`);

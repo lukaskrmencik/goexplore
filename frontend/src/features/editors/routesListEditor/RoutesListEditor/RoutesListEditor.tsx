@@ -47,6 +47,9 @@ const RoutesListEditor = () => {
     const visibleRoutes = activeTab === "owned" ? ownedRoutes : sharedRoutes;
     const activePagination = activeTab === "owned" ? ownedPagination : sharedPagination;
 
+    {/* --- START: AI-GENERATED UI (Claude 3.7 Sonnet Thinking) --- */}
+    {/* Layout and structure generated from design. Data binding and variables added manually. */}
+
     return (
         <div className="routes-list-editor-container">
             <RoutesPageHeader
@@ -95,6 +98,8 @@ const RoutesListEditor = () => {
             />
         </div>
     );
+
+    {/* --- END: AI-GENERATED UI --- */}
 };
 
 export default RoutesListEditor;

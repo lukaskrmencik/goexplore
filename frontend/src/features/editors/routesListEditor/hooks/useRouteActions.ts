@@ -3,6 +3,7 @@ import { deleteRoute, removeUserFromRoute } from '../../../../services/routesApi
 import { decodeJwtUserId, AUTH_TOKEN_KEY } from '../../../../utils/auth';
 
 export const useRouteActions = (onSuccess: () => void) => {
+
     const [routeIdToDelete, setRouteIdToDelete] = useState<number | null>(null);
     const [routeIdToUnjoin, setRouteIdToUnjoin] = useState<number | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
@@ -13,6 +14,7 @@ export const useRouteActions = (onSuccess: () => void) => {
     const cancelUnjoin = () => setRouteIdToUnjoin(null);
 
     const confirmDelete = async () => {
+
         if (routeIdToDelete === null) return;
         setIsProcessing(true);
         try {
@@ -24,19 +26,24 @@ export const useRouteActions = (onSuccess: () => void) => {
             setIsProcessing(false);
             setRouteIdToDelete(null);
         }
+
     };
 
     const confirmUnjoin = async () => {
+
         if (routeIdToUnjoin === null) return;
         setIsProcessing(true);
+
         try {
             const token = localStorage.getItem(AUTH_TOKEN_KEY);
             if (!token) throw new Error('Not authenticated');
             const currentUserId = decodeJwtUserId(token);
             await removeUserFromRoute(routeIdToUnjoin, currentUserId);
             onSuccess();
+
         } catch {
             alert('Nepodařilo se odpojit z trasy. Zkuste to prosím znovu.');
+
         } finally {
             setIsProcessing(false);
             setRouteIdToUnjoin(null);

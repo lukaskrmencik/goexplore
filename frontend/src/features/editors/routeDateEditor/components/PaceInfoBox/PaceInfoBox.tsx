@@ -12,6 +12,10 @@ const PaceInfoBox: React.FC<PaceInfoBoxProps> = ({ paceInfo }) => {
                 : 'route-date-pace-info-error')
         : 'route-date-pace-info-placeholder';
 
+
+    {/* --- START: AI-GENERATED UI (Claude 3.7 Sonnet Thinking) --- */}
+    {/* Layout and structure generated from design. Data binding and variables added manually. */}
+
     return (
         <div className={`route-date-pace-info ${containerClass}`}>
             {paceInfo ? (
@@ -40,6 +44,8 @@ const PaceInfoBox: React.FC<PaceInfoBoxProps> = ({ paceInfo }) => {
             )}
         </div>
     );
+
+    {/* --- END: AI-GENERATED UI --- */}
 };
 
 export default PaceInfoBox;

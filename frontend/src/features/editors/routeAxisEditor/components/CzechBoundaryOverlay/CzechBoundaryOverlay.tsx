@@ -7,9 +7,11 @@ const CzechBoundaryOverlay: React.FC = () => {
     const [borderFeature, setBorderFeature] = useState<FeatureCollection | null>(null);
 
     useEffect(() => {
+
         fetch("/cze_boundaries.geojson")
             .then((res) => res.json())
             .then((data: FeatureCollection) => {
+
                 const czFeature = data.features.find(
                     (f) => f.geometry.type === "Polygon" || f.geometry.type === "MultiPolygon"
                 );
@@ -29,6 +31,7 @@ const CzechBoundaryOverlay: React.FC = () => {
                 ];
 
                 let czRings: [number, number][][];
+                
                 if (czFeature.geometry.type === "Polygon") {
                     czRings = (czFeature.geometry as Polygon).coordinates as [number, number][][];
                 } else {

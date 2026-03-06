@@ -11,6 +11,9 @@ interface ProfileAvatarCardProps {
     onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
+{/* --- START: AI-GENERATED UI (Gemini 3.1 Pro) --- */}
+{/* Layout and structure generated from design. Data binding and variables added manually. */}
+
 const ProfileAvatarCard: React.FC<ProfileAvatarCardProps> = ({
     user,
     isUploading,
@@ -46,5 +49,7 @@ const ProfileAvatarCard: React.FC<ProfileAvatarCardProps> = ({
         />
     </div>
 );
+
+{/* --- END: AI-GENERATED UI --- */}
 
 export default ProfileAvatarCard;

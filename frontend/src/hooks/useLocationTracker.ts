@@ -10,6 +10,7 @@ export const useLocationTracker = (isAuthenticated: boolean, intervalMs = DEFAUL
     const isTrackingRef = useRef(false);
     const [permissionState, setPermissionState] = useState<LocationPermissionState>('unknown');
 
+    
     useEffect(() => {
         if (!window.isSecureContext) {
             setPermissionState('insecure_origin');
@@ -34,6 +35,7 @@ export const useLocationTracker = (isAuthenticated: boolean, intervalMs = DEFAUL
             setPermissionState('prompt');
         }
     }, [isAuthenticated]);
+
 
     const syncLocation = useCallback(() => {
         if (isTrackingRef.current || !('geolocation' in navigator)) return;
@@ -63,9 +65,11 @@ export const useLocationTracker = (isAuthenticated: boolean, intervalMs = DEFAUL
         );
     }, []);
 
+
     const requestPermission = useCallback(() => {
         syncLocation();
     }, [syncLocation]);
+
 
     useEffect(() => {
         if (!isAuthenticated || permissionState !== 'granted') return;
@@ -75,6 +79,7 @@ export const useLocationTracker = (isAuthenticated: boolean, intervalMs = DEFAUL
 
         return () => clearInterval(intervalId);
     }, [isAuthenticated, permissionState, intervalMs, syncLocation]);
+
 
     return { permissionState, requestPermission };
 };

@@ -12,6 +12,10 @@ interface DurationPillProps {
 }
 
 const DurationPill: React.FC<DurationPillProps> = ({ duration, durationInfo }) => {
+
+    {/* --- START: AI-GENERATED UI (Claude 3.7 Sonnet Thinking) --- */}
+    {/* Layout and structure generated from design. Data binding and variables added manually. */}
+
     return (
         <div className="route-date-editor-duration-wrapper">
             {duration ? (
@@ -33,6 +37,8 @@ const DurationPill: React.FC<DurationPillProps> = ({ duration, durationInfo }) =
             )}
         </div>
     );
+
+    {/* --- END: AI-GENERATED UI --- */}
 };
 
 export default DurationPill;

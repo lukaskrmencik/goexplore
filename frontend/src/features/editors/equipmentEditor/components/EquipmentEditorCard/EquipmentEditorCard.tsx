@@ -23,15 +23,14 @@ function resolveEquipmentSpecs(item: MyEquipment): Record<string, unknown> {
     return typeof raw === 'object' && raw !== null ? raw as Record<string, unknown> : {};
 }
 
-const EquipmentEditorCard: React.FC<EquipmentEditorCardProps> = ({
-    item,
-    isProcessing,
-    onDelete,
-    onEdit,
-}) => {
+const EquipmentEditorCard: React.FC<EquipmentEditorCardProps> = ({ item, isProcessing, onDelete, onEdit }) => {
+
     const imageUrl = getImageUrl(item.img);
     const typeName = resolveEquipmentTypeName(item);
     const displaySpecs = Object.entries(resolveEquipmentSpecs(item)).slice(0, 4);
+
+    {/* --- START: AI-GENERATED UI (Gemini 3.1 Pro) --- */}
+    {/* Layout and structure generated from design. Data binding and variables added manually. */}
 
     return (
         <div className="equipment-editor-card">
@@ -94,6 +93,8 @@ const EquipmentEditorCard: React.FC<EquipmentEditorCardProps> = ({
             </div>
         </div>
     );
+
+    {/* --- END: AI-GENERATED UI --- */}
 };
 
 export default EquipmentEditorCard;

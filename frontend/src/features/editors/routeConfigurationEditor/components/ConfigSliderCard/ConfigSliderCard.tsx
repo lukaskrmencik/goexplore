@@ -26,6 +26,10 @@ const ConfigSliderCard: React.FC<ConfigSliderCardProps> = ({
     onChange,
     disabled = false,
 }) => {
+
+    {/* --- START: AI-GENERATED UI (Claude 3.7 Sonnet Thinking) --- */}
+    {/* Layout and structure generated from design. Data binding and variables added manually. */}
+
     return (
         <div className={`route-config-editor-card${disabled ? ' route-config-editor-card-disabled' : ''}`}>
             <div className="route-config-editor-card-header">
@@ -59,6 +63,8 @@ const ConfigSliderCard: React.FC<ConfigSliderCardProps> = ({
             </div>
         </div>
     );
+
+    {/* --- END: AI-GENERATED UI --- */}
 };
 
 export default ConfigSliderCard;

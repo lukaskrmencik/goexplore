@@ -7,6 +7,9 @@ interface AccountActionsCardProps {
     onDeleteRequest: () => void;
 }
 
+{/* --- START: AI-GENERATED UI (Gemini 3.1 Pro) --- */}
+{/* Layout and structure generated from design. Data binding and variables added manually. */}
+
 const AccountActionsCard: React.FC<AccountActionsCardProps> = ({ onLogout, onDeleteRequest }) => (
     <div className="account-editor-actions-card">
         <button onClick={onLogout} className="account-logout-btn">
@@ -21,5 +24,7 @@ const AccountActionsCard: React.FC<AccountActionsCardProps> = ({ onLogout, onDel
         </div>
     </div>
 );
+
+{/* --- END: AI-GENERATED UI --- */}
 
 export default AccountActionsCard;

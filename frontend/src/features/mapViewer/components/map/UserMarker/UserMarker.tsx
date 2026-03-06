@@ -49,6 +49,9 @@ const UserMarker: React.FC<UserMarkerProps> = ({ user }) => {
 
     const position = geojsonPointToLatLng(user.location!);
 
+    {/* --- START: AI-GENERATED UI (Claude 3.7 Sonnet Thinking) --- */}
+    {/* Layout and structure generated from design. Data binding and variables added manually. */}
+
     const avatarHtml = renderToString(
         <div className="user-marker-avatar-wrapper">
             <UserAvatar
@@ -63,6 +66,8 @@ const UserMarker: React.FC<UserMarkerProps> = ({ user }) => {
             </div>
         </div>
     );
+
+    {/* --- END: AI-GENERATED UI --- */}
 
     const icon = L.divIcon({
         html: `<div className="user-marker-container">${avatarHtml}</div>`,

@@ -46,6 +46,10 @@ const InviteBox: React.FC<InviteBoxProps> = ({ link, isGenerating }) => {
         ? `mailto:?subject=${encodeURIComponent("Přidej se k mé trase na GoExplore!")}&body=${encodeURIComponent(`Ahoj,\n\npřidej se k mé trase a naplánujme to společně:\n${link}`)}`
         : "#";
 
+
+    {/* --- START: AI-GENERATED UI (Claude 3.7 Sonnet Thinking) --- */}
+    {/* Layout and structure generated from design. Data binding and variables added manually. */}
+
     return (
         <div className="invite-box-container">
 
@@ -123,6 +127,8 @@ const InviteBox: React.FC<InviteBoxProps> = ({ link, isGenerating }) => {
             </p>
         </div>
     );
+
+    {/* --- END: AI-GENERATED UI --- */}
 };
 
 export default InviteBox;

@@ -5,6 +5,7 @@ import { AUTH_TOKEN_KEY } from '../../../../utils/auth';
 import { getErrorMessage } from '../../../../utils/apiError';
 
 export const useSignup = () => {
+
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const [name, setName] = useState('');
@@ -16,7 +17,8 @@ export const useSignup = () => {
 
     const redirectPath = searchParams.get('redirect') || '/';
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.SubmitEvent) => {
+
         e.preventDefault();
         setError(null);
 
@@ -36,8 +38,10 @@ export const useSignup = () => {
             } else {
                 setError('Nepodařilo se najít token v odpovědi.');
             }
+
         } catch (err) {
             setError(getErrorMessage(err, 'Registrace selhala. Zkuste to prosím znovu.'));
+
         } finally {
             setIsLoading(false);
         }

@@ -42,11 +42,9 @@ export const usePointDragAndDrop = ({ points, onMoveSimpleMode, onMoveManualMode
 
         setDragOverIndex(null);
         const dragId = event.dataTransfer.getData('text/plain');
-
         if (!dragId) { setDraggedItemId(null); return; }
 
         const dragIndex = points.findIndex(p => p.id === dragId);
-
         const resolvedIndex = resolveDropIndex(dragId, targetGapIndex);
 
         if (dragIndex !== -1 && dragIndex !== resolvedIndex) {
@@ -59,11 +57,9 @@ export const usePointDragAndDrop = ({ points, onMoveSimpleMode, onMoveManualMode
     const handleManualModeDrop = (event: React.DragEvent, targetGapIndex: number) => {
 
         event.preventDefault();
-
         setDragOverIndex(null);
 
         const dragId = event.dataTransfer.getData('text/plain');
-
         if (!dragId) { setDraggedItemId(null); return; }
 
         const dragIndex = points.findIndex(p => p.id === dragId);    

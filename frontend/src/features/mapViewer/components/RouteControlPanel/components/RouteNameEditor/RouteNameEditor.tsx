@@ -23,9 +23,11 @@ const RouteNameEditor: React.FC<RouteNameEditorProps> = ({ route, onRouteUpdate,
         }
     }, [isEditing]);
 
+
     useEffect(() => {
         if (!isEditing) setTempName(route.name);
     }, [route.name, route.id, isEditing]);
+
 
     const handleSave = async () => {
         if (!tempName.trim()) {
@@ -53,6 +55,9 @@ const RouteNameEditor: React.FC<RouteNameEditorProps> = ({ route, onRouteUpdate,
         }
     };
 
+    {/* --- START: AI-GENERATED UI (Claude 3.7 Sonnet Thinking) --- */}
+    {/* Layout and structure generated from design. Data binding and variables added manually. */}
+
     return (
         <div className="route-control-panel-name-editor">
             {isEditing ? (
@@ -79,6 +84,8 @@ const RouteNameEditor: React.FC<RouteNameEditorProps> = ({ route, onRouteUpdate,
             )}
         </div>
     );
+
+    {/* --- END: AI-GENERATED UI --- */}
 };
 
 export default RouteNameEditor;

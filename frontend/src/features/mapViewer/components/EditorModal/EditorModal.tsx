@@ -22,6 +22,9 @@ interface EditorModalProps {
     onRouteUpdateSilent: (updatedRoute: Route) => void;
 }
 
+{/* --- START: AI-GENERATED UI (Claude 3.7 Sonnet Thinking) --- */}
+{/* Layout and structure generated from design. Data binding and variables added manually. */}
+
 const EditorModal: React.FC<EditorModalProps> = ({
     activeEditor,
     editorTitle,
@@ -83,5 +86,7 @@ const EditorModal: React.FC<EditorModalProps> = ({
         </div>
     </div>
 );
+
+{/* --- END: AI-GENERATED UI --- */}
 
 export default EditorModal;

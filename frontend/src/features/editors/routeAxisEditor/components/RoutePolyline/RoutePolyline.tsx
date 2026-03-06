@@ -44,9 +44,12 @@ const RoutePolyline: React.FC<RoutePolylineProps> = ({ coordinates, onSegmentCli
             />
 
             {onSegmentClick && coordinates.length >= 2 && coordinates.map((_, i) => {
+
                 if (i >= coordinates.length - 1) return null;
                 const segmentCoords = [coordinates[i], coordinates[i + 1]];
+
                 return (
+
                     <Polyline
                         key={`segment-click-${i}`}
                         positions={segmentCoords}
@@ -55,15 +58,18 @@ const RoutePolyline: React.FC<RoutePolylineProps> = ({ coordinates, onSegmentCli
                             weight: 24,
                             opacity: 0,
                         }}
+
                         eventHandlers={{
                             click: (e: LeafletMouseEvent) => {
                                 e.originalEvent.stopPropagation();
                                 onSegmentClick(i, e.latlng.lat, e.latlng.lng);
                             },
+
                             mouseover: (e) => {
                                 const el = (e.target as LeafletMouseEvent['target'] & { _path?: SVGElement })._path;
                                 if (el) el.style.cursor = 'copy';
                             },
+                            
                             mouseout: (e) => {
                                 const el = (e.target as LeafletMouseEvent['target'] & { _path?: SVGElement })._path;
                                 if (el) el.style.cursor = '';

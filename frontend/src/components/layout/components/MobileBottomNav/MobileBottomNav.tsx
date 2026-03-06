@@ -19,6 +19,9 @@ const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ onLogout }) => {
     const navigate = useNavigate();
     const location = useLocation();
 
+    {/* --- START: AI-GENERATED UI (Gemini 3.1 Pro) --- */}
+    {/* Layout and structure generated from design. Data binding and variables added manually. */}
+
     return (
         <div className="mobile-bottom-nav">
             <div className="mobile-bottom-nav-grid">
@@ -67,6 +70,8 @@ const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ onLogout }) => {
             </div>
         </div>
     );
+
+    {/* --- END: AI-GENERATED UI --- */}
 };
 
 export default MobileBottomNav;

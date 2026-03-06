@@ -11,6 +11,7 @@ export const useRouteConfiguration = (
     route: Route,
     onUpdateRoute: (route: Route) => void,
     estimatedRoadKm = 0,
+
 ) => {
     const [bufferSize, setBufferSize] = useState<number>(DEFAULT_BUFFER_KM);
     const [maxRouteLength, setMaxRouteLength] = useState<number>(DEFAULT_ROUTE_LENGTH_KM);
@@ -38,20 +39,24 @@ export const useRouteConfiguration = (
         }
     }, [route, computedDailyLimit]);
 
+
     const handleBufferSizeChange = useCallback((val: number) => {
         hasUserChanges.current = true;
         setBufferSize(val);
     }, []);
+
 
     const handleMaxRouteLengthChange = useCallback((val: number) => {
         hasUserChanges.current = true;
         setMaxRouteLength(val);
     }, []);
 
+
     const handlePoiPerDayChange = useCallback((val: number) => {
         hasUserChanges.current = true;
         setPoiPerDay(val);
     }, []);
+
 
     const handleSave = async () => {
         if (!hasUserChanges.current) return;
@@ -66,6 +71,7 @@ export const useRouteConfiguration = (
         onUpdateRoute(updatedRoute);
     };
 
+    
     return {
         bufferSize,
         maxRouteLength,

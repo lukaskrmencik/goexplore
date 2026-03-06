@@ -1,3 +1,6 @@
+{/* --- START: AI-GENERATED UI (Claude 3.7 Sonnet Thinking) --- */}
+{/* Layout and structure generated from design. Data binding and variables added manually. */}
+
 import React from 'react';
 import { useLogin } from '../hooks/useLogin';
 import './LoginPage.css';
@@ -5,6 +8,8 @@ import './LoginPage.css';
 const LoginPage: React.FC = () => {
     const { email, setEmail, password, setPassword, error, isLoading, handleSubmit, navigateToSignup } = useLogin();
 
+    {/* --- START: AI-GENERATED UI (Claude 3.7 Sonnet Thinking) --- */}
+    {/* Layout and structure generated from design. Data binding and variables added manually. */}
     return (
         <div className="auth-container">
             <div className="auth-card">
@@ -55,6 +60,7 @@ const LoginPage: React.FC = () => {
             </div>
         </div>
     );
+    {/* --- END: AI-GENERATED UI --- */}
 };
 
 export default LoginPage;

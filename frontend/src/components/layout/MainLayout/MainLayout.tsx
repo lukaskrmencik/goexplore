@@ -28,6 +28,9 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         navigate('/login');
     };
 
+    {/* --- START: AI-GENERATED UI (Claude 3.7 Sonnet Thinking) --- */}
+    {/* Layout and structure generated from design. Data binding and variables added manually. */}
+
     return (
         <div className="layout-container">
             <MobileTopHeader />
@@ -43,4 +46,6 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             <MobileBottomNav onLogout={handleLogout} />
         </div>
     );
+
+    {/* --- END: AI-GENERATED UI --- */}
 };

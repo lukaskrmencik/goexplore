@@ -11,6 +11,7 @@ import type { MyEquipment } from '../../../../types/equipment';
 import './EquipmentEditor.css';
 
 const EquipmentEditor: React.FC = () => {
+
     const {
         equipmentList,
         isLoading,
@@ -46,6 +47,9 @@ const EquipmentEditor: React.FC = () => {
             setEquipmentIdPendingDeletion(null);
         }
     };
+
+    {/* --- START: AI-GENERATED UI (Gemini 3.1 Pro) --- */}
+    {/* Layout and structure generated from design. Data binding and variables added manually. */}
 
     return (
         <div className="equipment-editor-container">
@@ -126,6 +130,8 @@ const EquipmentEditor: React.FC = () => {
             />
         </div>
     );
+
+    {/* --- END: AI-GENERATED UI --- */}
 };
 
 export default EquipmentEditor;

@@ -15,6 +15,10 @@ const EquipmentSearchTabs: React.FC<EquipmentSearchTabsProps> = ({
     activeTab,
     onTabChange,
 }) => {
+
+    {/* --- START: AI-GENERATED UI (Gemini 3.1 Pro) --- */}
+    {/* Layout and structure generated from design. Data binding and variables added manually. */}
+
     return (
         <div className="route-equipment-editor-warehouse-header">
             <div className="route-equipment-editor-warehouse-title-row">
@@ -54,6 +58,8 @@ const EquipmentSearchTabs: React.FC<EquipmentSearchTabsProps> = ({
             </div>
         </div>
     );
+
+    {/* --- END: AI-GENERATED UI --- */}
 };
 
 export default EquipmentSearchTabs;

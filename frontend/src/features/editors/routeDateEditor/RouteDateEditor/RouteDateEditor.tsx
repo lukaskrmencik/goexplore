@@ -53,14 +53,20 @@ const RouteDateEditor = forwardRef<RouteDateEditorHandle, RouteEditorProps>(({ r
     useEffect(() => {
         const activeDateStr = activeField === 'start' ? startDate : endDate;
         if (!activeDateStr) return;
+
         const timeStr = format(new Date(activeDateStr), "HH:mm");
         const el = document.getElementById(`time-slot-${activeField}-${timeStr}`);
+
         if (el) {
             el.scrollIntoView({ block: 'center', behavior: 'smooth' });
         }
     }, [startDate, endDate, activeField]);
 
+    {/* --- START: AI-GENERATED UI (Claude 3.7 Sonnet Thinking) --- */}
+    {/* Layout and structure generated from design. Data binding and variables added manually. */}
+
     const renderDayContents = useCallback((day: number, date: Date | undefined) => {
+
         if (date && !isInSeason(date)) {
             return (
                 <div className="day-off-season-content">
@@ -70,6 +76,7 @@ const RouteDateEditor = forwardRef<RouteDateEditorHandle, RouteEditorProps>(({ r
             );
         }
         return day;
+
     }, []);
 
     return (
@@ -173,6 +180,8 @@ const RouteDateEditor = forwardRef<RouteDateEditorHandle, RouteEditorProps>(({ r
 
         </div>
     );
+
+    {/* --- END: AI-GENERATED UI --- */}
 });
 
 export default RouteDateEditor;

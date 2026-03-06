@@ -21,7 +21,11 @@ const CalculationErrorHelper: React.FC<CalculationErrorHelperProps> = ({
     onRetry,
     onBack,
 }) => {
+
     const [bufferSize, setBufferSize] = useState<number>(currentBufferSize);
+
+    {/* --- START: AI-GENERATED UI (Claude 3.7 Sonnet Thinking) --- */}
+    {/* Layout and structure generated from design. Data binding and variables added manually. */}
 
     return (
         <div className="error-helper-container">
@@ -93,6 +97,8 @@ const CalculationErrorHelper: React.FC<CalculationErrorHelperProps> = ({
             </div>
         </div>
     );
+
+    {/* --- END: AI-GENERATED UI --- */}
 };
 
 export default CalculationErrorHelper;

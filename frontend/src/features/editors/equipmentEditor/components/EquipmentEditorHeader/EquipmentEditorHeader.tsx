@@ -9,11 +9,15 @@ interface EquipmentEditorHeaderProps {
     onCreateNew: () => void;
 }
 
+{/* --- START: AI-GENERATED UI (Gemini 3.1 Pro) --- */}
+{/* Layout and structure generated from design. Data binding and variables added manually. */}
+
 const EquipmentEditorHeader: React.FC<EquipmentEditorHeaderProps> = ({
     search,
     onSearchChange,
     onCreateNew,
 }) => (
+
     <div className="equipment-editor-header-wrapper">
         <h1 className="equipment-editor-title">Moje vybavení</h1>
         <div className="equipment-editor-search-wrapper">
@@ -34,5 +38,7 @@ const EquipmentEditorHeader: React.FC<EquipmentEditorHeaderProps> = ({
         </div>
     </div>
 );
+
+{/* --- END: AI-GENERATED UI --- */}
 
 export default EquipmentEditorHeader;

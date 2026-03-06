@@ -60,6 +60,10 @@ const SimpleModePanel: React.FC<SimpleModePanelProps> = ({
         const isInlineInputOpen = activeInlineInputIndex === index;
 
         if (isInlineInputOpen) {
+
+            {/* --- START: AI-GENERATED UI (Gemini 3.1 Pro) --- */}
+            {/* Layout and structure generated from design. Data binding and variables added manually. */}
+
             return (
                 <div key={`gap-${index}`} className="route-axis-editor-gap-input-container">
                     <div className="route-axis-editor-waypoint-add-wrapper">
@@ -193,6 +197,8 @@ const SimpleModePanel: React.FC<SimpleModePanelProps> = ({
             />
         </div>
     );
+
+    {/* --- END: AI-GENERATED UI --- */}
 };
 
 export default SimpleModePanel;

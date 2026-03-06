@@ -12,13 +12,19 @@ interface DateFieldButtonProps {
 const DateFieldButton: React.FC<DateFieldButtonProps> = ({ fieldType, isActive, dateString, onClick }) => {
     const label = fieldType === 'start' ? 'Začátek' : 'Konec';
 
+
     const buttonActiveClass = fieldType === 'start'
         ? (isActive ? 'route-date-editor-button-start-active' : 'route-date-editor-button-start-inactive')
         : (isActive ? 'route-date-editor-button-end-active' : 'route-date-editor-button-end-inactive');
 
+
     const labelActiveClass = fieldType === 'start'
         ? (isActive ? 'route-date-editor-label-start-active' : 'route-date-editor-label-start-inactive')
         : (isActive ? 'route-date-editor-label-end-active' : 'route-date-editor-label-end-inactive');
+
+
+    {/* --- START: AI-GENERATED UI (Claude 3.7 Sonnet Thinking) --- */}
+    {/* Layout and structure generated from design. Data binding and variables added manually. */}
 
     return (
         <button onClick={onClick} className={`route-date-editor-button ${buttonActiveClass}`}>
@@ -35,6 +41,8 @@ const DateFieldButton: React.FC<DateFieldButtonProps> = ({ fieldType, isActive, 
             </div>
         </button>
     );
+
+    {/* --- END: AI-GENERATED UI --- */}
 };
 
 export default DateFieldButton;

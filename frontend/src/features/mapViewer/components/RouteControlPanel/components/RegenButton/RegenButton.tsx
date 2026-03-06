@@ -15,6 +15,9 @@ interface ContentProps {
     isDirty: boolean;
 }
 
+{/* --- START: AI-GENERATED UI (Claude 3.7 Sonnet Thinking) --- */}
+{/* Layout and structure generated from design. Data binding and variables added manually. */}
+
 const RegenButtonContent: React.FC<ContentProps> = ({ isRegenerating, regenProgress, isDirty }) => (
     <>
         <RefreshCw size={18} className={isRegenerating ? 'animate-spin' : ''} />
@@ -62,5 +65,7 @@ const RegenButton: React.FC<RegenButtonProps> = ({ isRegenerating, regenProgress
         )}
     </button>
 );
+
+{/* --- END: AI-GENERATED UI --- */}
 
 export default RegenButton;

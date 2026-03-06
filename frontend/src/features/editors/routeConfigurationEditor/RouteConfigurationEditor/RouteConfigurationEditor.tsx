@@ -11,6 +11,7 @@ const ROUTE_LENGTH_MIN = Number(import.meta.env.VITE_CONFIG_ROUTE_LENGTH_MIN_KM 
 const ROUTE_LENGTH_MAX = Number(import.meta.env.VITE_CONFIG_ROUTE_LENGTH_MAX_KM ?? "1000");
 const POI_MIN = Number(import.meta.env.VITE_CONFIG_POI_PER_DAY_MIN ?? "1");
 const POI_MAX = Number(import.meta.env.VITE_CONFIG_POI_PER_DAY_MAX ?? "6");
+
 const RouteConfigurationEditor = forwardRef<RouteConfigurationEditorHandle, RouteEditorProps>(({ route, onUpdate, onChange, estimatedRoadKm = 0 }, ref) => {
     const {
         bufferSize,
@@ -25,15 +26,20 @@ const RouteConfigurationEditor = forwardRef<RouteConfigurationEditorHandle, Rout
 
     const isSimpleMode = route.mode === 'simple';
 
+
     useEffect(() => {
         onChange?.();
     }, [bufferSize, maxRouteLength, poiPerDay, onChange]);
+
 
     useImperativeHandle(ref, () => ({
         save: async () => {
             await handleSave();
         },
     }));
+
+    {/* --- START: AI-GENERATED UI (Claude 3.7 Sonnet Thinking) --- */}
+    {/* Layout and structure generated from design. Data binding and variables added manually. */}
 
     return (
         <div className="route-config-editor-container">
@@ -91,6 +97,8 @@ const RouteConfigurationEditor = forwardRef<RouteConfigurationEditorHandle, Rout
             </div>
         </div>
     );
+
+    {/* --- END: AI-GENERATED UI --- */}
 });
 
 export default RouteConfigurationEditor;

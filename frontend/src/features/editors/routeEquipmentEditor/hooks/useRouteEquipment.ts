@@ -16,8 +16,11 @@ import {
 import { fetchMyUser } from "../../../../services/usersApiService";
 import { getErrorMessage } from "../../../../utils/apiError";
 
+
+
 const PER_PAGE = Number(import.meta.env.VITE_EQUIPMENT_PER_PAGE ?? "12");
 const EQUIPMENT_SEARCH_DEBOUNCE = Number(import.meta.env.VITE_EQUIPMENT_SEARCH_DEBOUNCE ?? "300");
+
 
 export interface ResolvedSelectedEquipmentItem {
     pivotId: number;
@@ -26,24 +29,31 @@ export interface ResolvedSelectedEquipmentItem {
     equipmentId: number;
 }
 
+
 function resolveSelectedEquipmentItemDisplay(
     item: NonNullable<Route['equipment']>[0],
     myList: MyEquipment[],
     generalList: GeneralEquipment[]
+
 ): GeneralEquipment | MyEquipment {
+
     const isMy = !!item.my_equipment_id;
 
     if (isMy && item.my_equipment) return item.my_equipment as MyEquipment;
+
     if (!isMy && item.general_equipment) return item.general_equipment as GeneralEquipment;
+
     if (isMy) {
         const found = myList.find(m => m.id === item.my_equipment_id);
         if (found) return found;
+
     } else {
         const found = generalList.find(g => g.id === item.general_equipment_id);
         if (found) return found;
     }
 
     const fallbackId = isMy ? item.my_equipment_id! : item.general_equipment_id!;
+
     return {
         id: fallbackId,
         name: item.name || "Unknown Item",
@@ -52,10 +62,12 @@ function resolveSelectedEquipmentItemDisplay(
         general_specifications: {},
         created_at: null,
         updated_at: null,
+
     } as GeneralEquipment;
 }
 
 export const useRouteEquipment = (route: Route, onUpdate: (route: Route) => void) => {
+
     const [generalList, setGeneralList] = useState<GeneralEquipment[]>([]);
     const [myList, setMyList] = useState<MyEquipment[]>([]);
     const [generalMeta, setGeneralMeta] = useState<PaginationMeta>({ page: 1, total_pages: 1, total_items: 0 });
@@ -78,13 +90,16 @@ export const useRouteEquipment = (route: Route, onUpdate: (route: Route) => void
 
     const loadLists = useCallback(async (silent = false) => {
         if (!silent) setIsLoading(true);
+
         try {
             const [genRes, myRes] = await Promise.all([
                 fetchGeneralEquipment(generalPage, search, PER_PAGE),
                 fetchAvailableRouteEquipment(route.id, myPage, search, PER_PAGE)
             ]);
+
             setGeneralList(genRes.data || []);
             setMyList(myRes.data || []);
+
             if (genRes.meta) {
                 setGeneralMeta({
                     page: genRes.meta.page ?? 1,
@@ -92,6 +107,7 @@ export const useRouteEquipment = (route: Route, onUpdate: (route: Route) => void
                     total_items: genRes.meta.total_items ?? 0
                 });
             }
+
             if (myRes.meta) {
                 setMyMeta({
                     page: myRes.meta.page ?? 1,
@@ -99,10 +115,13 @@ export const useRouteEquipment = (route: Route, onUpdate: (route: Route) => void
                     total_items: myRes.meta.total_items ?? 0
                 });
             }
+
         } catch {
+
         } finally {
             if (!silent) setIsLoading(false);
         }
+
     }, [search, route.id, generalPage, myPage]);
 
     useEffect(() => {
@@ -116,8 +135,10 @@ export const useRouteEquipment = (route: Route, onUpdate: (route: Route) => void
     }, [loadLists]);
 
     const handleToggleItem = async (type: EquipmentType, id: number, isCurrentlyAdded: boolean) => {
+
         setProcessingId(id);
         setError(null);
+
         try {
             if (isCurrentlyAdded) {
                 await removeEquipmentFromRoute(route.id, type, id);
@@ -126,14 +147,17 @@ export const useRouteEquipment = (route: Route, onUpdate: (route: Route) => void
             }
             const updatedRoute = await fetchGetRoute(route.id);
             onUpdate(updatedRoute);
+
         } catch (err) {
             setError(getErrorMessage(err, "Akce se nezdařila."));
+
         } finally {
             setProcessingId(null);
         }
     };
 
     const handleEquipmentCreated = async (newEquipment: MyEquipment) => {
+
         setError(null);
         try {
             await loadLists();
@@ -144,12 +168,14 @@ export const useRouteEquipment = (route: Route, onUpdate: (route: Route) => void
                 const updatedRoute = await fetchGetRoute(route.id);
                 onUpdate(updatedRoute);
             }
+
         } catch {
             setError("Nepodařilo se přidat nové vybavení do trasy.");
         }
     };
 
     const handleDeleteMyEquipment = async (id: number) => {
+
         setProcessingId(id);
         try {
             await deleteMyEquipment(id);
@@ -163,7 +189,7 @@ export const useRouteEquipment = (route: Route, onUpdate: (route: Route) => void
         }
     };
 
-    const availableGeneral = useMemo(() =>
+    const availableGeneral = useMemo(() => 
         generalList.filter(item => item.name.toLowerCase().includes(search.toLowerCase())),
         [generalList, search]
     );
@@ -182,9 +208,11 @@ export const useRouteEquipment = (route: Route, onUpdate: (route: Route) => void
 
     const resolvedSelectedEquipmentItems: ResolvedSelectedEquipmentItem[] = useMemo(() =>
         (route.equipment || []).map(item => {
+
             const isMy = !!item.my_equipment_id;
             const equipmentType: EquipmentType = isMy ? 'my' : 'general';
             const equipmentId = isMy ? item.my_equipment_id! : item.general_equipment_id!;
+            
             return {
                 pivotId: item.id,
                 displayItem: resolveSelectedEquipmentItemDisplay(item, myList, generalList),

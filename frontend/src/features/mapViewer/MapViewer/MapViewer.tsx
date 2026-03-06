@@ -77,9 +77,13 @@ const MapViewer: React.FC = () => {
         return () => clearInterval(interval);
     }, [route?.id, route?.complete_route, activeEditor, isRegenerating, refetch]);
 
+
     if (!route) return <div className="map-viewer-loading"><Loader2 className="map-viewer-spinner" /></div>;
 
     if (!route.complete_route && !activeEditor) return <RouteGeneratingPlaceholder />;
+
+    {/* --- START: AI-GENERATED UI (Claude 3.7 Sonnet Thinking) --- */}
+    {/* Layout and structure generated from design. Data binding and variables added manually. */}
 
     return (
         <>
@@ -146,5 +150,7 @@ const MapViewer: React.FC = () => {
         </>
     );
 };
+
+{/* --- END: AI-GENERATED UI --- */}
 
 export default MapViewer;

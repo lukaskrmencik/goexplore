@@ -18,6 +18,9 @@ const DetailSidebar: React.FC<DetailSidebarProps> = ({ type, id, onClose }) => {
 
     const isOpen = !!(type && id);
 
+    {/* --- START: AI-GENERATED UI (Claude 3.7 Sonnet Thinking) --- */}
+    {/* Layout and structure generated from design. Data binding and variables added manually. */}
+
     return (
         <div className={`detail-sidebar-container ${isOpen ? 'detail-sidebar-container-open' : 'detail-sidebar-container-closed'}`}>
             <div className="detail-sidebar-header">
@@ -128,6 +131,8 @@ const DetailSidebar: React.FC<DetailSidebarProps> = ({ type, id, onClose }) => {
             </div>
         </div>
     );
+
+    {/* --- END: AI-GENERATED UI --- */}
 };
 
 export default DetailSidebar;

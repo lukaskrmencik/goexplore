@@ -8,6 +8,7 @@ interface LeafletMapProps {
 }
 
 const LeafletMap: React.FC<LeafletMapProps> = ({ children }) => {
+
 	return (
 		<MapContainer
 			center={MAP_CONFIG.defaultCenter}

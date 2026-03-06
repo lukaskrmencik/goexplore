@@ -88,6 +88,9 @@ const RouteAxisEditor = forwardRef<RouteAxisEditorHandle, RouteEditorProps>(({ r
     const isManualMode = route.mode === 'manual';
     const polylineCoords: LatLngExpression[] = points.map(p => [p.lat, p.lng]);
 
+    {/* --- START: AI-GENERATED UI (Gemini 3.1 Pro) --- */}
+    {/* Layout and structure generated from design. Data binding and variables added manually. */}
+
     return (
         <div className="route-axis-editor-container">
             <div className={`route-axis-editor-sidebar ${isMobileExpanded ? 'route-axis-editor-sidebar-expanded' : 'route-axis-editor-sidebar-collapsed'}`}>
@@ -192,6 +195,8 @@ const RouteAxisEditor = forwardRef<RouteAxisEditorHandle, RouteEditorProps>(({ r
             </div>
         </div>
     );
+
+    {/* --- END: AI-GENERATED UI --- */}
 });
 
 export default RouteAxisEditor;

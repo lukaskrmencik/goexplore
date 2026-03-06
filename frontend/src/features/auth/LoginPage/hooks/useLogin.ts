@@ -5,6 +5,7 @@ import { AUTH_TOKEN_KEY } from '../../../../utils/auth';
 import { getErrorMessage } from '../../../../utils/apiError';
 
 export const useLogin = () => {
+
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const [email, setEmail] = useState('');
@@ -14,7 +15,8 @@ export const useLogin = () => {
 
     const redirectPath = searchParams.get('redirect') || '/';
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.SubmitEvent) => {
+
         e.preventDefault();
         setError(null);
         setIsLoading(true);
@@ -26,13 +28,16 @@ export const useLogin = () => {
                 localStorage.setItem(AUTH_TOKEN_KEY, token);
                 navigate(redirectPath);
             } else {
-                setError('Nepodařilo se najít token v odpovědi.');
+                setError('Nepodařilo se přihlásit. Zkuste to znovu později.');
             }
+
         } catch (err) {
             setError(getErrorMessage(err, 'Neplatný e-mail nebo heslo.'));
+
         } finally {
             setIsLoading(false);
         }
+
     };
 
     const navigateToSignup = () => {

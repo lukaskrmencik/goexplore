@@ -1,13 +1,17 @@
+/* * ==========================================================================
+ * AI-GENERATED FILE (Claude 3.7 Sonnet Thinking)
+ * The styling in this file was fully generated based on the UI design mockups.
+ * ==========================================================================
+ */
+
+
 .create-route-loading {
     display: flex;
     height: 50vh;
-
     align-items: center;
     justify-content: center;
     color: var(--color-neutral-500);
-
     font-weight: 700;
-
     animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 
 }
@@ -27,9 +31,7 @@
 .create-route-container {
     position: fixed;
     top: 3.5rem;
-
     bottom: 60px;
-
     left: 0;
     right: 0;
     z-index: 40;
@@ -103,13 +105,9 @@
 @media (min-width: 768px) {
     .create-route-main-content {
         border-radius: var(--radius-3xl);
-
         border: 1px solid var(--color-neutral-200);
-
         box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-
         overflow: hidden;
-
     }
 }
 

@@ -28,6 +28,7 @@ const RoutesGrid: React.FC<RoutesGridProps> = ({
     onDeleteRoute,
     onUnjoinRoute,
 }) => {
+
     const navigate = useNavigate();
 
     if (isLoading) {
@@ -43,6 +44,9 @@ const RoutesGrid: React.FC<RoutesGridProps> = ({
     if (error) {
         return <div className="routes-list-editor-error">{error}</div>;
     }
+
+    {/* --- START: AI-GENERATED UI (Claude 3.7 Sonnet Thinking) --- */}
+    {/* Layout and structure generated from design. Data binding and variables added manually. */}
 
     return (
         <div className="routes-list-editor-content-wrapper">
@@ -95,6 +99,8 @@ const RoutesGrid: React.FC<RoutesGridProps> = ({
             )}
         </div>
     );
+
+    {/* --- END: AI-GENERATED UI --- */}
 };
 
 export default RoutesGrid;

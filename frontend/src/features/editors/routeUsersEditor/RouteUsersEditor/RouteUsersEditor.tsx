@@ -24,6 +24,9 @@ const RouteUsersEditor: React.FC<RouteEditorProps> = ({ route, onUpdate }) => {
     const [isCrewPanelOpen, setIsCrewPanelOpen] = useState(false);
     const [userIdPendingRemoval, setUserIdPendingRemoval] = useState<number | null>(null);
 
+    {/* --- START: AI-GENERATED UI (Claude 3.7 Sonnet Thinking) --- */}
+    {/* Layout and structure generated from design. Data binding and variables added manually. */}
+
     return (
         <div className="route-users-editor-container">
 
@@ -103,6 +106,8 @@ const RouteUsersEditor: React.FC<RouteEditorProps> = ({ route, onUpdate }) => {
             />
         </div>
     );
+
+    {/* --- END: AI-GENERATED UI --- */}
 };
 
 export default RouteUsersEditor;

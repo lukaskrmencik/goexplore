@@ -11,6 +11,9 @@ interface PersonalDataFormProps {
     onSave: (e: React.FormEvent) => void;
 }
 
+{/* --- START: AI-GENERATED UI (Gemini 3.1 Pro) --- */}
+{/* Layout and structure generated from design. Data binding and variables added manually. */}
+
 const PersonalDataForm: React.FC<PersonalDataFormProps> = ({
     user,
     name,
@@ -52,5 +55,7 @@ const PersonalDataForm: React.FC<PersonalDataFormProps> = ({
         </form>
     </div>
 );
+
+{/* --- END: AI-GENERATED UI --- */}
 
 export default PersonalDataForm;

@@ -19,6 +19,9 @@ const InviteDetailsSection: React.FC<InviteDetailsSectionProps> = ({ isFetchingD
 
   if (!inviteDetails) return null;
 
+{/* --- START: AI-GENERATED UI (Claude 3.7 Sonnet Thinking) --- */}
+{/* Layout and structure generated from design. Data binding and variables added manually. */}
+
   return (
     <div className="join-route-details-box">
       <div className="join-route-detail-item">
@@ -38,6 +41,8 @@ const InviteDetailsSection: React.FC<InviteDetailsSectionProps> = ({ isFetchingD
       </div>
     </div>
   );
+
+  {/* --- END: AI-GENERATED UI --- */}
 };
 
 export default InviteDetailsSection;

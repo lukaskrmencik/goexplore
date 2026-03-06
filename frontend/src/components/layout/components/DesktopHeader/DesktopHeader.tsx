@@ -19,6 +19,9 @@ const DesktopHeader: React.FC<DesktopHeaderProps> = ({ currentUser }) => {
     const navigate = useNavigate();
     const location = useLocation();
 
+    {/* --- START: AI-GENERATED UI (Claude 3.7 Sonnet Thinking) --- */}
+    {/* Layout and structure generated from design. Data binding and variables added manually. */}
+
     return (
         <div className="desktop-header">
             <div className="desktop-header-content">
@@ -56,6 +59,8 @@ const DesktopHeader: React.FC<DesktopHeaderProps> = ({ currentUser }) => {
             </div>
         </div>
     );
+
+    {/* --- END: AI-GENERATED UI --- */}
 };
 
 export default DesktopHeader;

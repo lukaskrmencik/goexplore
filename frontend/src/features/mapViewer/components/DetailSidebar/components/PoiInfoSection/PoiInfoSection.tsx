@@ -21,6 +21,9 @@ const OpeningHoursItem: React.FC<{ oh: OpeningHours }> = ({ oh }) => {
         }))
         .sort((a, b) => a.dayNum - b.dayNum);
 
+    {/* --- START: AI-GENERATED UI (Claude 3.7 Sonnet Thinking) --- */}
+    {/* Layout and structure generated from design. Data binding and variables added manually. */}
+    
     return (
         <div className="detail-sidebar-oh-item">
             <button
@@ -95,5 +98,7 @@ const PoiInfoSection: React.FC<PoiInfoSectionProps> = ({ data }) => (
         )}
     </div>
 );
+
+{/* --- END: AI-GENERATED UI --- */}
 
 export default PoiInfoSection;

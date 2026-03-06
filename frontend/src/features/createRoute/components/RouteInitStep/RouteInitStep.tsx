@@ -11,6 +11,9 @@ interface RouteInitStepProps {
 const RouteInitStep: React.FC<RouteInitStepProps> = ({ onInitialize }) => {
     const [routeName, setRouteName] = useState("");
 
+    {/* --- START: AI-GENERATED UI (Claude 3.7 Sonnet Thinking) --- */}
+    {/* Layout and structure generated from design. Data binding and variables added manually. */}
+
     return (
         <div className="route-init-container">
             <div className="route-init-content">
@@ -74,6 +77,8 @@ const RouteInitStep: React.FC<RouteInitStepProps> = ({ onInitialize }) => {
             </div>
         </div>
     );
+
+    {/* --- END: AI-GENERATED UI --- */}
 };
 
 export default RouteInitStep;

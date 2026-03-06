@@ -55,6 +55,9 @@ const RouteControlPanel: React.FC<RouteControlPanelProps> = ({
         }, 250);
     };
 
+    {/* --- START: AI-GENERATED UI (Claude 3.7 Sonnet Thinking) --- */}
+    {/* Layout and structure generated from design. Data binding and variables added manually. */}
+
     return (
         <>
             <div className="route-control-panel-desktop-wrapper">
@@ -104,6 +107,8 @@ const RouteControlPanel: React.FC<RouteControlPanelProps> = ({
             )}
         </>
     );
+
+    {/* --- END: AI-GENERATED UI --- */}
 };
 
 export default RouteControlPanel;

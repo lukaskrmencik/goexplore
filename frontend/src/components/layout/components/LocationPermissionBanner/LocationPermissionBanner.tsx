@@ -7,6 +7,9 @@ interface LocationPermissionBannerProps {
 }
 
 const LocationPermissionBanner: React.FC<LocationPermissionBannerProps> = ({ onRequestPermission }) => {
+
+    {/* --- START: AI-GENERATED UI (Gemini 3.1 Pro) --- */}
+    {/* Layout and structure generated from design. Data binding and variables added manually. */}
     return (
         <div className="location-permission-banner">
             <div className="location-permission-content">
@@ -18,6 +21,7 @@ const LocationPermissionBanner: React.FC<LocationPermissionBannerProps> = ({ onR
             </button>
         </div>
     );
+    {/* --- END: AI-GENERATED UI --- */}
 };
 
 export default LocationPermissionBanner;

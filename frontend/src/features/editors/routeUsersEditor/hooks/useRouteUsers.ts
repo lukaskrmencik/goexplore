@@ -9,7 +9,9 @@ import {
 import { fetchMyUser } from "../../../../services/usersApiService";
 import { getErrorMessage } from "../../../../utils/apiError";
 
+
 const ROUTE_USERS_POLLING_INTERVAL = Number(import.meta.env.VITE_ROUTE_USERS_POLLING_INTERVAL ?? "5000");
+
 
 export const useRouteUsers = (route: Route, onUpdateRoute: (route: Route) => void) => {
     const [inviteLink, setInviteLink] = useState<string | null>(null);
@@ -18,11 +20,13 @@ export const useRouteUsers = (route: Route, onUpdateRoute: (route: Route) => voi
     const [isRemovingId, setIsRemovingId] = useState<number | null>(null);
     const [currentUserId, setCurrentUserId] = useState<number>(0);
 
+
     useEffect(() => {
         fetchMyUser()
             .then(user => setCurrentUserId(user.id))
             .catch(() => {});
     }, []);
+
 
     useEffect(() => {
         if (!route.id) return;
@@ -30,6 +34,7 @@ export const useRouteUsers = (route: Route, onUpdateRoute: (route: Route) => voi
             .then(onUpdateRoute)
             .catch(() => {});
     }, [route.id, onUpdateRoute]);
+
 
     const generateInviteLink = useCallback(async () => {
         setIsGenerating(true);
@@ -45,9 +50,11 @@ export const useRouteUsers = (route: Route, onUpdateRoute: (route: Route) => voi
         }
     }, [route.id]);
 
+
     useEffect(() => {
         generateInviteLink();
     }, [generateInviteLink]);
+
 
     useEffect(() => {
         const intervalId = setInterval(async () => {
@@ -60,18 +67,23 @@ export const useRouteUsers = (route: Route, onUpdateRoute: (route: Route) => voi
             }
         }, ROUTE_USERS_POLLING_INTERVAL);
 
+
         return () => clearInterval(intervalId);
     }, [route.id, route.users, onUpdateRoute]);
+
 
     const removeUser = async (userId: number) => {
         setIsRemovingId(userId);
         setError(null);
+
         try {
             await removeUserFromRoute(route.id, userId);
             const updatedRoute = await fetchGetRoute(route.id);
             onUpdateRoute(updatedRoute);
+            
         } catch (err) {
             setError(getErrorMessage(err, "Nepodařilo se odebrat uživatele."));
+
         } finally {
             setIsRemovingId(null);
         }

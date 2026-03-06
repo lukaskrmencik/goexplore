@@ -28,6 +28,7 @@ const RouteGenerating: React.FC<RouteGeneratingProps> = ({
     onRetry,
     onBack,
 }) => {
+    
     if (error) {
         return (
             <CalculationErrorHelper
@@ -39,6 +40,9 @@ const RouteGenerating: React.FC<RouteGeneratingProps> = ({
             />
         );
     }
+
+    {/* --- START: AI-GENERATED UI (Claude 3.7 Sonnet Thinking) --- */}
+    {/* Layout and structure generated from design. Data binding and variables added manually. */}
 
     return (
         <div className="route-generating-container">
@@ -65,6 +69,8 @@ const RouteGenerating: React.FC<RouteGeneratingProps> = ({
             </div>
         </div>
     );
+
+    {/* --- END: AI-GENERATED UI --- */}
 };
 
 export default RouteGenerating;

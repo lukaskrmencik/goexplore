@@ -5,6 +5,7 @@ function extractPoisAndClusters(route: Route): { pois: RoutePoi[]; clusters: Rou
     const pois: RoutePoi[] = [];
     const clusters: RouteCluster[] = [];
 
+
     for (const poiWrapper of route.poi) {
         if (poiWrapper.type === "cluster") {
             if (poiWrapper.cluster) clusters.push(poiWrapper.cluster);

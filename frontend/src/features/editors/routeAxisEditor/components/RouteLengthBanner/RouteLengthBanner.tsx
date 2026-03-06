@@ -10,6 +10,9 @@ const RouteLengthBanner: React.FC<RouteLengthBannerProps> = ({ estimatedKm, mini
 
     const isAboveMinimum = estimatedKm >= minimumRequiredKm;
 
+    {/* --- START: AI-GENERATED UI (Gemini 3.1 Pro) --- */}
+    {/* Layout and structure generated from design. Data binding and variables added manually. */}
+
     return (
         <div className={`route-axis-editor-length-banner ${isAboveMinimum ? 'route-axis-editor-length-banner-ok' : 'route-axis-editor-length-banner-warn'}`}>
             <span>
@@ -22,6 +25,8 @@ const RouteLengthBanner: React.FC<RouteLengthBannerProps> = ({ estimatedKm, mini
             </span>
         </div>
     );
+
+    {/* --- END: AI-GENERATED UI --- */}
 };
 
 export default RouteLengthBanner;

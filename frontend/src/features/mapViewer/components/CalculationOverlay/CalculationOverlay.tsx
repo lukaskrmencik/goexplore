@@ -21,6 +21,9 @@ const CalculationOverlay: React.FC<CalculationOverlayProps> = ({
 }) => {
     if (!isVisible) return null;
 
+    {/* --- START: AI-GENERATED UI (Claude 3.7 Sonnet Thinking) --- */}
+    {/* Layout and structure generated from design. Data binding and variables added manually. */}
+
     return (
         <div className="calc-overlay-container">
             <div className="calc-overlay-card">
@@ -68,6 +71,8 @@ const CalculationOverlay: React.FC<CalculationOverlayProps> = ({
             </div>
         </div>
     );
+
+    {/* --- END: AI-GENERATED UI --- */}
 };
 
 export default CalculationOverlay;
