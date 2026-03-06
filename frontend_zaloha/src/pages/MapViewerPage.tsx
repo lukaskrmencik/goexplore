@@ -117,17 +117,13 @@ const MapViewerPage: React.FC = () => {
     setRegenProgress(0);
     setRegenStatus("Spouštím výpočet...");
 
-    console.log("Starting regeneration for route:", route.id); // DEBUG
-
     try {
       const jobId = await calculateRoute(route.id);
-      console.log("Job started, ID:", jobId); // DEBUG
 
       // Poll
       const interval = setInterval(async () => {
         try {
           const progress = await getCalculationProgress(jobId);
-          console.log("Poll progress:", progress); // DEBUG
 
           if (progress.status) setRegenStatus(progress.status);
 
@@ -137,7 +133,6 @@ const MapViewerPage: React.FC = () => {
           // Fix: API returns 'status' as 'done', not 'state' as 'completed'
           if (progress.status === 'done') {
             clearInterval(interval);
-            console.log("Calculation completed!"); // DEBUG
             setRegenProgress(100);
 
             // Short delay to show 100%

@@ -10,7 +10,6 @@ export const testToken = async (): Promise<string | null> => {
     const token = response.data.data.token;
     if (token) {
       localStorage.setItem("token", token);
-      console.log("Token uložen do localStorage:", token);
       return token;
     } else {
       console.error("Token nebyl vrácen");

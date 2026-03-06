@@ -1,3 +1,5 @@
+// UNFINISHED FILE FOR PREFETCHING
+
 import { AUTH_TOKEN_KEY } from '../utils/auth';
 import apiClient from "./apiClient";
 import type { ApiResponse, PaginatedResponse } from "../types/general";
@@ -35,8 +37,6 @@ export const runPwaPrefetch = async (): Promise<void> => {
 
   if (!hasToken) return;
 
-  console.log('PWA: Zahajuji kompletní synchronizaci všech stránek...');
-
   try {
     const syncTasks = [
       fetchAllPages("/routes/list", { per_page: import.meta.env.VITE_ROUTES_PER_PAGE }),
@@ -45,8 +45,6 @@ export const runPwaPrefetch = async (): Promise<void> => {
     ];
 
     await Promise.all(syncTasks);
-    console.log('PWA: Kompletní prefetch všech dat úspěšně dokončen.');
   } catch (error) {
-    console.error('PWA: Celková synchronizace selhala', error);
   }
 };

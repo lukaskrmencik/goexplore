@@ -189,7 +189,6 @@ export const useCreateRoute = () => {
 
                     // RETRY LOGIC FOR SIMPLE MODE
                     if (currentRetryStage !== -1 && currentRetryStage < SIMPLE_MODE_CONFIG.BUFFER_RETRY_STAGES.length - 1) {
-                        console.log(`Calculation failed at stage ${currentRetryStage}. Retrying with next stage...`);
                         setRetryStage(prev => prev + 1);
                         // Trigger next attempt immediately
                         // We need to use recursion carefully or useEffect. 

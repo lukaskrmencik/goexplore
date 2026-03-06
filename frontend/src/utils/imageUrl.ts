@@ -5,7 +5,7 @@ export const getImageUrl = (path: string | null | undefined): string | null => {
         return path;
     }
 
-    const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+    const baseUrl = import.meta.env.VITE_API_URL;
     const cleanBaseUrl = baseUrl.endsWith("/api") ? baseUrl.slice(0, -4) : baseUrl;
 
     return `${cleanBaseUrl}/storage/${path}`;
